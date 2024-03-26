@@ -31,6 +31,7 @@
     "typecheck": "tsc --noEmit",
     "lint": "eslint \"**/*.{js,ts,tsx}\"",
     "clean": "del-cli android/build example/android/build example/android/app/build example/ios/build lib",
+    "codegen-example": "node example/node_modules/react-native/scripts/generate-codegen-artifacts.js --path example/ --outputPath RTNDevConsole/generated/",
     "prepare": "bob build",
     "release": "release-it"
   },
@@ -43,7 +44,7 @@
     "type": "git",
     "url": "git+https://github.com/TheTekton337/rtn-dev-console.git"
   },
-  "author": "Terrance Wood <thetekton337@ixqus.com> (https://github.com/TheTekton337)",
+  "author": "TJW <thetekton337@ixqus.com> (https://github.com/TheTekton337)",
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/TheTekton337/rtn-dev-console/issues"

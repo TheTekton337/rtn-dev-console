@@ -1,5 +1,3 @@
-ENV['RCT_NEW_ARCH_ENABLED'] = '1'
-
 # Resolve react_native_pods.rb with node to allow for hoisting
 require Pod::Executable.execute_command('node', ['-p',
   'require.resolve(
@@ -27,6 +25,8 @@ if linkage != nil
   use_frameworks! :linkage => linkage.to_sym
 end
 
+use_modular_headers!
+
 target 'RtnDevConsoleExample' do
   config = use_native_modules!
 
@@ -40,6 +40,15 @@ target 'RtnDevConsoleExample' do
     # An absolute path to your application root.
     :app_path => "#{Pod::Config.instance.installation_root}/.."
   )
+
+  # Cocoapods doesn't use a podspec's spec.source when the podfile dep uses :git/:path
+  # See: https://github.com/CocoaPods/CocoaPods/issues/11255#issuecomment-1475314728
+  pod 'CSSH', :podspec => 'https://github.com/TheTekton337/Libssh2Prebuild/raw/master/CSSH.podspec'
+
+  pod 'CSwiftSH', :git => 'https://github.com/TheTekton337/SwiftSH.git', :branch =>'master'
+  pod 'SwiftSH', :git => 'https://github.com/TheTekton337/SwiftSH.git', :branch =>'master'
+  
+  pod 'SwiftTerm', :git => 'https://github.com/TheTekton337/SwiftTerm.git', :branch =>'podspec'
 
   target 'RtnDevConsoleExampleTests' do
     inherit! :complete

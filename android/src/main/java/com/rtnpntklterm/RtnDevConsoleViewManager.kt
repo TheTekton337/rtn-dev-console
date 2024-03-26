@@ -2,26 +2,13 @@ package com.rtndevconsole
 
 import android.graphics.Color
 import com.facebook.react.module.annotations.ReactModule
-import com.facebook.react.uimanager.SimpleViewManager
+import com.facebook.react.bridge.ReactApplicationContext
 import com.facebook.react.uimanager.ThemedReactContext
-import com.facebook.react.uimanager.ViewManagerDelegate
 import com.facebook.react.uimanager.annotations.ReactProp
-import com.facebook.react.viewmanagers.RtnDevConsoleViewManagerInterface
-import com.facebook.react.viewmanagers.RtnDevConsoleViewManagerDelegate
 
 @ReactModule(name = RtnDevConsoleViewManager.NAME)
-class RtnDevConsoleViewManager : SimpleViewManager<RtnDevConsoleView>(),
-  RtnDevConsoleViewManagerInterface<RtnDevConsoleView> {
-  private val mDelegate: ViewManagerDelegate<RtnDevConsoleView>
-
-  init {
-    mDelegate = RtnDevConsoleViewManagerDelegate(this)
-  }
-
-  override fun getDelegate(): ViewManagerDelegate<RtnDevConsoleView>? {
-    return mDelegate
-  }
-
+class RtnDevConsoleViewManager :
+  RtnDevConsoleViewManagerSpec<RtnDevConsoleView>() {
   override fun getName(): String {
     return NAME
   }

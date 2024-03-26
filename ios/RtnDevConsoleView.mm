@@ -1,3 +1,4 @@
+#ifdef RCT_NEW_ARCH_ENABLED
 #import "RtnDevConsoleView.h"
 
 #import <react/renderer/components/RNRtnDevConsoleViewSpec/ComponentDescriptors.h>
@@ -6,6 +7,11 @@
 #import <react/renderer/components/RNRtnDevConsoleViewSpec/RCTComponentViewHelpers.h>
 
 #import "RCTFabricComponentsPlugins.h"
+#import "Utils.h"
+
+#import <SwiftTerm/SwiftTerm-Swift.h>
+#import <SwiftSH/SwiftSH-Swift.h>
+#import <rtn_pntkl_term/rtn_pntkl_term-Swift.h>
 
 using namespace facebook::react;
 
@@ -14,7 +20,13 @@ using namespace facebook::react;
 @end
 
 @implementation RtnDevConsoleView {
-    UIView * _view;
+    SshTerminalView *_sshTerminalView;
+    NSString * _fontColor;
+    NSInteger _fontSize;
+    NSString * _fontFamily;
+    NSString * _backgroundColor;
+    NSString * _cursorColor;
+    NSInteger _scrollbackLines;
 }
 
 + (ComponentDescriptorProvider)componentDescriptorProvider
@@ -28,9 +40,18 @@ using namespace facebook::react;
     static const auto defaultProps = std::make_shared<const RtnDevConsoleViewProps>();
     _props = defaultProps;
 
-    _view = [[UIView alloc] init];
+    const auto &newViewProps = *std::static_pointer_cast<RtnDevConsoleViewProps const>(_props);
 
-    self.contentView = _view;
+    _fontColor = [[NSString alloc] initWithUTF8String: newViewProps.fontColor.c_str()];
+    _fontSize = (NSInteger)newViewProps.fontSize;
+    _fontFamily = [[NSString alloc] initWithUTF8String: newViewProps.fontFamily.c_str()];
+    _backgroundColor = [[NSString alloc] initWithUTF8String: newViewProps.backgroundColor.c_str()];;
+    _cursorColor = [[NSString alloc] initWithUTF8String: newViewProps.cursorColor.c_str()];;
+    _scrollbackLines = (NSInteger)newViewProps.scrollbackLines;
+
+    _sshTerminalView = [SshTerminalView new];
+
+    self.contentView = _sshTerminalView;
   }
 
   return self;
@@ -42,11 +63,27 @@ using namespace facebook::react;
     const auto &newViewProps = *std::static_pointer_cast<RtnDevConsoleViewProps const>(props);
 
     if (oldViewProps.color != newViewProps.color) {
-        NSString * colorToConvert = [[NSString alloc] initWithUTF8String: newViewProps.color.c_str()];
-        [_view setBackgroundColor:[self hexStringToColor:colorToConvert]];
+        // TODO: Flesh out props.
+        // NSString * colorToConvert = [[NSString alloc] initWithUTF8String: newViewProps.color.c_str()];
+        // [_view setBackgroundColor: [Utils hexStringToColor:colorToConvert]];
     }
 
     [super updateProps:props oldProps:oldProps];
+}
+
+// TODO: Flesh out events.
+- (void)handleDataReceived:(NSString *)data
+{
+    // if (self.onDataReceived) {
+    //     self.onDataReceived(@{@"data": data});
+    // }
+}
+
+- (void)handleSizeChangedWithCols:(NSInteger)cols rows:(NSInteger)rows
+{
+    // if (self.onSizeChanged) {
+    //     self.onSizeChanged(@{@"cols": @(cols), @"rows": @(rows)});
+    // }
 }
 
 Class<RCTComponentViewProtocol> RtnDevConsoleViewCls(void)
@@ -54,18 +91,5 @@ Class<RCTComponentViewProtocol> RtnDevConsoleViewCls(void)
     return RtnDevConsoleView.class;
 }
 
-- hexStringToColor:(NSString *)stringToConvert
-{
-    NSString *noHashString = [stringToConvert stringByReplacingOccurrencesOfString:@"#" withString:@""];
-    NSScanner *stringScanner = [NSScanner scannerWithString:noHashString];
-    
-    unsigned hex;
-    if (![stringScanner scanHexInt:&hex]) return nil;
-    int r = (hex >> 16) & 0xFF;
-    int g = (hex >> 8) & 0xFF;
-    int b = (hex) & 0xFF;
-    
-    return [UIColor colorWithRed:r / 255.0f green:g / 255.0f blue:b / 255.0f alpha:1.0f];
-}
-
 @end
+#endif

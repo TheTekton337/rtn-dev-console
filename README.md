@@ -11,11 +11,11 @@ npm install rtn-dev-console
 ## Usage
 
 ```js
-import { RtnDevConsoleView } from "rtn-dev-console";
+import { RtnDevConsoleView } from 'rtn-dev-console';
 
 // ...
 
-<RtnDevConsoleView color="tomato" />
+<RtnDevConsoleView />;
 ```
 
 ## Contributing
