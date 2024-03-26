@@ -24,6 +24,8 @@ public class SshTerminalView: TerminalView, TerminalViewDelegate {
         super.init(frame: frame)
         terminalDelegate = self
         
+        self.tv.feed(text: "Welcome to SwiftTerm - connecting to my localhost\r\n\n")
+        
         // Initialize the SSH connection
         do {
             try setupSSHConnection()
@@ -90,17 +92,6 @@ public class SshTerminalView: TerminalView, TerminalViewDelegate {
         let arraySlice = byteArray[0..<byteArray.count]
         self.send(source: source, data: arraySlice)
     }
-    
-    // Remaining methods (TerminalViewDelegate conformance) are unchanged
-    // Since the rest of your delegate methods do not directly interact with React Native,
-    // they remain unchanged. However, ensure they are properly documented and clear
-    // in their purpose to maintain readability and maintainability.
-
-    // For React Native Fabric integration:
-    // - You would typically expose this UIView through a manager that bridges UIKit to React Native.
-    // - React Native's codegen can generate necessary bindings for this view, but you need to define it in JS with TurboModule specs or a similar approach, depending on your RN version.
-
-    // Note: Ensure you replace "<#password#>" with a secure way to handle passwords, potentially leveraging iOS's Keychain Services.
     
     @objc
     public func scrolled(source: TerminalView, position: Double) {

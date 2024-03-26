@@ -12,19 +12,10 @@
 
 RCT_EXPORT_MODULE(RtnDevConsoleView)
 
-- (UIView *)view
-{
-  RNTTerminalView *terminalView = [RNTTerminalView new];
-  
-  // Configure your terminal view or set default values here
-  
-  return terminalView;
-}
-
-// - (UIView *)view
-// {
-//   return [[UIView alloc] init];
-// }
+ - (UIView *)view
+ {
+   return [[UIView alloc] init];
+ }
 
 #pragma mark - Exported View Properties
 
