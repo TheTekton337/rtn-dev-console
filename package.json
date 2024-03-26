@@ -1,6 +1,6 @@
 {
   "name": "rtn-dev-console",
-  "version": "0.1.3",
+  "version": "0.1.4",
   "description": "Cross platform terminal Fabric component for react-native using SwiftSH/SwiftTerm (WIP) for iOS and Termux (TODO) for android.",
   "main": "lib/commonjs/index",
   "module": "lib/module/index",
