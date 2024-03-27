@@ -8,22 +8,24 @@ current_version=$(echo $latest_tgz | grep -o -E 'local\.([0-9]+)' | cut -d. -f2)
 next_version=$((current_version + 1))
 
 # Execute the node command to generate codegen artifacts
-node example/node_modules/react-native/scripts/generate-codegen-artifacts.js --path example --outputPath RtnDevConsole/generated/
+# node example/node_modules/react-native/scripts/generate-codegen-artifacts.js --path example --outputPath RtnDevConsole/generated/
+yarn clean
 
 # Pack the current package using yarn
-yarn pack
+#yarn pack
 
 # Rename the packed tgz to the next version
-mv package.tgz rtn-dev-console-0.0.0-local.$next_version.tgz
+#mv package.tgz rtn-dev-console-0.0.0-local.$next_version.tgz
 
 # Navigate to the example directory
 cd example
 
 # Remove the previous version and add the new one
-yarn remove ../rtn-dev-console-0.0.0-local.$current_version.tgz
-yarn add ../rtn-dev-console-0.0.0-local.$next_version.tgz
+#yarn remove ../rtn-dev-console-0.0.0-local.$current_version.tgz
+#yarn add ../rtn-dev-console-0.0.0-local.$next_version.tgz
+yarn
 
 # Run yarn pod-install and yarn ios
 yarn pod-install
-yarn ios
+# yarn ios
 

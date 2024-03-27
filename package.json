@@ -31,7 +31,6 @@
     "typecheck": "tsc --noEmit",
     "lint": "eslint \"**/*.{js,ts,tsx}\"",
     "clean": "del-cli android/build example/android/build example/android/app/build example/ios/build lib",
-    "codegen-example": "node example/node_modules/react-native/scripts/generate-codegen-artifacts.js --path example/ --outputPath RTNDevConsole/generated/",
     "prepare": "bob build",
     "release": "release-it"
   },

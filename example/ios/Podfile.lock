@@ -1097,7 +1097,7 @@ PODS:
     - React-jsi (= 0.73.6)
     - React-logger (= 0.73.6)
     - React-perflogger (= 0.73.6)
-  - rtn-dev-console (0.1.1):
+  - rtn-dev-console (0.1.4):
     - CSSH
     - CSwiftSH
     - glog
@@ -1378,12 +1378,12 @@ SPEC CHECKSUMS:
   React-runtimescheduler: 4fa81221f3bb96df737d682fa828b574bea3827c
   React-utils: a45dd70919baff681d43a4a457e9884ef96b4581
   ReactCommon: e168ee1704806f10f47ee8c7f825b5850b18eaea
-  rtn-dev-console: c28329b8b4727e45d6658a023fff3cf56a100952
+  rtn-dev-console: dbf856309eddcf7dd5720b078e1a91f26753d704
   SocketRocket: f32cd54efbe0f095c4d7594881e52619cfe80b17
   SwiftSH: 4a0f20d52fe65b7d1d0729574d66b11f636de605
   SwiftTerm: 6128b6f27658a30c882c3485df5bc98c8ee99b0a
   Yoga: d17d2cc8105eed528474683b42e2ea310e1daf61
 
-PODFILE CHECKSUM: a282b21727de25655bfd8cf1ee9c3f3d372a7ebb
+PODFILE CHECKSUM: 7e9124e625e2962fd361e5e60c4c18aa057e4282
 
 COCOAPODS: 1.14.3

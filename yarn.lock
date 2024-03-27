@@ -3242,20 +3242,12 @@ __metadata:
   linkType: hard
 
 "@types/react@npm:^18.2.44":
-  version: 18.2.70
-  resolution: "@types/react@npm:18.2.70"
+  version: 18.2.72
+  resolution: "@types/react@npm:18.2.72"
   dependencies:
     "@types/prop-types": "*"
-    "@types/scheduler": "*"
     csstype: ^3.0.2
-  checksum: 4d1160ad2449ce5e96aa795f24f9e3902975cd59e6ce3c79eb674acb1262a54cdb0bc9c9b0aeb858da24e20148a09ec1822c8ed12f70c1c87b779ac2baf72ebd
-  languageName: node
-  linkType: hard
-
-"@types/scheduler@npm:*":
-  version: 0.16.8
-  resolution: "@types/scheduler@npm:0.16.8"
-  checksum: 6c091b096daa490093bf30dd7947cd28e5b2cd612ec93448432b33f724b162587fed9309a0acc104d97b69b1d49a0f3fc755a62282054d62975d53d7fd13472d
+  checksum: 694127e704afd3fe1fefe699c6600d1edbb5a81c9862960f40f3d53d4ea625333199671b25b7f13191bc7fa088e15a4342a3de7fa8a5657a24744b65d6ec95f9
   languageName: node
   linkType: hard
 
@@ -6447,9 +6439,9 @@ __metadata:
   linkType: hard
 
 "flow-parser@npm:0.*":
-  version: 0.231.0
-  resolution: "flow-parser@npm:0.231.0"
-  checksum: 09b62423d9bca3b91a5cfd09c45cb1723156a2c4e78c017ae9d67e9c6a05f152e8fa084576508797bda68b6634fbe70b670e1c094e4e74a8d0362a3d7f19e73b
+  version: 0.232.0
+  resolution: "flow-parser@npm:0.232.0"
+  checksum: 04d7d4258611c6eec3ab8e750b53f18d36d71eb25f07a9d59c952027d36d035efec5a10d26721a6f453ed57aab02be575790d20ddb79842d8659846fc7cb76ba
   languageName: node
   linkType: hard
 
@@ -11376,11 +11368,21 @@ __metadata:
     babel-plugin-module-resolver: ^5.0.0
     react: 18.2.0
     react-native: 0.73.6
-    rtn-dev-console: ^0.1.2
+    rtn-dev-console: ../rtn-dev-console-0.0.0-local.16.tgz
   languageName: unknown
   linkType: soft
 
-"rtn-dev-console@^0.1.2, rtn-dev-console@workspace:.":
+"rtn-dev-console@file:../rtn-dev-console-0.0.0-local.16.tgz::locator=rtn-dev-console-example%40workspace%3Aexample":
+  version: 0.1.4
+  resolution: "rtn-dev-console@file:../rtn-dev-console-0.0.0-local.16.tgz::locator=rtn-dev-console-example%40workspace%3Aexample"
+  peerDependencies:
+    react: "*"
+    react-native: "*"
+  checksum: bbfd59cb801cc0ded37ccd261e621fa5aebb292cbac5f434b317efcb5597db4cc07555070a252d3b5f0368bc2c58848583ed61cf6c1d75a0717ab2ef4f11bb13
+  languageName: node
+  linkType: hard
+
+"rtn-dev-console@workspace:.":
   version: 0.0.0-use.local
   resolution: "rtn-dev-console@workspace:."
   dependencies:

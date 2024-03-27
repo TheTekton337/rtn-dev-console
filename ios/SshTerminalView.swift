@@ -24,7 +24,7 @@ public class SshTerminalView: TerminalView, TerminalViewDelegate {
         super.init(frame: frame)
         terminalDelegate = self
         
-        self.tv.feed(text: "Welcome to SwiftTerm - connecting to my localhost\r\n\n")
+        // self.tv.feed(text: "Welcome to SwiftTerm - connecting to my localhost\r\n\n")
         
         // Initialize the SSH connection
         do {
