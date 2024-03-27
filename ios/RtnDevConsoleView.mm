@@ -12,7 +12,7 @@
 #import <SwiftTerm/SwiftTerm-Swift.h>
 #import <SwiftSH/SwiftSH-Swift.h>
 #import <rtn_dev_console/rtn_dev_console-Swift.h>
-// Test
+// Test2
 
 using namespace facebook::react;
 

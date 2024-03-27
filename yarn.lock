@@ -11374,11 +11374,11 @@ __metadata:
 
 "rtn-dev-console@https://github.com/TheTekton337/rtn-dev-console.git#development":
   version: 0.1.4
-  resolution: "rtn-dev-console@https://github.com/TheTekton337/rtn-dev-console.git#commit=49fbf6495463bd6f98f8c69882b443cd17fb1937"
+  resolution: "rtn-dev-console@https://github.com/TheTekton337/rtn-dev-console.git#commit=563d908fd4d02a0a313f3a8c497e6c5190c9e806"
   peerDependencies:
     react: "*"
     react-native: "*"
-  checksum: 61c44074159361d78b5ec3bace3bb67a2cf78deb651b8ffb82a69b18f384a61b1995ce6b0e3fc8e7b5ecd910836e5a455ec31c118b887405236e78e0fe61be13
+  checksum: 208bd8dd79f3bcaa9fb7e6a6fa9096b705b10c16bddd87ba6555e29499c966a003eb1c3d52ad8b6d408140ed0ea53492be210552773b688626ce7c0399219962
   languageName: node
   linkType: hard
 
