@@ -3071,9 +3071,9 @@ __metadata:
   linkType: hard
 
 "@tsconfig/node10@npm:^1.0.7":
-  version: 1.0.10
-  resolution: "@tsconfig/node10@npm:1.0.10"
-  checksum: 1204c05940c3669e897c1bcdf20668acc7fdbbeb41b4e8a3eb83ec486d6a442ba0f5d3b8122c93cb813fa498a232946ecb09e5a59a02828db3f1c27529563046
+  version: 1.0.11
+  resolution: "@tsconfig/node10@npm:1.0.11"
+  checksum: 51fe47d55fe1b80ec35e6e5ed30a13665fd3a531945350aa74a14a1e82875fb60b350c2f2a5e72a64831b1b6bc02acb6760c30b3738b54954ec2dea82db7a267
   languageName: node
   linkType: hard
 
@@ -11374,11 +11374,11 @@ __metadata:
 
 "rtn-dev-console@https://github.com/TheTekton337/rtn-dev-console.git#development":
   version: 0.1.4
-  resolution: "rtn-dev-console@https://github.com/TheTekton337/rtn-dev-console.git#commit=999424d090cd542aac834d004831a04df59c6e42"
+  resolution: "rtn-dev-console@https://github.com/TheTekton337/rtn-dev-console.git#commit=49fbf6495463bd6f98f8c69882b443cd17fb1937"
   peerDependencies:
     react: "*"
     react-native: "*"
-  checksum: fa09d1d976d9ba26a62d6c0a58ebc350d70eb913f47035ce9457758b3dbe23b2077bc6384814306bb05d0ef211524893b392012eae31b6830f9e1b8fe4020359
+  checksum: 61c44074159361d78b5ec3bace3bb67a2cf78deb651b8ffb82a69b18f384a61b1995ce6b0e3fc8e7b5ecd910836e5a455ec31c118b887405236e78e0fe61be13
   languageName: node
   linkType: hard
 
