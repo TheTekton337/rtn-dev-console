@@ -11368,17 +11368,17 @@ __metadata:
     babel-plugin-module-resolver: ^5.0.0
     react: 18.2.0
     react-native: 0.73.6
-    rtn-dev-console: ../rtn-dev-console-0.0.0-local.16.tgz
+    rtn-dev-console: "https://github.com/TheTekton337/rtn-dev-console.git#development"
   languageName: unknown
   linkType: soft
 
-"rtn-dev-console@file:../rtn-dev-console-0.0.0-local.16.tgz::locator=rtn-dev-console-example%40workspace%3Aexample":
+"rtn-dev-console@https://github.com/TheTekton337/rtn-dev-console.git#development":
   version: 0.1.4
-  resolution: "rtn-dev-console@file:../rtn-dev-console-0.0.0-local.16.tgz::locator=rtn-dev-console-example%40workspace%3Aexample"
+  resolution: "rtn-dev-console@https://github.com/TheTekton337/rtn-dev-console.git#commit=999424d090cd542aac834d004831a04df59c6e42"
   peerDependencies:
     react: "*"
     react-native: "*"
-  checksum: bbfd59cb801cc0ded37ccd261e621fa5aebb292cbac5f434b317efcb5597db4cc07555070a252d3b5f0368bc2c58848583ed61cf6c1d75a0717ab2ef4f11bb13
+  checksum: fa09d1d976d9ba26a62d6c0a58ebc350d70eb913f47035ce9457758b3dbe23b2077bc6384814306bb05d0ef211524893b392012eae31b6830f9e1b8fe4020359
   languageName: node
   linkType: hard
 

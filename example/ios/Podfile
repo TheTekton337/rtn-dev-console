@@ -50,8 +50,6 @@ target 'RtnDevConsoleExample' do
   
   pod 'SwiftTerm', :git => 'https://github.com/TheTekton337/SwiftTerm.git', :branch =>'podspec'
 
-  pod 'rtn-dev-console', :git => 'https://github.com/TheTekton337/SwiftTerm.git', :branch =>'podspec'
-
   target 'RtnDevConsoleExampleTests' do
     inherit! :complete
     # Pods for testing
