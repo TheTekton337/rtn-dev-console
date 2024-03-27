@@ -11,7 +11,7 @@
 
 #import <SwiftTerm/SwiftTerm-Swift.h>
 #import <SwiftSH/SwiftSH-Swift.h>
-#import <rtn_pntkl_term/rtn_pntkl_term-Swift.h>
+#import <rtn_dev_console/rtn_dev_console-Swift.h>
 
 using namespace facebook::react;
 
