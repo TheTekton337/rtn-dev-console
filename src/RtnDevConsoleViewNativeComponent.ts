@@ -35,6 +35,11 @@ interface NativeProps extends ViewProps {
 
   // onConnectionChange?: DirectEventHandler<TerminalEvent>;
 
+  host?: WithDefault<string, '127.0.0.1'>;
+  port?: WithDefault<Int32, 22>;
+  username: string;
+  password: string;
+
   fontColor?: string;
   fontSize?: Int32;
   fontFamily?: string;

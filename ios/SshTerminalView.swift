@@ -16,53 +16,53 @@ public class SshTerminalView: TerminalView, TerminalViewDelegate {
     var shell: SSHShell?
     var authenticationChallenge: AuthenticationChallenge?
     var sshQueue: DispatchQueue
+    var useAutoLayout: Bool
     
     @objc
     public override init(frame: CGRect) {
         self.sshQueue = DispatchQueue(label: "com.ixqus.sshQueue")
         
+        let test = SshTerminalViewController()
+        
+        self.useAutoLayout = true
+        
         super.init(frame: frame)
         terminalDelegate = self
+                
+        let terminal = getTerminal()
+        self.nativeBackgroundColor = .systemBackground
+        self.nativeForegroundColor = .label
+
+        terminal.feed(text: "rtn-dev-console - initializing Fabric component...\r\n")
         
-        // self.tv.feed(text: "Welcome to SwiftTerm - connecting to my localhost\r\n\n")
-        
-        // Initialize the SSH connection
-        do {
-            try setupSSHConnection()
-        } catch {
-            print("Failed to setup SSH connection: \(error)")
-        }
+        self.shell?.setTerminalSize(width: UInt(frame.size.width), height: UInt(frame.size.height))
     }
     
     required init?(coder aDecoder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
-    
-    func setupSSHConnection() throws {
-        // Assuming host, port, environment, and terminal details are correctly set
-        let host = "127.0.0.1"
-        let port: UInt16 = 22
-        let environment: [Environment] = [] // Customize your environment if needed
-        let terminal: SwiftSH.Terminal? = nil // Customize your terminal settings if needed
-        
-        shell = try SSHShell(sshLibrary: Libssh2.self, host: host, port: port, environment: environment, terminal: terminal)
 
-        let username = "TODO"
-        let password = "TODO"
+    @objc
+    public func initSSHConnection(host: String, port: UInt16, username: String, password: String) {
+        do {
+            try setupSSHConnection(host: host, port: port, username: username, password: password)
+        } catch {
+            print("Failed to setup SSH connection: \(error)")
+        }
+    }
+    
+    func setupSSHConnection(host: String, port: UInt16, username: String, password: String) throws {
+        let environment: [Environment] = [] // Customize your environment if needed
+//        let terminal: SwiftSH.Terminal? = nil // Customize your terminal settings if needed
+        
+        let terminal = getTerminal()
+        terminal.feed(text: "rtn-dev-console - connecting to my \(host):\(port) with password authentication...\r\n\n")
+        
+        shell = try SSHShell(sshLibrary: Libssh2.self, host: host, port: port, environment: environment, terminal: "vanilla")
         
         // Handle authentication and connect
-        shell?.connect().authenticate(AuthenticationChallenge.byPassword(username: username, password: password)).open { error in
-            if let error = error {
-                print("SSH Connection Error: \(error)")
-                return
-            }
-            
-            // Connection and shell session successfully opened
-            // Setup read and write handlers here...
-        }
-        
-        // Configure readDataCallback or readStringCallback based on your needs
-        shell?.withCallback { [weak self] (data: Data?, error: Data?) in
+        shell?
+        .withCallback { [weak self] (data: Data?, error: Data?) in
             // Handle incoming data and errors
             if let data = data, let string = String(data: data, encoding: .utf8) {
                 DispatchQueue.main.async {
@@ -72,8 +72,19 @@ public class SshTerminalView: TerminalView, TerminalViewDelegate {
             
             if let error = error {
                 // Handle error
-                print("SSH Error: \(error)")
+//                print("SSH Error: \(error)")
+                terminal.feed(text: "SSH Error: \(error)")
             }
+        }
+        .connect().authenticate(AuthenticationChallenge.byPassword(username: username, password: password)).open { error in
+            if let error = error {
+//                print("SSH Connection Error: \(error)")
+                terminal.feed(text: "SSH Connection Error: \(error)")
+                return
+            }
+            
+            // Connection and shell session successfully opened
+            // Setup read and write handlers here...
         }
     }
 

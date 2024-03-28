@@ -7,9 +7,11 @@
     "start": "react-native start",
     "build:android": "cd android && ./gradlew assembleDebug --no-daemon --console=plain -PreactNativeArchitectures=arm64-v8a",
     "build:ios": "cd ios && xcodebuild -workspace RtnDevConsoleExample.xcworkspace -scheme RtnDevConsoleExample -configuration Debug -sdk iphonesimulator CC=clang CPLUSPLUS=clang++ LD=clang LDPLUSPLUS=clang++ GCC_OPTIMIZATION_LEVEL=0 GCC_PRECOMPILE_PREFIX_HEADER=YES ASSETCATALOG_COMPILER_OPTIMIZATION=time DEBUG_INFORMATION_FORMAT=dwarf COMPILER_INDEX_STORE_ENABLE=NO",
-    "pod-install": "npm run pod-install-turbo",
-    "pod-install-turbo": "cd ios && NO_FLIPPER=1 USE_FRAMEWORKS=static RCT_NEW_ARCH_ENABLED=1 bundle exec pod install",
-    "pod-install-legacy": "cd ios && USE_FRAMEWORKS=static RCT_NEW_ARCH_ENABLED=0 bundle exec pod install"
+    "pod-install": "npm run pod-install-fabric",
+    "pod-install-fabric": "cd ios && NO_FLIPPER=1 USE_FRAMEWORKS=static RCT_NEW_ARCH_ENABLED=1 bundle exec pod install",
+    "pod-install-legacy": "cd ios && USE_FRAMEWORKS=static RCT_NEW_ARCH_ENABLED=0 bundle exec pod install",
+    "dev": "yarn pod-install && yarn ios",
+    "dev-nuke": "rm -rf ../yarn.lock && yarn && yarn pod-install && yarn ios"
   },
   "dependencies": {
     "react": "18.2.0",

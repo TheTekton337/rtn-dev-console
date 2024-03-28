@@ -1,25 +1,34 @@
 import * as React from 'react';
 
-import { StyleSheet, View } from 'react-native';
+import { SafeAreaView, StyleSheet } from 'react-native';
 import { RtnDevConsoleView } from 'rtn-dev-console';
 
 export default function App() {
+  // TODO: Change auth to { type: 'password', config: { username: '<USERNAME>', password: '<PASSWORD>' } } }
+  // TODO: Add support for localization
   return (
-    <View style={styles.container}>
-      <RtnDevConsoleView color="#32a852" style={styles.box} />
-    </View>
+    <SafeAreaView style={styles.container}>
+      <RtnDevConsoleView
+        host="192.168.0.1"
+        port={22}
+        username="username"
+        password="password"
+        style={styles.box}
+      />
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
+    // alignItems: 'center',
+    // justifyContent: 'center',
   },
   box: {
-    width: 60,
-    height: 60,
-    marginVertical: 20,
+    flex: 1,
+    // width: 60,
+    // height: 60,
+    // marginVertical: 20,
   },
 });
