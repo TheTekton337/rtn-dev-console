@@ -11,11 +11,20 @@ npm install rtn-dev-console
 ## Usage
 
 ```js
-import { RtnSshTerminalView } from 'rtn-dev-console';
+import { SshTerminal } from 'rtn-dev-console';
 
 // ...
 
-<RtnSshTerminalView />;
+<SshTerminal
+  ref={ref}
+  host="192.168.0.1"
+  port={22}
+  username="username"
+  password="password"
+  onBell={handleBell}
+  onClosed={handleClose}
+  style={styles.box}
+/>;
 ```
 
 ## Contributing
