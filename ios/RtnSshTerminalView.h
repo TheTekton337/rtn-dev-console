@@ -24,14 +24,53 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, copy) RCTBubblingEventBlock onClipboardCopy;
 @property (nonatomic, copy) RCTBubblingEventBlock onITermContent;
 @property (nonatomic, copy) RCTBubblingEventBlock onRangeChanged;
-@property (nonatomic, copy) RCTBubblingEventBlock onTerminalLoad;
 @property (nonatomic, copy) RCTBubblingEventBlock onConnected;
 @property (nonatomic, copy) RCTBubblingEventBlock onClosed;
 @property (nonatomic, copy) RCTBubblingEventBlock onSshError;
 @property (nonatomic, copy) RCTBubblingEventBlock onSshConnectionError;
 
+- (void)sendMotionWithButtonFlags:(NSInteger)buttonFlags
+                                x:(NSInteger)x
+                                y:(NSInteger)y
+                           pixelX:(NSInteger)pixelX
+                           pixelY:(NSInteger)pixelY;
+- (NSInteger)encodeButtonWithButton:(NSInteger)button release:(BOOL)release shift:(BOOL)shift meta:(BOOL)meta control:(BOOL)control;
+- (void)sendEventWithButtonFlags:(NSInteger)buttonFlags x:(NSInteger)x y:(NSInteger)y;
+- (void)sendEventWithButtonFlags:(NSInteger)buttonFlags x:(NSInteger)x y:(NSInteger)y pixelX:(NSInteger)pixelX pixelY:(NSInteger)pixelY;
+
+- (void)feedBuffer:(NSData *)buffer;
+- (void)feedText:(NSString *)text;
+- (void)feedByteArray:(NSData *)byteArray;
+//- (void)getText;
+- (void)sendResponse:(NSData *)items;
+- (void)sendResponseText:(NSString *)text;
+- (NSSet<NSNumber *> *)changedLines;
+- (void)clearUpdateRange;
+- (void)emitLineFeed;
+- (void)garbageCollectPayload;
+- (NSData *)getBufferAsData;
+//- (void)getCharData;
+//- (void)getCharacter;
+//- (void)getCursorLocation;
+//- (void)getDims;
+//- (void)getLine;
+//- (void)getScrollInvariantLine;
+//- (void)getScrollInvariantUpdateRange;
+- (NSInteger)getTopVisibleRow;
+//- (void)getUpdateRange;
 - (void)hideCursor;
 - (void)showCursor;
+//- (void)installPalette;
+- (void)refresh:(NSInteger)startRow endRow:(NSInteger)endRow;
+//- (void)registerOscHandler;
+- (void)resetToInitialState;
+- (void)resizeTerminal:(NSInteger)cols rows:(NSInteger)rows;
+- (void)scroll;
+//- (void)setCursorStyle;
+- (void)setIconTitle:(NSString *)text;
+- (void)setTitle:(NSString *)text;
+- (void)softReset;
+- (void)updateFullScreen;
 
 @end
 

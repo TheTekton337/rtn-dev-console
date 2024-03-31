@@ -253,6 +253,163 @@ public class SshTerminalView: TerminalView, TerminalViewDelegate {
     }
     
     @objc
+    public func sendMotion(buttonFlags: Int, x: Int, y: Int, pixelX: Int, pixelY: Int) {
+        let terminal = getTerminal()
+        terminal.sendMotion(buttonFlags: buttonFlags, x: x, y: y, pixelX: pixelX, pixelY: pixelY)
+    }
+    
+    @objc
+    public func encodeButton(button: Int, release: Bool, shift: Bool, meta: Bool, control: Bool) -> Int {
+        let terminal = getTerminal()
+        return terminal.encodeButton(button: button, release: release, shift: shift, meta: meta, control: control)
+    }
+    
+    @objc
+    public func sendEvent(buttonFlags: Int, x: Int, y: Int) {
+        let terminal = getTerminal()
+        terminal.sendEvent(buttonFlags: buttonFlags, x: x, y: y)
+    }
+    
+    @objc
+    public func sendEvent(buttonFlags: Int, x: Int, y: Int, pixelX: Int, pixelY: Int) {
+        let terminal = getTerminal()
+        terminal.sendEvent(buttonFlags: buttonFlags, x: x, y: y, pixelX: pixelX, pixelY: pixelY)
+    }
+    
+    @objc
+    public func feedBuffer(buffer: Data) {
+        let terminal = getTerminal()
+        let byteArray = [UInt8](buffer)
+        let convertedBuffer = byteArray[0..<byteArray.count]
+        terminal.feed(buffer: convertedBuffer)
+    }
+    
+    @objc
+    public func feedText(text: String) {
+        let terminal = getTerminal()
+        terminal.feed(text: text)
+    }
+    
+    @objc
+    public func feedByteArray(byteArray: Data) {
+        let terminal = getTerminal()
+        let convertedByteArray: [UInt8] = Array(byteArray)
+        terminal.feed(byteArray: convertedByteArray)
+    }
+    
+//    TODO: Support custom Position typing, if feasible
+//    @objc
+//    public func getText(text: String) {
+//        let terminal = getTerminal()
+//        terminal.getText(start: <#T##Position#>, end: <#T##Position#>)
+//    }
+    
+    @objc
+    public func sendResponse(items: Any) {
+        let terminal = getTerminal()
+        terminal.sendResponse(items)
+    }
+    
+    @objc
+    public func sendResponse(text: String) {
+        let terminal = getTerminal()
+        terminal.sendResponse(text: text)
+    }
+    
+    @objc
+    public func changedLines() -> Set<Int> {
+        let terminal = getTerminal()
+        return terminal.changedLines()
+    }
+    
+    @objc
+    public func clearUpdateRange() {
+        let terminal = getTerminal()
+        terminal.clearUpdateRange()
+    }
+    
+    @objc
+    public func emitLineFeed() {
+        let terminal = getTerminal()
+        terminal.emitLineFeed()
+    }
+    
+    @objc
+    public func garbageCollectPayload() {
+        let terminal = getTerminal()
+        terminal.garbageCollectPayload()
+    }
+    
+//    TODO: Support BufferKind/Encoding parameter conversions from terminal.getBufferAsData()
+    @objc
+    public func getBufferAsData() -> Data {
+        let terminal = getTerminal()
+        return terminal.getBufferAsData()
+    }
+    
+//    TODO: Support getCharData return type conversion.
+//    @objc
+//    public func getCharData(col: Int, row: Int) -> CharData {
+//        let terminal = getTerminal()
+//        return terminal.getCharData(col: col, row: row)
+//    }
+    
+//    TODO: Support getCharacter return type conversion.
+//    @objc
+//    public func getCharacter(col: Int, row: Int) -> Character? {
+//        let terminal = getTerminal()
+//        return terminal.getCharacter(col: col, row: row)
+//    }
+    
+//    TODO: Support getCursorLocation return type conversion.
+//    @objc
+//    public func getCursorLocation() -> (x: Int, y: Int) {
+//        let terminal = getTerminal()
+//        terminal.getCursorLocation()
+//    }
+    
+//    TODO: Support getDims return type conversion.
+//    @objc
+//    public func getDims() -> (x: Int, y: Int) {
+//        let terminal = getTerminal()
+//        return terminal.getDims()
+//    }
+    
+//    TODO: Support getLine return type conversion.
+//    @objc
+//    public func getLine(row: Int) -> BufferLine? {
+//        let terminal = getTerminal()
+//        return terminal.getLine(row: row)
+//    }
+    
+//    TODO: Support getScrollInvariantLine return type conversion.
+//    @objc
+//    public func getScrollInvariantLine(row: Int) -> BufferLine? {
+//        let terminal = getTerminal()
+//        terminal.getScrollInvariantLine(row: row)
+//    }
+    
+//    TODO: Support getScrollInvariantUpdateRange return type conversion.
+//    @objc
+//    public func getScrollInvariantUpdateRange() -> (startY: Int, endY: Int)? {
+//        let terminal = getTerminal()
+//        return terminal.getScrollInvariantUpdateRange()
+//    }
+    
+    @objc
+    public func getTopVisibleRow() -> Int {
+        let terminal = getTerminal()
+        return terminal.getTopVisibleRow()
+    }
+    
+//    TODO: Support getUpdateRange return type conversion.
+//    @objc
+//    public func getUpdateRange() -> (startY: Int, endY: Int)? {
+//        let terminal = getTerminal()
+//        return terminal.getUpdateRange()
+//    }
+    
+    @objc
     public func hideCursor() {
         let terminal = getTerminal()
         terminal.hideCursor()
@@ -262,5 +419,107 @@ public class SshTerminalView: TerminalView, TerminalViewDelegate {
     public func showCursor() {
         let terminal = getTerminal()
         terminal.showCursor()
+    }
+    
+//    TODO: Support installPalette argument conversion.
+//    this should be an array of 16 values that correspond to the 16 ANSI colors,
+    @objc
+    public func installTerminalColors(colors: [String]) {
+        var convertedColors: [Color] = []
+        
+        for hexString in colors {
+            var red: UInt16 = 0
+            var green: UInt16 = 0
+            var blue: UInt16 = 0
+
+            if Utils.hexString(to: &red, green: &green, blue: &blue, from: hexString) {
+                let color = Color(red: red, green: green, blue: blue)
+                convertedColors.append(color)
+            } else {
+                print("Failed to convert hex string to color")
+                return;
+            }
+        }
+        
+//        TODO: Since [Color] must be an array of 16 color values, add a length check at the RN component level.
+       
+        self.installColors(convertedColors)
+    }
+    
+//    Internal
+//    @objc
+//    public func parse(buffer: Data) {
+//        let terminal = getTerminal()
+//        let byteArray = [UInt8](buffer)
+//        let convertedBuffer = byteArray[0..<byteArray.count]
+//        terminal.parse(buffer: convertedBuffer)
+//    }
+    
+    @objc
+    public func refresh(startRow: Int, endRow: Int) {
+        let terminal = getTerminal()
+        terminal.refresh(startRow: startRow, endRow: endRow)
+    }
+    
+//    TODO: Review feasiblity of supporting via RN.
+//    @objc
+//    public func registerOscHandler(code: Int, handler: ArraySlice<UInt8>) {
+//        let terminal = getTerminal()
+//        terminal.registerOscHandler(code: code, handler: handler)
+//    }
+    
+    @objc
+    public func resetToInitialState() {
+        let terminal = getTerminal()
+        terminal.resetToInitialState()
+    }
+    
+    @objc
+    public func resizeTerminal(cols: Int, rows: Int) {
+        let terminal = getTerminal()
+        terminal.resize(cols: cols, rows: rows)
+    }
+    
+    @objc
+    public func scroll() {
+        let terminal = getTerminal()
+        terminal.scroll()
+    }
+    
+    @objc
+    public func scroll(isWrapped: Bool) {
+        let terminal = getTerminal()
+        terminal.scroll(isWrapped: isWrapped)
+    }
+    
+//    TODO: Support setCursorStyle argument conversion.
+//    @objc
+//    public func setCursorStyle(cursorStyle: CursorStyle) {
+//        let terminal = getTerminal()
+//        terminal.setCursorStyle(cursorStyle)
+//    }
+    
+    @objc
+    public func setIconTitle(text: String) {
+        let terminal = getTerminal()
+        terminal.setIconTitle(text: text)
+    }
+    
+    @objc
+    public func setTitle(text: String) {
+        let terminal = getTerminal()
+        terminal.setTitle(text: text)
+    }
+    
+    @objc
+    public func softReset() {
+        let terminal = getTerminal()
+        terminal.softReset()
+    }
+    
+    @objc
+    public func updateFullScreen() {
+        let terminal = getTerminal()
+        terminal.updateFullScreen()
     }
 }

@@ -127,6 +127,129 @@ public class SshTerminalViewController: UIViewController {
     }
     
     @objc
+    public func sendMotion(buttonFlags: Int, x: Int, y: Int, pixelX: Int, pixelY: Int) {
+        tv.sendMotion(buttonFlags: buttonFlags, x: x, y: y, pixelX: pixelX, pixelY: pixelY)
+    }
+    
+    @objc
+    public func encodeButton(button: Int, release: Bool, shift: Bool, meta: Bool, control: Bool) -> Int {
+        return tv.encodeButton(button: button, release: release, shift: shift, meta: meta, control: control)
+    }
+    
+    @objc
+    public func sendEvent(buttonFlags: Int, x: Int, y: Int) {
+        tv.sendEvent(buttonFlags: buttonFlags, x: x, y: y)
+    }
+    
+    @objc
+    public func sendEvent(buttonFlags: Int, x: Int, y: Int, pixelX: Int, pixelY: Int) {
+        tv.sendEvent(buttonFlags: buttonFlags, x: x, y: y, pixelX: pixelX, pixelY: pixelY)
+    }
+    
+    @objc
+    public func feed(buffer: Data) {
+        tv.feedBuffer(buffer: buffer)
+    }
+    
+    @objc
+    public func feed(text: String) {
+        tv.feedText(text: text)
+    }
+    
+    @objc
+    public func feed(byteArray: Data) {
+        tv.feedByteArray(byteArray: byteArray)
+    }
+    
+//    TODO: Support custom typing
+//    @objc
+//    public func getText() {
+//        tv.getText()
+//    }
+    
+    @objc
+    public func sendResponse(items: Any) {
+        tv.sendResponse(items: items)
+    }
+    
+    @objc
+    public func sendResponse(text: String) {
+        tv.sendResponse(text: text)
+    }
+    
+    @objc
+    public func changedLines() -> Set<Int> {
+        return tv.changedLines()
+    }
+    
+    @objc
+    public func clearUpdateRange() {
+        tv.clearUpdateRange()
+    }
+    
+    @objc
+    public func emitLineFeed() {
+        tv.emitLineFeed()
+    }
+    
+    @objc
+    public func garbageCollectPayload() {
+        tv.garbageCollectPayload()
+    }
+    
+    @objc
+    public func getBufferAsData() -> Data {
+        return tv.getBufferAsData()
+    }
+    
+//    TODO: Support custom typing
+//    @objc
+//    public func getCharData(col: Int, row: Int) -> CharData {
+//        return tv.getCharData(col: col, row: row)
+//    }
+    
+//    @objc
+//    public func getCharData(col: Int, row: Int) -> Character? {
+//        return tv.getCharData(col: col, row: row)
+//    }
+    
+//    @objc
+//    public func getCursorLocation() -> (x: Int, y: Int) {
+//        return tv.getCursorLocation()
+//    }
+    
+//    @objc
+//    public func getDims() -> (x: Int, y: Int) {
+//        return tv.getDims()
+//    }
+    
+//    @objc
+//    public func getLine(row: Int) -> BufferLine? {
+//        return tv.getLine(row: row)
+//    }
+    
+//    @objc
+//    public func getScrollInvariantLine(row: Int) -> BufferLine? {
+//        return tv.getScrollInvariantLine(row: row)
+//    }
+    
+//    @objc
+//    public func getScrollInvariantUpdateRange(row: Int) -> BufferLine? {
+//        return tv.getScrollInvariantUpdateRange(row: row)
+//    }
+    
+    @objc
+    public func getTopVisibleRow() -> Int {
+        return tv.getTopVisibleRow()
+    }
+    
+//    TODO: Support custom typing
+//    @objc
+//    public func getUpdateRange() -> (startY: Int, endY: Int)? {
+//        return tv.getUpdateRange()
+//    }
+    
+    @objc
     public func hideCursor() {
         tv.hideCursor()
     }
@@ -134,6 +257,68 @@ public class SshTerminalViewController: UIViewController {
     @objc
     public func showCursor() {
         tv.showCursor()
+    }
+    
+    @objc
+    public func installTerminalColors(colors: [String]) {
+        tv.installTerminalColors(colors: colors)
+    }
+    
+    @objc
+    public func refresh(startRow: Int, endRow: Int) {
+        tv.refresh(startRow: startRow, endRow: endRow)
+    }
+    
+//    TODO: Review feasiblity of supporting via RN.
+//    @objc
+//    public func registerOscHandler(code: Int, handler: ArraySlice<UInt8>) {
+//        tv.registerOscHandler(code: code, handler: handler)
+//    }
+    
+    @objc
+    public func resetToInitialState() {
+        tv.resetToInitialState()
+    }
+    
+    @objc
+    public func resize(cols: Int, rows: Int) {
+        tv.resizeTerminal(cols: cols, rows: rows)
+    }
+    
+    @objc
+    public func scroll() {
+        tv.scroll()
+    }
+    
+    @objc
+    public func scroll(isWrapped: Bool) {
+        tv.scroll(isWrapped: isWrapped)
+    }
+    
+//    TODO: Support custom typing
+//    @objc
+//    public func setCursorStyle(cursorStyle: CursorStyle) {
+//        tv.setCursorStyle(cursorStyle)
+//    }
+    
+    @objc
+    public func setIconTitle(text: String) {
+        tv.setIconTitle(text: text)
+    }
+    
+    @objc
+    public func setTitle(text: String) {
+        tv.setTitle(text: text)
+    }
+    
+    @objc
+    public func softReset() {
+        tv.softReset()
+    }
+    
+    @objc
+    public func updateFullScreen() {
+        tv.updateFullScreen()
     }
 }
 

@@ -47,6 +47,15 @@ using namespace facebook::react;
     return concreteComponentDescriptorProvider<RtnSshTerminalViewComponentDescriptor>();
 }
 
+// TODO: Review cleanup.
+//#if !TARGET_OS_OSX
+//// Reproduce the idea from here: https://github.com/facebook/react-native/blob/8bd3edec88148d0ab1f225d2119435681fbbba33/React/Fabric/Mounting/ComponentViews/InputAccessory/RCTInputAccessoryComponentView.mm#L142
+//- (void)prepareForRecycle {
+//    [super prepareForRecycle];
+//    [_view destroyWebView];
+//}
+//#endif // !TARGET_OS_OSX
+
 - (instancetype)initWithFrame:(CGRect)frame
 {
   if (self = [super initWithFrame:frame]) {
@@ -146,7 +155,7 @@ Class<RCTComponentViewProtocol> RtnSshTerminalViewCls(void)
         .newCols = static_cast<int>(newCols),
         .newRows = static_cast<int>(newRows),
     };
-
+    
     rtnSshTerminalEventEmitter->onSizeChanged(data);
 }
 
@@ -157,7 +166,7 @@ Class<RCTComponentViewProtocol> RtnSshTerminalViewCls(void)
         .terminalId = static_cast<int>(source.tag),
         .directory = directory ? std::string([directory UTF8String]) : std::string(),
     };
-
+    
     rtnSshTerminalEventEmitter->onHostCurrentDirectoryUpdate(data);
 }
 
@@ -168,18 +177,18 @@ Class<RCTComponentViewProtocol> RtnSshTerminalViewCls(void)
         .terminalId = static_cast<int>(source.tag),
         .position = static_cast<double>(position),
     };
-
+    
     rtnSshTerminalEventEmitter->onScrolled(data);
 }
 
 - (void)onRequestOpenLinkWithSource:(TerminalView * _Nonnull)source link:(NSString * _Nonnull)link params:(NSDictionary<NSString *,NSString *> * _Nonnull)params {
     auto rtnSshTerminalEventEmitter = std::static_pointer_cast<RtnSshTerminalViewEventEmitter const>(_eventEmitter);
-        
+    
     NSError *error;
     NSData *jsonData = [NSJSONSerialization dataWithJSONObject:params options:0 error:&error];
     
     if (!jsonData) {
-//        TODO: Emit RN Error event? Would this ever happen? Throw here?
+        //        TODO: Emit RN Error event? Would this ever happen? Throw here?
         NSLog(@"Failed to serialize params to JSON: %@", error);
         return;
     }
@@ -191,7 +200,7 @@ Class<RCTComponentViewProtocol> RtnSshTerminalViewCls(void)
         .link = std::string([link UTF8String]),
         .params = std::string([paramsJson UTF8String]),
     };
-
+    
     rtnSshTerminalEventEmitter->onRequestOpenLink(data);
 }
 
@@ -212,18 +221,18 @@ Class<RCTComponentViewProtocol> RtnSshTerminalViewCls(void)
         .terminalId = static_cast<int>(source.tag),
         .content = std::string([content UTF8String]),
     };
-
+    
     rtnSshTerminalEventEmitter->onClipboardCopy(data);
 }
 
 - (void)onITermContentWithSource:(TerminalView * _Nonnull)source content:(NSData * _Nonnull)content {
     auto rtnSshTerminalEventEmitter = std::static_pointer_cast<RtnSshTerminalViewEventEmitter const>(_eventEmitter);
-        
+    
     NSError *error;
     NSData *jsonData = [NSJSONSerialization dataWithJSONObject:content options:0 error:&error];
     
     if (!jsonData) {
-//        TODO: Emit RN Error event? Would this ever happen? Throw here?
+        //        TODO: Emit RN Error event? Would this ever happen? Throw here?
         NSLog(@"Failed to serialize params to JSON: %@", error);
         return;
     }
@@ -234,7 +243,7 @@ Class<RCTComponentViewProtocol> RtnSshTerminalViewCls(void)
         .terminalId = static_cast<int>(source.tag),
         .content = std::string([paramsJson UTF8String]),
     };
-
+    
     rtnSshTerminalEventEmitter->onITermContent(data);
 }
 
@@ -246,7 +255,7 @@ Class<RCTComponentViewProtocol> RtnSshTerminalViewCls(void)
         .startY = static_cast<int>(startY),
         .endY = static_cast<int>(endY),
     };
-
+    
     rtnSshTerminalEventEmitter->onRangeChanged(data);
 }
 
@@ -256,7 +265,7 @@ Class<RCTComponentViewProtocol> RtnSshTerminalViewCls(void)
     facebook::react::RtnSshTerminalViewEventEmitter::OnTerminalLoad data = {
         .terminalId = static_cast<int>(source.tag)
     };
-
+    
     rtnSshTerminalEventEmitter->onTerminalLoad(data);
 }
 
@@ -266,7 +275,7 @@ Class<RCTComponentViewProtocol> RtnSshTerminalViewCls(void)
     facebook::react::RtnSshTerminalViewEventEmitter::OnConnect data = {
         .terminalId = static_cast<int>(source.tag)
     };
-
+    
     rtnSshTerminalEventEmitter->onConnect(data);
 }
 
@@ -277,18 +286,18 @@ Class<RCTComponentViewProtocol> RtnSshTerminalViewCls(void)
         .terminalId = static_cast<int>(source.tag),
         .reason = std::string([reason UTF8String])
     };
-
+    
     rtnSshTerminalEventEmitter->onClosed(data);
 }
 
 - (void)onSshErrorWithSource:(TerminalView * _Nullable)source error:(NSData * _Nonnull)error {
     auto rtnSshTerminalEventEmitter = std::static_pointer_cast<RtnSshTerminalViewEventEmitter const>(_eventEmitter);
-        
+    
     NSError *jsonError;
     NSData *jsonData = [NSJSONSerialization dataWithJSONObject:error options:0 error:&jsonError];
     
     if (!jsonData) {
-//        TODO: Emit RN Error event? Would this ever happen? Throw here?
+        //        TODO: Emit RN Error event? Would this ever happen? Throw here?
         NSLog(@"Failed to serialize params to JSON: %@", error);
         return;
     }
@@ -299,18 +308,18 @@ Class<RCTComponentViewProtocol> RtnSshTerminalViewCls(void)
         .terminalId = static_cast<int>(source.tag),
         .error = std::string([errorJson UTF8String]),
     };
-
+    
     rtnSshTerminalEventEmitter->onSshError(data);
 }
 
 - (void)onSshConnectionErrorWithSource:(TerminalView * _Nonnull)source error:(NSError * _Nonnull)error { 
     auto rtnSshTerminalEventEmitter = std::static_pointer_cast<RtnSshTerminalViewEventEmitter const>(_eventEmitter);
-        
+    
     NSError *jsonError;
     NSData *jsonData = [NSJSONSerialization dataWithJSONObject:error.userInfo options:0 error:&jsonError];
     
     if (!jsonData) {
-//        TODO: Emit RN Error event? Would this ever happen? Throw here?
+        //        TODO: Emit RN Error event? Would this ever happen? Throw here?
         NSLog(@"Failed to serialize params to JSON: %@", error);
         return;
     }
@@ -321,9 +330,10 @@ Class<RCTComponentViewProtocol> RtnSshTerminalViewCls(void)
         .terminalId = static_cast<int>(source.tag),
         .error = std::string([errorJson UTF8String]),
     };
-
+    
     rtnSshTerminalEventEmitter->onSshConnectionError(data);
 }
+
 
 - (void)hideCursor {
     if (_sshTerminalViewController != nil) {
@@ -334,6 +344,12 @@ Class<RCTComponentViewProtocol> RtnSshTerminalViewCls(void)
 - (void)showCursor {
     if (_sshTerminalViewController != nil) {
         [_sshTerminalViewController showCursor];
+    }
+}
+
+- (void)installColors:(NSArray<NSString *> *)colors {
+    if (_sshTerminalViewController != nil) {
+        [_sshTerminalViewController installTerminalColorsWithColors:colors];
     }
 }
 
