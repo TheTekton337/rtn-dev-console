@@ -10,6 +10,8 @@ import {
 } from 'react-native';
 import { SshTerminal, type SshTerminalMethods } from 'rtn-dev-console';
 
+const initialText = 'rtn-dev-console - connecting to my localhost\r\n\n';
+
 export default function App() {
   const ref = useRef<SshTerminalMethods | null>(null);
   const [borderColor, setBorderColor] = useState('transparent');
@@ -62,6 +64,7 @@ export default function App() {
           port={22}
           username="username"
           password="password"
+          initialText={initialText}
           onBell={handleBell}
           onClosed={handleClose}
           style={styles.box}

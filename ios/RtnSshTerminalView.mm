@@ -107,10 +107,6 @@ using namespace facebook::react;
         _debug = newViewProps.debug;
     }
 
-    if (oldViewProps.initialText != newViewProps.initialText) {
-        _initialText = [[NSString alloc] initWithUTF8String: newViewProps.initialText.c_str()];
-    }
-
     if (oldViewProps.host != newViewProps.host) {
         _host = [[NSString alloc] initWithUTF8String: newViewProps.host.c_str()];
         // NSString * colorToConvert = [[NSString alloc] initWithUTF8String: newViewProps.color.c_str()];
@@ -127,6 +123,10 @@ using namespace facebook::react;
     
     if (oldViewProps.password != newViewProps.password) {
         _password = [[NSString alloc] initWithUTF8String: newViewProps.password.c_str()];
+    }
+    
+    if (oldViewProps.initialText != newViewProps.initialText) {
+        _initialText = [[NSString alloc] initWithUTF8String: newViewProps.initialText.c_str()];
     }
     
 //    TODO: Add _connecting bool or change to _connectionState?
@@ -334,6 +334,163 @@ Class<RCTComponentViewProtocol> RtnSshTerminalViewCls(void)
     rtnSshTerminalEventEmitter->onSshConnectionError(data);
 }
 
+- (void)sendMotionWithButtonFlags:(NSInteger)buttonFlags
+                                x:(NSInteger)x
+                                y:(NSInteger)y
+                           pixelX:(NSInteger)pixelX
+                           pixelY:(NSInteger)pixelY {
+    if (_sshTerminalViewController != nil) {
+        [_sshTerminalViewController sendMotionWithButtonFlags:buttonFlags x:x y:y pixelX:pixelX pixelY:pixelY];
+    }
+}
+
+- (NSInteger)encodeButtonWithButton:(NSInteger)button release:(BOOL)release shift:(BOOL)shift meta:(BOOL)meta control:(BOOL)control {
+    if (_sshTerminalViewController != nil) {
+        return [_sshTerminalViewController encodeButtonWithButton:button release:release shift:shift meta:meta control:control];
+    } else {
+        return 0;
+    }
+}
+
+- (void)sendEventWithButtonFlags:(NSInteger)buttonFlags x:(NSInteger)x y:(NSInteger)y {
+    if (_sshTerminalViewController != nil) {
+        [_sshTerminalViewController sendEventWithButtonFlags:buttonFlags x:x y:y];
+    }
+}
+
+- (void)sendEventWithButtonFlags:(NSInteger)buttonFlags x:(NSInteger)x y:(NSInteger)y pixelX:(NSInteger)pixelX pixelY:(NSInteger)pixelY {
+    if (_sshTerminalViewController != nil) {
+        [_sshTerminalViewController sendEventWithButtonFlags:buttonFlags x:x y:y pixelX:pixelX pixelY:pixelY];
+    }
+}
+
+- (void)feedBuffer:(NSData *)buffer {
+    if (_sshTerminalViewController != nil) {
+        [_sshTerminalViewController feedWithBuffer:buffer];
+    }
+}
+
+- (void)feedText:(NSString *)text {
+    if (_sshTerminalViewController != nil) {
+        [_sshTerminalViewController feedWithText:text];
+    }
+}
+
+- (void)feedByteArray:(NSData *)byteArray {
+    if (_sshTerminalViewController != nil) {
+        [_sshTerminalViewController feedWithByteArray:byteArray];
+    }
+}
+
+//- (void)getText:(NSString *)text {
+//    if (_sshTerminalViewController != nil) {
+//        return [_sshTerminalViewController getText];
+//    }
+//}
+
+- (void)sendResponse:(NSData *)items {
+    if (_sshTerminalViewController != nil) {
+        [_sshTerminalViewController sendResponseWithItems:items];
+    }
+}
+
+- (void)sendResponseText:(NSString *)text {
+    if (_sshTerminalViewController != nil) {
+        [_sshTerminalViewController sendResponseWithText:text];
+    }
+}
+
+- (NSSet<NSNumber *> *)changedLines {
+    if (_sshTerminalViewController != nil) {
+        return [_sshTerminalViewController changedLines];
+    } else {
+        return nil;
+    }
+}
+
+- (void)clearUpdateRange {
+    if (_sshTerminalViewController != nil) {
+        [_sshTerminalViewController clearUpdateRange];
+    }
+}
+
+- (void)emitLineFeed {
+    if (_sshTerminalViewController != nil) {
+        [_sshTerminalViewController emitLineFeed];
+    }
+}
+
+- (void)garbageCollectPayload {
+    if (_sshTerminalViewController != nil) {
+        [_sshTerminalViewController garbageCollectPayload];
+    }
+}
+
+- (NSString *)getBufferAsString {
+    if (_sshTerminalViewController != nil) {
+        return [_sshTerminalViewController getBufferAsString];
+    } else {
+        return nil;
+    }
+}
+
+//- (void)getCharData {
+//    if (_sshTerminalViewController != nil) {
+//        [_sshTerminalViewController getCharData];
+//    }
+//}
+
+//- (void)getCharacter {
+//    if (_sshTerminalViewController != nil) {
+//        [_sshTerminalViewController getCharacter];
+//    }
+//}
+
+//- (void)getCursorLocation {
+//    if (_sshTerminalViewController != nil) {
+//        [_sshTerminalViewController getCursorLocation];
+//    }
+//}
+
+//- (void)getDims {
+//    if (_sshTerminalViewController != nil) {
+//        [_sshTerminalViewController getDims];
+//    }
+//}
+
+//- (void)getLine {
+//    if (_sshTerminalViewController != nil) {
+//        [_sshTerminalViewController getLine];
+//    }
+//}
+
+//- (void)getScrollInvariantLine {
+//    if (_sshTerminalViewController != nil) {
+//        [_sshTerminalViewController getScrollInvariantLine];
+//    }
+//}
+
+//- (void)getScrollInvariantUpdateRange {
+//    if (_sshTerminalViewController != nil) {
+//        [_sshTerminalViewController getScrollInvariantUpdateRange];
+//    }
+//}
+
+- (NSInteger)getTopVisibleRow {
+    if (_sshTerminalViewController != nil) {
+        return [_sshTerminalViewController getTopVisibleRow];
+    } else {
+//        TODO: abort() is called when less than 0 in getTopVisibleRow
+//              Does the RN component need to protect users from this?
+        return -1;
+    }
+}
+
+//- (void)getUpdateRange {
+//    if (_sshTerminalViewController != nil) {
+//        [_sshTerminalViewController getUpdateRange];
+//    }
+//}
 
 - (void)hideCursor {
     if (_sshTerminalViewController != nil) {
@@ -347,9 +504,93 @@ Class<RCTComponentViewProtocol> RtnSshTerminalViewCls(void)
     }
 }
 
-- (void)installColors:(NSArray<NSString *> *)colors {
+- (void)installColors:(NSString *)colors {
+    if (_sshTerminalViewController == nil) {
+        return;
+    }
+    
+    NSError *error = nil;
+    
+    NSData *jsonData = [colors dataUsingEncoding:NSUTF8StringEncoding];
+    NSArray<NSString *> *colorsArray = [NSJSONSerialization JSONObjectWithData:jsonData options:NSJSONReadingAllowFragments error:&error];
+    
+    if (error != nil) {
+        NSLog(@"installColors error: failed parsing JSON for colors: %@", error);
+        return;
+    }
+    
+    if (![colorsArray isKindOfClass:[NSArray class]]) {
+        NSLog(@"installColors error: deserialized object is not an NSArray.");
+        return;
+    }
+
+    BOOL allElementsAreStrings = YES;
+    for (id element in colorsArray) {
+        if (![element isKindOfClass:[NSString class]]) {
+            allElementsAreStrings = NO;
+            break;
+        }
+    }
+    
+    if (!allElementsAreStrings) {
+        NSLog(@"installColors error: not all elements in the colors array are strings.");
+        return;
+    }
+    
+    [_sshTerminalViewController installColorsWithColors:colorsArray];
+}
+
+- (void)refresh:(NSInteger)startRow endRow:(NSInteger)endRow {
     if (_sshTerminalViewController != nil) {
-        [_sshTerminalViewController installTerminalColorsWithColors:colors];
+        [_sshTerminalViewController refreshWithStartRow:startRow endRow:endRow];
+    }
+}
+
+- (void)resetToInitialState {
+    if (_sshTerminalViewController != nil) {
+        [_sshTerminalViewController resetToInitialState];
+    }
+}
+
+- (void)resize:(NSInteger)cols rows:(NSInteger)rows {
+    if (_sshTerminalViewController != nil) {
+        [_sshTerminalViewController resizeWithCols:cols rows:rows];
+    }
+}
+
+- (void)scroll {
+    if (_sshTerminalViewController != nil) {
+        [_sshTerminalViewController scroll];
+    }
+}
+
+//- (void)setCursorStyle {
+//    if (_sshTerminalViewController != nil) {
+//        [_sshTerminalViewController setCursorStyle];
+//    }
+//}
+
+- (void)setIconTitle:(NSString *)text {
+    if (_sshTerminalViewController != nil) {
+        [_sshTerminalViewController setIconTitleWithText:text];
+    }
+}
+
+- (void)setTitle:(NSString *)text {
+    if (_sshTerminalViewController != nil) {
+        [_sshTerminalViewController setTitle:text];
+    }
+}
+
+- (void)softReset {
+    if (_sshTerminalViewController != nil) {
+        [_sshTerminalViewController softReset];
+    }
+}
+
+- (void)updateFullScreen {
+    if (_sshTerminalViewController != nil) {
+        [_sshTerminalViewController updateFullScreen];
     }
 }
 

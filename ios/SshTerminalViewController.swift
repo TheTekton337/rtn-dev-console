@@ -99,7 +99,8 @@ public class SshTerminalViewController: UIViewController {
         view.addSubview(tv)
         setupKeyboardMonitor()
         let _ = tv.becomeFirstResponder()
-        self.tv.feed(text: "Welcome to SwiftTerm - connecting to my localhost\r\n\n")
+//        TODO: Troubleshoot issue with initialization without an initial feed
+        self.tv.feed(text: "Welcome to SshTerminal - initializing\r\n\n")
         
         #if false
         var text = UITextField(frame: CGRect (x: 0, y: 100, width: 300, height: 20))
@@ -198,8 +199,10 @@ public class SshTerminalViewController: UIViewController {
     }
     
     @objc
-    public func getBufferAsData() -> Data {
-        return tv.getBufferAsData()
+    public func getBufferAsString() -> NSString {
+        let bufferData = tv.getBufferAsData()
+        let base64String = bufferData.base64EncodedString()
+        return base64String as NSString
     }
     
 //    TODO: Support custom typing
@@ -260,7 +263,7 @@ public class SshTerminalViewController: UIViewController {
     }
     
     @objc
-    public func installTerminalColors(colors: [String]) {
+    public func installColors(colors: [String]) {
         tv.installTerminalColors(colors: colors)
     }
     

@@ -77,7 +77,7 @@ public class SshTerminalView: TerminalView, TerminalViewDelegate {
         let terminal = getTerminal()
         
         if !initialText.isEmpty {
-            terminal.feed(text: "\(initialText)\r\n\n")
+            terminal.feed(text: initialText)
         }
         
         debugTerminal = debug
@@ -87,7 +87,7 @@ public class SshTerminalView: TerminalView, TerminalViewDelegate {
         }
         
         shell = try SSHShell(sshLibrary: Libssh2.self, host: host, port: port, environment: environment, terminal: "vanilla")
-        
+                
         shell?.onSessionClose = {
             DispatchQueue.main.async {
                 print("SshTerminalView onSessionClose")

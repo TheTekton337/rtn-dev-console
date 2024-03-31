@@ -37,10 +37,9 @@ NS_ASSUME_NONNULL_BEGIN
 - (NSInteger)encodeButtonWithButton:(NSInteger)button release:(BOOL)release shift:(BOOL)shift meta:(BOOL)meta control:(BOOL)control;
 - (void)sendEventWithButtonFlags:(NSInteger)buttonFlags x:(NSInteger)x y:(NSInteger)y;
 - (void)sendEventWithButtonFlags:(NSInteger)buttonFlags x:(NSInteger)x y:(NSInteger)y pixelX:(NSInteger)pixelX pixelY:(NSInteger)pixelY;
-
-- (void)feedBuffer:(NSData *)buffer;
+// - (void)feedBuffer:(NSData *)buffer;
 - (void)feedText:(NSString *)text;
-- (void)feedByteArray:(NSData *)byteArray;
+// - (void)feedByteArray:(NSData *)byteArray;
 //- (void)getText;
 - (void)sendResponse:(NSData *)items;
 - (void)sendResponseText:(NSString *)text;
@@ -48,7 +47,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)clearUpdateRange;
 - (void)emitLineFeed;
 - (void)garbageCollectPayload;
-- (NSData *)getBufferAsData;
+- (NSString *)getBufferAsString;
 //- (void)getCharData;
 //- (void)getCharacter;
 //- (void)getCursorLocation;
@@ -60,11 +59,11 @@ NS_ASSUME_NONNULL_BEGIN
 //- (void)getUpdateRange;
 - (void)hideCursor;
 - (void)showCursor;
-//- (void)installPalette;
+- (void)installColors:(NSString *)colors;
 - (void)refresh:(NSInteger)startRow endRow:(NSInteger)endRow;
 //- (void)registerOscHandler;
 - (void)resetToInitialState;
-- (void)resizeTerminal:(NSInteger)cols rows:(NSInteger)rows;
+- (void)resize:(NSInteger)cols rows:(NSInteger)rows;
 - (void)scroll;
 //- (void)setCursorStyle;
 - (void)setIconTitle:(NSString *)text;

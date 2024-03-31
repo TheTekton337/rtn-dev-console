@@ -85,7 +85,7 @@ export interface NativeProps extends ViewProps {
    */
   initialText?: WithDefault<
     string,
-    'rtn-dev-console - initializing terminal...'
+    'rtn-dev-console - connecting to my localhost\\r\\n\\n'
   >;
 
   /**
@@ -199,12 +199,159 @@ export interface NativeProps extends ViewProps {
 }
 
 export interface NativeCommands {
+  sendMotionWithButtonFlags: (
+    viewRef: React.ElementRef<HostComponent<NativeProps>>,
+    buttonFlags: Int32,
+    x: Int32,
+    y: Int32,
+    pixelX: Int32,
+    pixelY: Int32
+  ) => void;
+  encodeButtonWithButton: (
+    viewRef: React.ElementRef<HostComponent<NativeProps>>,
+    button: Int32,
+    release: boolean,
+    shift: boolean,
+    meta: boolean,
+    control: boolean
+  ) => Promise<Int32>;
+  sendEventWithButtonFlags: (
+    viewRef: React.ElementRef<HostComponent<NativeProps>>,
+    buttonFlags: Int32,
+    x: Int32,
+    y: Int32
+  ) => void;
+  sendEventWithButtonFlagsPixel: (
+    viewRef: React.ElementRef<HostComponent<NativeProps>>,
+    buttonFlags: Int32,
+    x: Int32,
+    y: Int32,
+    pixelX: Int32,
+    pixelY: Int32
+  ) => void;
+  // TODO: Create conversion util if feedBuffer, feedByteArray, or sendResponse
+  //       are needed.
+  // feedBuffer: (
+  //   viewRef: React.ElementRef<HostComponent<NativeProps>>,
+  //   buffer: ArrayBuffer
+  // ) => void;
+  feedText: (
+    viewRef: React.ElementRef<HostComponent<NativeProps>>,
+    text: string
+  ) => void;
+  // feedByteArray: (
+  //   viewRef: React.ElementRef<HostComponent<NativeProps>>,
+  //   byteArray: ArrayBuffer
+  // ) => void;
+  // getText: (viewRef: React.ElementRef<HostComponent<NativeProps>>) => Promise<string>;
+  // sendResponse: (
+  //   viewRef: React.ElementRef<HostComponent<NativeProps>>,
+  //   items: ArrayBuffer
+  // ) => void;
+  sendResponseText: (
+    viewRef: React.ElementRef<HostComponent<NativeProps>>,
+    text: string
+  ) => void;
+  changedLines: (
+    viewRef: React.ElementRef<HostComponent<NativeProps>>
+  ) => Promise<Set<Int32>>;
+  clearUpdateRange: (
+    viewRef: React.ElementRef<HostComponent<NativeProps>>
+  ) => void;
+  emitLineFeed: (viewRef: React.ElementRef<HostComponent<NativeProps>>) => void;
+  garbageCollectPayload: (
+    viewRef: React.ElementRef<HostComponent<NativeProps>>
+  ) => void;
+  getBufferAsData: (
+    viewRef: React.ElementRef<HostComponent<NativeProps>>
+  ) => Promise<string>;
+  // getCharData: (viewRef: React.ElementRef<HostComponent<NativeProps>>) => Promise<any>;
+  // getCharacter: (viewRef: React.ElementRef<HostComponent<NativeProps>>) => Promise<string>;
+  // getCursorLocation: (viewRef: React.ElementRef<HostComponent<NativeProps>>) => Promise<{x: Int32, y: Int32}>;
+  // getDims: (viewRef: React.ElementRef<HostComponent<NativeProps>>) => Promise<{cols: Int32, rows: Int32}>;
+  // getLine: (viewRef: React.ElementRef<HostComponent<NativeProps>>, lineIndex: Int32) => Promise<string>;
+  // getScrollInvariantLine: (viewRef: React.ElementRef<HostComponent<NativeProps>>, lineIndex: Int32) => Promise<string>;
+  // getScrollInvariantUpdateRange: (viewRef: React.ElementRef<HostComponent<NativeProps>>) => Promise<any>;
+  getTopVisibleRow: (
+    viewRef: React.ElementRef<HostComponent<NativeProps>>
+  ) => Promise<Int32>;
+  // getUpdateRange: (viewRef: React.ElementRef<HostComponent<NativeProps>>) => Promise<any>;
   hideCursor: (viewRef: React.ElementRef<HostComponent<NativeProps>>) => void;
   showCursor: (viewRef: React.ElementRef<HostComponent<NativeProps>>) => void;
+  installColors: (
+    viewRef: React.ElementRef<HostComponent<NativeProps>>,
+    colors: string
+  ) => void;
+  refresh: (
+    viewRef: React.ElementRef<HostComponent<NativeProps>>,
+    startRow: Int32,
+    endRow: Int32
+  ) => void;
+  // registerOscHandler: (viewRef: React.ElementRef<HostComponent<NativeProps>>, command: number, callback: (data: string) => void) => void;
+  resetToInitialState: (
+    viewRef: React.ElementRef<HostComponent<NativeProps>>
+  ) => void;
+  resizeTerminal: (
+    viewRef: React.ElementRef<HostComponent<NativeProps>>,
+    cols: Int32,
+    rows: Int32
+  ) => void;
+  scroll: (viewRef: React.ElementRef<HostComponent<NativeProps>>) => void;
+  // setCursorStyle: (viewRef: React.ElementRef<HostComponent<NativeProps>>, style: string) => void;
+  setIconTitle: (
+    viewRef: React.ElementRef<HostComponent<NativeProps>>,
+    text: string
+  ) => void;
+  setTitle: (
+    viewRef: React.ElementRef<HostComponent<NativeProps>>,
+    text: string
+  ) => void;
+  softReset: (viewRef: React.ElementRef<HostComponent<NativeProps>>) => void;
+  updateFullScreen: (
+    viewRef: React.ElementRef<HostComponent<NativeProps>>
+  ) => void;
 }
 
 export const Commands = codegenNativeCommands<NativeCommands>({
-  supportedCommands: ['hideCursor', 'showCursor'],
+  supportedCommands: [
+    'sendMotionWithButtonFlags',
+    'encodeButtonWithButton',
+    'sendEventWithButtonFlags',
+    'sendEventWithButtonFlagsPixel',
+    // 'feedBuffer',
+    'feedText',
+    // 'feedByteArray',
+    // 'sendResponse',
+    'sendResponseText',
+    'changedLines',
+    'clearUpdateRange',
+    'emitLineFeed',
+    'garbageCollectPayload',
+    'getBufferAsData',
+    // 'getText',
+    'getTopVisibleRow',
+    // 'getCharData',
+    // 'getCharacter',
+    // 'getCursorLocation',
+    // 'getDims',
+    // 'getLine',
+    // 'getScrollInvariantLine',
+    // 'getScrollInvariantUpdateRange',
+    // 'getUpdateRange',
+    'hideCursor',
+    'showCursor',
+    'installColors',
+    'refresh',
+    'resetToInitialState',
+    'resizeTerminal',
+    'scroll',
+    // 'setCursorStyle',
+    'setIconTitle',
+    'setTitle',
+    'softReset',
+    'updateFullScreen',
+    // 'registerOscHandler'
+  ],
 });
 
 export default codegenNativeComponent<NativeProps>('RtnSshTerminalView');
