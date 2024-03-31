@@ -3,7 +3,6 @@ import codegenNativeComponent from 'react-native/Libraries/Utilities/codegenNati
 import type { HostComponent, ViewProps } from 'react-native';
 import type {
   Double,
-  // Float,
   Int32,
   WithDefault,
   DirectEventHandler,
@@ -105,26 +104,6 @@ export interface NativeProps extends ViewProps {
    * SSH server password
    */
   password: string;
-
-  fontColor?: string;
-  fontSize?: Int32;
-  fontFamily?: string;
-  backgroundColor?: string;
-  cursorColor?: string;
-  scrollbackLines?: WithDefault<Int32, 500>;
-
-  /**
-   * Enable or disable input to the terminal. Useful if the terminal is used only for display purposes.
-   */
-  inputEnabled?: boolean;
-
-  // onConnectionChange?: DirectEventHandler<TerminalEvent>;
-
-  /**
-   * Callback invoked when data is received from the terminal.
-   */
-  // TODO: Determine comm method.
-  // onDataReceived?: DirectEventHandler<DataEvent>;
 
   /**
    * Callback invoked when the terminal size changes, for example, after a device rotation.
