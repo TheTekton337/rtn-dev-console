@@ -10,8 +10,8 @@ import UIKit
 import SwiftTerm
 
 @objc(SshTerminalViewController)
-class SshTerminalViewController: UIViewController {
-    var tv: TerminalView!
+public class SshTerminalViewController: UIViewController {
+    var tv: SshTerminalView!
     var transparent: Bool = false
     
     var useAutoLayout: Bool {
@@ -66,7 +66,7 @@ class SshTerminalViewController: UIViewController {
     }
     
     @objc
-    override func viewWillTransition(to size: CGSize, with coordinator: UIViewControllerTransitionCoordinator) {
+    public override func viewWillTransition(to size: CGSize, with coordinator: UIViewControllerTransitionCoordinator) {
         tv.frame = CGRect (origin: tv.frame.origin, size: size)
     }
     
@@ -77,7 +77,7 @@ class SshTerminalViewController: UIViewController {
     }
     
     @objc
-    override func viewDidLoad() {
+    public override func viewDidLoad() {
         super.viewDidLoad()
         
         // Do any additional setup after loading the view, typically from a nib.
@@ -111,7 +111,7 @@ class SshTerminalViewController: UIViewController {
     }
     
     @objc
-    override func viewWillLayoutSubviews() {
+    public override func viewWillLayoutSubviews() {
         if useAutoLayout, #available(iOS 15.0, *) {
         } else {
             tv.frame = makeFrame (keyboardDelta: keyboardDelta)
@@ -119,6 +119,21 @@ class SshTerminalViewController: UIViewController {
         if transparent {
             tv.backgroundColor = UIColor.clear
         }
+    }
+    
+    @objc
+    public func initSSHConnection(host: String, port: UInt16, username: String, password: String, inputEnabled: Bool, initialText: String, debug: Bool) {
+        tv.initSSHConnection(host: host, port: port, username: username, password: password, inputEnabled: inputEnabled, initialText: initialText, debug: debug)
+    }
+    
+    @objc
+    public func hideCursor() {
+        tv.hideCursor()
+    }
+    
+    @objc
+    public func showCursor() {
+        tv.showCursor()
     }
 }
 

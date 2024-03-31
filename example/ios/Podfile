@@ -45,8 +45,8 @@ target 'RtnDevConsoleExample' do
   # See: https://github.com/CocoaPods/CocoaPods/issues/11255#issuecomment-1475314728
   pod 'CSSH', :podspec => 'https://github.com/TheTekton337/Libssh2Prebuild/raw/master/CSSH.podspec'
 
-  pod 'CSwiftSH', :git => 'https://github.com/TheTekton337/SwiftSH.git', :branch =>'master'
-  pod 'SwiftSH', :git => 'https://github.com/TheTekton337/SwiftSH.git', :branch =>'master'
+  pod 'CSwiftSH', :git => 'https://github.com/TheTekton337/SwiftSH.git', :branch =>'rtn-dev-console'
+  pod 'SwiftSH', :git => 'https://github.com/TheTekton337/SwiftSH.git', :branch =>'rtn-dev-console'
   
   pod 'SwiftTerm', :git => 'https://github.com/TheTekton337/SwiftTerm.git', :branch =>'podspec'
 

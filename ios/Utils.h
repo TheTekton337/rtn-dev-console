@@ -3,6 +3,7 @@
 
 @interface Utils : NSObject
 + hexStringToColor:(NSString *)stringToConvert;
++ objectToData:(id)object;
 @end
 
 #endif /* Utils_h */

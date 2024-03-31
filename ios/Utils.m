@@ -18,6 +18,15 @@
     return [UIColor colorWithRed:r / 255.0f green:g / 255.0f blue:b / 255.0f alpha:1.0f];
 }
 
++ objectToData:(id)object
+{
+  NSData *data = nil;
+  if (object) {
+    data = [NSKeyedArchiver archivedDataWithRootObject:data requiringSecureCoding:NO error:nil];
+  }
+  return data;
+}
+
 + (id)alloc {
   [NSException raise:@"Cannot be instantiated!" format:@"Static class 'Utils' cannot be instantiated!"];
   return nil;

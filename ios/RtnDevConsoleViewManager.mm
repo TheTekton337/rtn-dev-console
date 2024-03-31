@@ -4,6 +4,7 @@
 #import <React/UIView+React.h>
 #import <React/RCTBridge.h>
 // #import "Utils.h"
+#import "RtnDevConsoleView.h"
 
 @interface RtnDevConsoleViewManager : RCTViewManager
 @end
@@ -26,6 +27,10 @@ RCT_EXPORT_MODULE(RtnDevConsoleView)
 
 RCT_EXPORT_VIEW_PROPERTY(initialText, NSString);
 
+RCT_EXPORT_VIEW_PROPERTY(inputEnabled, BOOL);
+
+RCT_EXPORT_VIEW_PROPERTY(debug, BOOL);
+
 RCT_EXPORT_VIEW_PROPERTY(host, NSString);
 
 RCT_EXPORT_VIEW_PROPERTY(port, UInt16);
@@ -46,10 +51,68 @@ RCT_EXPORT_VIEW_PROPERTY(cursorColor, NSString);
 
 RCT_EXPORT_VIEW_PROPERTY(scrollbackLines, NSInteger);
 
-RCT_EXPORT_VIEW_PROPERTY(onDataReceived, RCTBubblingEventBlock);
+RCT_EXPORT_VIEW_PROPERTY(onConnectionChanged, RCTBubblingEventBlock);
 
 RCT_EXPORT_VIEW_PROPERTY(onSizeChanged, RCTBubblingEventBlock);
 
-RCT_EXPORT_VIEW_PROPERTY(inputEnabled, BOOL);
+RCT_EXPORT_VIEW_PROPERTY(onHostCurrentDirectoryUpdate, RCTBubblingEventBlock);
+
+RCT_EXPORT_VIEW_PROPERTY(onScrolled, RCTBubblingEventBlock);
+
+RCT_EXPORT_VIEW_PROPERTY(onRequestOpenLink, RCTBubblingEventBlock);
+
+RCT_EXPORT_VIEW_PROPERTY(onBell, RCTBubblingEventBlock);
+
+RCT_EXPORT_VIEW_PROPERTY(onClipboardCopy, RCTBubblingEventBlock);
+
+RCT_EXPORT_VIEW_PROPERTY(onITermContent, RCTBubblingEventBlock);
+
+RCT_EXPORT_VIEW_PROPERTY(onRangeChanged, RCTBubblingEventBlock);
+
+RCT_EXPORT_VIEW_PROPERTY(onTerminalLoad, RCTBubblingEventBlock);
+
+RCT_EXPORT_VIEW_PROPERTY(onConnect, RCTBubblingEventBlock);
+
+RCT_EXPORT_VIEW_PROPERTY(onClosed, RCTBubblingEventBlock);
+
+RCT_EXPORT_VIEW_PROPERTY(onSshError, RCTBubblingEventBlock);
+
+RCT_EXPORT_VIEW_PROPERTY(onSshConnectionError, RCTBubblingEventBlock);
+
+// BASE_VIEW_PER_OS(), QUICK_RCT_EXPORT_COMMAND_METHOD(), and QUICK_RCT_EXPORT_COMMAND_METHOD_PARAMS example from react-native-webview
+// See: https://github.com/react-native-webview/react-native-webview/blob/b989bd679a447c34435538588b27c86b3045ae53/apple/RNCWebViewManager.mm
+#if !TARGET_OS_OSX
+    #define BASE_VIEW_PER_OS() UIView
+#else
+    #define BASE_VIEW_PER_OS() NSView
+#endif
+
+#define QUICK_RCT_EXPORT_COMMAND_METHOD(name)                                                                                           \
+RCT_EXPORT_METHOD(name:(nonnull NSNumber *)reactTag)                                                                                    \
+{                                                                                                                                       \
+[self.bridge.uiManager addUIBlock:^(__unused RCTUIManager *uiManager, NSDictionary<NSNumber *, BASE_VIEW_PER_OS() *> *viewRegistry) {   \
+RtnDevConsoleView *view = (RtnDevConsoleView *)viewRegistry[reactTag];                                                                    \
+    if (![view isKindOfClass:[RtnDevConsoleView class]]) {                                                                                 \
+      RCTLogError(@"Invalid view returned from registry, expecting RtnDevConsoleView, got: %@", view);                                         \
+    } else {                                                                                                                            \
+      [view name];                                                                                                                      \
+    }                                                                                                                                   \
+  }];                                                                                                                                   \
+}
+#define QUICK_RCT_EXPORT_COMMAND_METHOD_PARAMS(name, in_param, out_param)                                                               \
+RCT_EXPORT_METHOD(name:(nonnull NSNumber *)reactTag in_param)                                                                           \
+{                                                                                                                                       \
+[self.bridge.uiManager addUIBlock:^(__unused RCTUIManager *uiManager, NSDictionary<NSNumber *, BASE_VIEW_PER_OS() *> *viewRegistry) {   \
+RtnDevConsoleView *view = (RtnDevConsoleView *)viewRegistry[reactTag];                                                                    \
+    if (![view isKindOfClass:[RtnDevConsoleView class]]) {                                                                                 \
+      RCTLogError(@"Invalid view returned from registry, expecting RtnDevConsoleView, got: %@", view);                                         \
+    } else {                                                                                                                            \
+      [view name:out_param];                                                                                                            \
+    }                                                                                                                                   \
+  }];                                                                                                                                   \
+}
+
+QUICK_RCT_EXPORT_COMMAND_METHOD(hideCursor)
+QUICK_RCT_EXPORT_COMMAND_METHOD(showCursor)
 
 @end
