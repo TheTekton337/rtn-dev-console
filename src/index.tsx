@@ -1,14 +1,14 @@
-import DevConsole from './DevConsole';
-import type { DevConsoleMethods } from './DevConsoleTypes';
+import SshTerminal from './SshTerminal';
+import type { SshTerminalMethods } from './SshTerminalTypes';
 import {
   type NativeCommands,
   type NativeProps,
-} from './RtnDevConsoleViewNativeComponent';
+} from './RtnSshTerminalViewNativeComponent';
 
 export {
-  DevConsole,
-  type DevConsoleMethods,
+  SshTerminal,
+  type SshTerminalMethods,
   type NativeCommands,
   type NativeProps,
 };
-export default DevConsole;
+export default SshTerminal;

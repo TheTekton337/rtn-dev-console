@@ -16,7 +16,7 @@
   "dependencies": {
     "react": "18.2.0",
     "react-native": "0.73.6",
-    "rtn-dev-console": "../rtn-dev-console-0.0.0-local.16.tgz"
+    "rtn-dev-console": "../rtn-dev-console-0.0.0-local.19.tgz"
   },
   "devDependencies": {
     "@babel/core": "^7.20.0",

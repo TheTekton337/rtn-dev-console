@@ -4,14 +4,14 @@
 #import <React/UIView+React.h>
 #import <React/RCTBridge.h>
 // #import "Utils.h"
-#import "RtnDevConsoleView.h"
+#import "RtnSshTerminalView.h"
 
-@interface RtnDevConsoleViewManager : RCTViewManager
+@interface RtnSshTerminalViewManager : RCTViewManager
 @end
 
-@implementation RtnDevConsoleViewManager
+@implementation RtnSshTerminalViewManager
 
-RCT_EXPORT_MODULE(RtnDevConsoleView)
+RCT_EXPORT_MODULE(RtnSshTerminalView)
 
  - (UIView *)view
  {
@@ -91,9 +91,9 @@ RCT_EXPORT_VIEW_PROPERTY(onSshConnectionError, RCTBubblingEventBlock);
 RCT_EXPORT_METHOD(name:(nonnull NSNumber *)reactTag)                                                                                    \
 {                                                                                                                                       \
 [self.bridge.uiManager addUIBlock:^(__unused RCTUIManager *uiManager, NSDictionary<NSNumber *, BASE_VIEW_PER_OS() *> *viewRegistry) {   \
-RtnDevConsoleView *view = (RtnDevConsoleView *)viewRegistry[reactTag];                                                                    \
-    if (![view isKindOfClass:[RtnDevConsoleView class]]) {                                                                                 \
-      RCTLogError(@"Invalid view returned from registry, expecting RtnDevConsoleView, got: %@", view);                                         \
+RtnSshTerminalView *view = (RtnSshTerminalView *)viewRegistry[reactTag];                                                                    \
+    if (![view isKindOfClass:[RtnSshTerminalView class]]) {                                                                                 \
+      RCTLogError(@"Invalid view returned from registry, expecting RtnSshTerminalView, got: %@", view);                                         \
     } else {                                                                                                                            \
       [view name];                                                                                                                      \
     }                                                                                                                                   \
@@ -103,9 +103,9 @@ RtnDevConsoleView *view = (RtnDevConsoleView *)viewRegistry[reactTag];          
 RCT_EXPORT_METHOD(name:(nonnull NSNumber *)reactTag in_param)                                                                           \
 {                                                                                                                                       \
 [self.bridge.uiManager addUIBlock:^(__unused RCTUIManager *uiManager, NSDictionary<NSNumber *, BASE_VIEW_PER_OS() *> *viewRegistry) {   \
-RtnDevConsoleView *view = (RtnDevConsoleView *)viewRegistry[reactTag];                                                                    \
-    if (![view isKindOfClass:[RtnDevConsoleView class]]) {                                                                                 \
-      RCTLogError(@"Invalid view returned from registry, expecting RtnDevConsoleView, got: %@", view);                                         \
+RtnSshTerminalView *view = (RtnSshTerminalView *)viewRegistry[reactTag];                                                                    \
+    if (![view isKindOfClass:[RtnSshTerminalView class]]) {                                                                                 \
+      RCTLogError(@"Invalid view returned from registry, expecting RtnSshTerminalView, got: %@", view);                                         \
     } else {                                                                                                                            \
       [view name:out_param];                                                                                                            \
     }                                                                                                                                   \

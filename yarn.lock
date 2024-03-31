@@ -11368,17 +11368,17 @@ __metadata:
     babel-plugin-module-resolver: ^5.0.0
     react: 18.2.0
     react-native: 0.73.6
-    rtn-dev-console: ../rtn-dev-console-0.0.0-local.16.tgz
+    rtn-dev-console: ../rtn-dev-console-0.0.0-local.19.tgz
   languageName: unknown
   linkType: soft
 
-"rtn-dev-console@file:../rtn-dev-console-0.0.0-local.16.tgz::locator=rtn-dev-console-example%40workspace%3Aexample":
+"rtn-dev-console@file:../rtn-dev-console-0.0.0-local.19.tgz::locator=rtn-dev-console-example%40workspace%3Aexample":
   version: 0.1.4
-  resolution: "rtn-dev-console@file:../rtn-dev-console-0.0.0-local.16.tgz::locator=rtn-dev-console-example%40workspace%3Aexample"
+  resolution: "rtn-dev-console@file:../rtn-dev-console-0.0.0-local.19.tgz::locator=rtn-dev-console-example%40workspace%3Aexample"
   peerDependencies:
     react: "*"
     react-native: "*"
-  checksum: 19941b0247c936da1f6b1177fe8cbe45e3e0d9ac60f1d7c8fffaae1254b57738700875e6d4f131748ebd3108fe6ff3d7a6b3f286489c568decc34b695be16035
+  checksum: e630a4619a84bce809a940a5603fc864cf7449e295634bb69ba8f6d6c0cf235ac6fa7cee1368368709466aac36611610be36f9dcf8e685e02a93cfd2aca25f4d
   languageName: node
   linkType: hard
 

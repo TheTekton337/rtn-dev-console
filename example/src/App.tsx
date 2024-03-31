@@ -8,13 +8,10 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import { DevConsole, type DevConsoleMethods } from 'rtn-dev-console';
+import { SshTerminal, type SshTerminalMethods } from 'rtn-dev-console';
 
 export default function App() {
-  const ref = useRef<DevConsoleMethods | null>(null);
-  // const ref = useRef<React.Ref<typeof DevConsole> | null>(null);
-  // const ref = useRef<DevConsoleMethods>(null);
-  // const ref = useRef<React.ComponentRef<typeof DevConsole> | null>();
+  const ref = useRef<SshTerminalMethods | null>(null);
   const [borderColor, setBorderColor] = useState('transparent');
   const [borderWidth, setBorderWidth] = useState(0);
   const [_, setCursorVisible] = useState(true);
@@ -59,7 +56,7 @@ export default function App() {
         </TouchableOpacity>
       </View>
       <View style={[styles.container, { borderColor, borderWidth }]}>
-        <DevConsole
+        <SshTerminal
           ref={ref}
           host="192.168.0.1"
           port={22}

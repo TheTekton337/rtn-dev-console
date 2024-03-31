@@ -207,4 +207,4 @@ export const Commands = codegenNativeCommands<NativeCommands>({
   supportedCommands: ['hideCursor', 'showCursor'],
 });
 
-export default codegenNativeComponent<NativeProps>('RtnDevConsoleView');
+export default codegenNativeComponent<NativeProps>('RtnSshTerminalView');

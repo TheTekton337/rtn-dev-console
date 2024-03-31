@@ -158,7 +158,7 @@
     ]
   },
   "codegenConfig": {
-    "name": "RNRtnDevConsoleViewSpec",
+    "name": "RNRtnSshTerminalViewSpec",
     "type": "components",
     "jsSrcsDir": "src"
   }

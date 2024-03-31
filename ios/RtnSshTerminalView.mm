@@ -1,10 +1,10 @@
 #ifdef RCT_NEW_ARCH_ENABLED
-#import "RtnDevConsoleView.h"
+#import "RtnSshTerminalView.h"
 
-#import <react/renderer/components/RNRtnDevConsoleViewSpec/ComponentDescriptors.h>
-#import <react/renderer/components/RNRtnDevConsoleViewSpec/EventEmitters.h>
-#import <react/renderer/components/RNRtnDevConsoleViewSpec/Props.h>
-#import <react/renderer/components/RNRtnDevConsoleViewSpec/RCTComponentViewHelpers.h>
+#import <react/renderer/components/RNRtnSshTerminalViewSpec/ComponentDescriptors.h>
+#import <react/renderer/components/RNRtnSshTerminalViewSpec/EventEmitters.h>
+#import <react/renderer/components/RNRtnSshTerminalViewSpec/Props.h>
+#import <react/renderer/components/RNRtnSshTerminalViewSpec/RCTComponentViewHelpers.h>
 
 #import "RCTFabricComponentsPlugins.h"
 #import "Utils.h"
@@ -15,11 +15,11 @@
 
 using namespace facebook::react;
 
-@interface RtnDevConsoleView () <RCTRtnDevConsoleViewViewProtocol>
+@interface RtnSshTerminalView () <RCTRtnSshTerminalViewViewProtocol>
 
 @end
 
-@implementation RtnDevConsoleView {
+@implementation RtnSshTerminalView {
     SshTerminalViewController *_sshTerminalViewController;
 
     Boolean _connected;
@@ -44,16 +44,16 @@ using namespace facebook::react;
 
 + (ComponentDescriptorProvider)componentDescriptorProvider
 {
-    return concreteComponentDescriptorProvider<RtnDevConsoleViewComponentDescriptor>();
+    return concreteComponentDescriptorProvider<RtnSshTerminalViewComponentDescriptor>();
 }
 
 - (instancetype)initWithFrame:(CGRect)frame
 {
   if (self = [super initWithFrame:frame]) {
-    static const auto defaultProps = std::make_shared<const RtnDevConsoleViewProps>();
+    static const auto defaultProps = std::make_shared<const RtnSshTerminalViewProps>();
     _props = defaultProps;
 
-    const auto &newViewProps = *std::static_pointer_cast<RtnDevConsoleViewProps const>(_props);
+    const auto &newViewProps = *std::static_pointer_cast<RtnSshTerminalViewProps const>(_props);
 
     _connected = NO;
 
@@ -87,8 +87,8 @@ using namespace facebook::react;
 
 - (void)updateProps:(Props::Shared const &)props oldProps:(Props::Shared const &)oldProps
 {
-    const auto &oldViewProps = *std::static_pointer_cast<RtnDevConsoleViewProps const>(_props);
-    const auto &newViewProps = *std::static_pointer_cast<RtnDevConsoleViewProps const>(props);
+    const auto &oldViewProps = *std::static_pointer_cast<RtnSshTerminalViewProps const>(_props);
+    const auto &newViewProps = *std::static_pointer_cast<RtnSshTerminalViewProps const>(props);
 
     if (oldViewProps.debug!= newViewProps.debug) {
         _inputEnabled = newViewProps.inputEnabled;
@@ -130,50 +130,50 @@ using namespace facebook::react;
 }
 
 - (void)handleCommand:(nonnull const NSString *)commandName args:(nonnull const NSArray *)args {
-    RCTRtnDevConsoleViewHandleCommand(self, commandName, args);
+    RCTRtnSshTerminalViewHandleCommand(self, commandName, args);
 }
 
-Class<RCTComponentViewProtocol> RtnDevConsoleViewCls(void)
+Class<RCTComponentViewProtocol> RtnSshTerminalViewCls(void)
 {
-    return RtnDevConsoleView.class;
+    return RtnSshTerminalView.class;
 }
 
 - (void)onSizeChangedWithSource:(TerminalView * _Nonnull)source newCols:(NSInteger)newCols newRows:(NSInteger)newRows {
-    auto rtnDevConsoleEventEmitter = std::static_pointer_cast<RtnDevConsoleViewEventEmitter const>(_eventEmitter);
+    auto rtnSshTerminalEventEmitter = std::static_pointer_cast<RtnSshTerminalViewEventEmitter const>(_eventEmitter);
     
-    facebook::react::RtnDevConsoleViewEventEmitter::OnSizeChanged data = {
+    facebook::react::RtnSshTerminalViewEventEmitter::OnSizeChanged data = {
         .terminalId = static_cast<int>(source.tag),
         .newCols = static_cast<int>(newCols),
         .newRows = static_cast<int>(newRows),
     };
 
-    rtnDevConsoleEventEmitter->onSizeChanged(data);
+    rtnSshTerminalEventEmitter->onSizeChanged(data);
 }
 
 - (void)onHostCurrentDirectoryUpdateWithSource:(TerminalView * _Nonnull)source directory:(NSString * _Nullable)directory {
-    auto rtnDevConsoleEventEmitter = std::static_pointer_cast<RtnDevConsoleViewEventEmitter const>(_eventEmitter);
+    auto rtnSshTerminalEventEmitter = std::static_pointer_cast<RtnSshTerminalViewEventEmitter const>(_eventEmitter);
     
-    facebook::react::RtnDevConsoleViewEventEmitter::OnHostCurrentDirectoryUpdate data = {
+    facebook::react::RtnSshTerminalViewEventEmitter::OnHostCurrentDirectoryUpdate data = {
         .terminalId = static_cast<int>(source.tag),
         .directory = directory ? std::string([directory UTF8String]) : std::string(),
     };
 
-    rtnDevConsoleEventEmitter->onHostCurrentDirectoryUpdate(data);
+    rtnSshTerminalEventEmitter->onHostCurrentDirectoryUpdate(data);
 }
 
 - (void)onScrolledWithSource:(TerminalView * _Nonnull)source position:(double)position {
-    auto rtnDevConsoleEventEmitter = std::static_pointer_cast<RtnDevConsoleViewEventEmitter const>(_eventEmitter);
+    auto rtnSshTerminalEventEmitter = std::static_pointer_cast<RtnSshTerminalViewEventEmitter const>(_eventEmitter);
     
-    facebook::react::RtnDevConsoleViewEventEmitter::OnScrolled data = {
+    facebook::react::RtnSshTerminalViewEventEmitter::OnScrolled data = {
         .terminalId = static_cast<int>(source.tag),
         .position = static_cast<double>(position),
     };
 
-    rtnDevConsoleEventEmitter->onScrolled(data);
+    rtnSshTerminalEventEmitter->onScrolled(data);
 }
 
 - (void)onRequestOpenLinkWithSource:(TerminalView * _Nonnull)source link:(NSString * _Nonnull)link params:(NSDictionary<NSString *,NSString *> * _Nonnull)params {
-    auto rtnDevConsoleEventEmitter = std::static_pointer_cast<RtnDevConsoleViewEventEmitter const>(_eventEmitter);
+    auto rtnSshTerminalEventEmitter = std::static_pointer_cast<RtnSshTerminalViewEventEmitter const>(_eventEmitter);
         
     NSError *error;
     NSData *jsonData = [NSJSONSerialization dataWithJSONObject:params options:0 error:&error];
@@ -186,38 +186,38 @@ Class<RCTComponentViewProtocol> RtnDevConsoleViewCls(void)
     
     NSString *paramsJson = [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
     
-    facebook::react::RtnDevConsoleViewEventEmitter::OnRequestOpenLink data = {
+    facebook::react::RtnSshTerminalViewEventEmitter::OnRequestOpenLink data = {
         .terminalId = static_cast<int>(source.tag),
         .link = std::string([link UTF8String]),
         .params = std::string([paramsJson UTF8String]),
     };
 
-    rtnDevConsoleEventEmitter->onRequestOpenLink(data);
+    rtnSshTerminalEventEmitter->onRequestOpenLink(data);
 }
 
 - (void)onBellWithSource:(TerminalView * _Nonnull)source {
-    auto rtnDevConsoleEventEmitter = std::static_pointer_cast<RtnDevConsoleViewEventEmitter const>(_eventEmitter);
+    auto rtnSshTerminalEventEmitter = std::static_pointer_cast<RtnSshTerminalViewEventEmitter const>(_eventEmitter);
     
-    facebook::react::RtnDevConsoleViewEventEmitter::OnBell data = {
+    facebook::react::RtnSshTerminalViewEventEmitter::OnBell data = {
         .terminalId = static_cast<int>(source.tag),
     };
     
-    rtnDevConsoleEventEmitter->onBell(data);
+    rtnSshTerminalEventEmitter->onBell(data);
 }
 
 - (void)onClipboardCopyWithSource:(TerminalView * _Nonnull)source content:(NSString * _Nonnull)content {
-    auto rtnDevConsoleEventEmitter = std::static_pointer_cast<RtnDevConsoleViewEventEmitter const>(_eventEmitter);
+    auto rtnSshTerminalEventEmitter = std::static_pointer_cast<RtnSshTerminalViewEventEmitter const>(_eventEmitter);
     
-    facebook::react::RtnDevConsoleViewEventEmitter::OnClipboardCopy data = {
+    facebook::react::RtnSshTerminalViewEventEmitter::OnClipboardCopy data = {
         .terminalId = static_cast<int>(source.tag),
         .content = std::string([content UTF8String]),
     };
 
-    rtnDevConsoleEventEmitter->onClipboardCopy(data);
+    rtnSshTerminalEventEmitter->onClipboardCopy(data);
 }
 
 - (void)onITermContentWithSource:(TerminalView * _Nonnull)source content:(NSData * _Nonnull)content {
-    auto rtnDevConsoleEventEmitter = std::static_pointer_cast<RtnDevConsoleViewEventEmitter const>(_eventEmitter);
+    auto rtnSshTerminalEventEmitter = std::static_pointer_cast<RtnSshTerminalViewEventEmitter const>(_eventEmitter);
         
     NSError *error;
     NSData *jsonData = [NSJSONSerialization dataWithJSONObject:content options:0 error:&error];
@@ -230,59 +230,59 @@ Class<RCTComponentViewProtocol> RtnDevConsoleViewCls(void)
     
     NSString *paramsJson = [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
     
-    facebook::react::RtnDevConsoleViewEventEmitter::OnITermContent data = {
+    facebook::react::RtnSshTerminalViewEventEmitter::OnITermContent data = {
         .terminalId = static_cast<int>(source.tag),
         .content = std::string([paramsJson UTF8String]),
     };
 
-    rtnDevConsoleEventEmitter->onITermContent(data);
+    rtnSshTerminalEventEmitter->onITermContent(data);
 }
 
 - (void)onRangeChangedWithSource:(TerminalView * _Nonnull)source startY:(NSInteger)startY endY:(NSInteger)endY {
-    auto rtnDevConsoleEventEmitter = std::static_pointer_cast<RtnDevConsoleViewEventEmitter const>(_eventEmitter);
+    auto rtnSshTerminalEventEmitter = std::static_pointer_cast<RtnSshTerminalViewEventEmitter const>(_eventEmitter);
     
-    facebook::react::RtnDevConsoleViewEventEmitter::OnRangeChanged data = {
+    facebook::react::RtnSshTerminalViewEventEmitter::OnRangeChanged data = {
         .terminalId = static_cast<int>(source.tag),
         .startY = static_cast<int>(startY),
         .endY = static_cast<int>(endY),
     };
 
-    rtnDevConsoleEventEmitter->onRangeChanged(data);
+    rtnSshTerminalEventEmitter->onRangeChanged(data);
 }
 
 - (void)onLoadWithSource:(TerminalView * _Nonnull)source {
-    auto rtnDevConsoleEventEmitter = std::static_pointer_cast<RtnDevConsoleViewEventEmitter const>(_eventEmitter);
+    auto rtnSshTerminalEventEmitter = std::static_pointer_cast<RtnSshTerminalViewEventEmitter const>(_eventEmitter);
     
-    facebook::react::RtnDevConsoleViewEventEmitter::OnTerminalLoad data = {
+    facebook::react::RtnSshTerminalViewEventEmitter::OnTerminalLoad data = {
         .terminalId = static_cast<int>(source.tag)
     };
 
-    rtnDevConsoleEventEmitter->onTerminalLoad(data);
+    rtnSshTerminalEventEmitter->onTerminalLoad(data);
 }
 
 - (void)onConnectWithSource:(TerminalView * _Nonnull)source {
-    auto rtnDevConsoleEventEmitter = std::static_pointer_cast<RtnDevConsoleViewEventEmitter const>(_eventEmitter);
+    auto rtnSshTerminalEventEmitter = std::static_pointer_cast<RtnSshTerminalViewEventEmitter const>(_eventEmitter);
     
-    facebook::react::RtnDevConsoleViewEventEmitter::OnConnect data = {
+    facebook::react::RtnSshTerminalViewEventEmitter::OnConnect data = {
         .terminalId = static_cast<int>(source.tag)
     };
 
-    rtnDevConsoleEventEmitter->onConnect(data);
+    rtnSshTerminalEventEmitter->onConnect(data);
 }
 
 - (void)onClosedWithSource:(TerminalView * _Nonnull)source reason:(NSString * _Nonnull)reason {
-    auto rtnDevConsoleEventEmitter = std::static_pointer_cast<RtnDevConsoleViewEventEmitter const>(_eventEmitter);
+    auto rtnSshTerminalEventEmitter = std::static_pointer_cast<RtnSshTerminalViewEventEmitter const>(_eventEmitter);
     
-    facebook::react::RtnDevConsoleViewEventEmitter::OnClosed data = {
+    facebook::react::RtnSshTerminalViewEventEmitter::OnClosed data = {
         .terminalId = static_cast<int>(source.tag),
         .reason = std::string([reason UTF8String])
     };
 
-    rtnDevConsoleEventEmitter->onClosed(data);
+    rtnSshTerminalEventEmitter->onClosed(data);
 }
 
 - (void)onSshErrorWithSource:(TerminalView * _Nullable)source error:(NSData * _Nonnull)error {
-    auto rtnDevConsoleEventEmitter = std::static_pointer_cast<RtnDevConsoleViewEventEmitter const>(_eventEmitter);
+    auto rtnSshTerminalEventEmitter = std::static_pointer_cast<RtnSshTerminalViewEventEmitter const>(_eventEmitter);
         
     NSError *jsonError;
     NSData *jsonData = [NSJSONSerialization dataWithJSONObject:error options:0 error:&jsonError];
@@ -295,16 +295,16 @@ Class<RCTComponentViewProtocol> RtnDevConsoleViewCls(void)
     
     NSString *errorJson = [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
     
-    facebook::react::RtnDevConsoleViewEventEmitter::OnSshError data = {
+    facebook::react::RtnSshTerminalViewEventEmitter::OnSshError data = {
         .terminalId = static_cast<int>(source.tag),
         .error = std::string([errorJson UTF8String]),
     };
 
-    rtnDevConsoleEventEmitter->onSshError(data);
+    rtnSshTerminalEventEmitter->onSshError(data);
 }
 
 - (void)onSshConnectionErrorWithSource:(TerminalView * _Nonnull)source error:(NSError * _Nonnull)error { 
-    auto rtnDevConsoleEventEmitter = std::static_pointer_cast<RtnDevConsoleViewEventEmitter const>(_eventEmitter);
+    auto rtnSshTerminalEventEmitter = std::static_pointer_cast<RtnSshTerminalViewEventEmitter const>(_eventEmitter);
         
     NSError *jsonError;
     NSData *jsonData = [NSJSONSerialization dataWithJSONObject:error.userInfo options:0 error:&jsonError];
@@ -317,12 +317,12 @@ Class<RCTComponentViewProtocol> RtnDevConsoleViewCls(void)
     
     NSString *errorJson = [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
     
-    facebook::react::RtnDevConsoleViewEventEmitter::OnSshConnectionError data = {
+    facebook::react::RtnSshTerminalViewEventEmitter::OnSshConnectionError data = {
         .terminalId = static_cast<int>(source.tag),
         .error = std::string([errorJson UTF8String]),
     };
 
-    rtnDevConsoleEventEmitter->onSshConnectionError(data);
+    rtnSshTerminalEventEmitter->onSshConnectionError(data);
 }
 
 - (void)hideCursor {

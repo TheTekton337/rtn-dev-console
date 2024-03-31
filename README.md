@@ -11,11 +11,11 @@ npm install rtn-dev-console
 ## Usage
 
 ```js
-import { RtnDevConsoleView } from 'rtn-dev-console';
+import { RtnSshTerminalView } from 'rtn-dev-console';
 
 // ...
 
-<RtnDevConsoleView />;
+<RtnSshTerminalView />;
 ```
 
 ## Contributing

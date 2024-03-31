@@ -9,12 +9,12 @@
 #import <SwiftSH/SwiftSH-Swift.h>
 #import <rtn_dev_console/rtn_dev_console-Swift.h>
 
-#ifndef RtnDevConsoleViewNativeComponent_h
-#define RtnDevConsoleViewNativeComponent_h
+#ifndef RtnSshTerminalViewNativeComponent_h
+#define RtnSshTerminalViewNativeComponent_h
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface RtnDevConsoleView : RCTViewComponentView<SshTerminalViewDelegate>
+@interface RtnSshTerminalView : RCTViewComponentView<SshTerminalViewDelegate>
 
 @property (nonatomic, copy) RCTBubblingEventBlock onSizeChanged;
 @property (nonatomic, copy) RCTBubblingEventBlock onHostCurrentDirectoryUpdate;
@@ -37,5 +37,5 @@ NS_ASSUME_NONNULL_BEGIN
 
 NS_ASSUME_NONNULL_END
 
-#endif /* RtnDevConsoleViewNativeComponent_h */
+#endif /* RtnSshTerminalViewNativeComponent_h */
 #endif /* RCT_NEW_ARCH_ENABLED */
