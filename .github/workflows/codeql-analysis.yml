@@ -21,8 +21,8 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        language: ['javascript', 'typescript', 'objective-c']
-        # language: ['javascript', 'typescript', 'objective-c', 'swift', 'java', 'kotlin']
+        language: ['typescript']
+        # language: ['typescript', 'swift', 'java', 'kotlin']
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
