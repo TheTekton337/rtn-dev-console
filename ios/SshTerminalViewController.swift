@@ -12,7 +12,11 @@ import SwiftTerm
 @objc(SshTerminalViewController)
 public class SshTerminalViewController: UIViewController {
     var tv: SshTerminalView!
+//    TODO: Wire up for RTN
     var transparent: Bool = false
+//    TODO: Add support for disabling keyboard to SwiftTerm
+//    var isInputEnabled: Bool = true
+    var inputBlockerView: UIView?
     
     var useAutoLayout: Bool {
         get { true }
@@ -123,8 +127,48 @@ public class SshTerminalViewController: UIViewController {
     }
     
     @objc
-    public func initSSHConnection(host: String, port: UInt16, username: String, password: String, inputEnabled: Bool, initialText: String, debug: Bool) {
-        tv.initSSHConnection(host: host, port: port, username: username, password: password, inputEnabled: inputEnabled, initialText: initialText, debug: debug)
+    public func destroySshTerminalView(){
+        tv.closeSSHConnection({
+            super.removeFromParent()
+        })
+    }
+    
+    @objc
+    public func closeSSHConnection(_ completion: (() -> Void)?) {
+        tv.closeSSHConnection(completion)
+    }
+    
+    @objc
+    public func initSSHConnection(withConfig config: [String: Any]) {
+        tv.initSSHConnection(withConfig: config)
+    }
+    
+    @objc
+    public func registerOscHandlers(oscCodes: [Int]) {
+        let terminal = self.tv.getTerminal()
+        
+        for code in oscCodes {
+            let handler = createOscHandler(forCode: code)
+            terminal.registerOscHandler(code: code, handler: handler)
+        }
+    }
+    
+    private func createOscHandler(forCode code: Int) -> (ArraySlice<UInt8>) -> Void {
+        let handler: (ArraySlice<UInt8>) -> Void = { data in            
+            // TODO: Get feedback on encoding behavior
+            if let message = String(bytes: Array(data), encoding: .utf8) {
+                self.tv.notifyOSC(code: code, data: message)
+            } else {
+                let encodedData = Data(Array(data)).base64EncodedString()
+                self.tv.notifyOSC(code: code, data: encodedData)
+            }
+        }
+        return handler
+    }
+    
+    @objc
+    public func writeCommand(command: String) {
+        tv.writeCommand(command: command)
     }
     
     @objc

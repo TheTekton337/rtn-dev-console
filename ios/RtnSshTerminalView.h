@@ -16,6 +16,10 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface RtnSshTerminalView : RCTViewComponentView<SshTerminalViewDelegate>
 
+@property (nonatomic, copy) RCTBubblingEventBlock onTerminalLog;
+@property (nonatomic, copy) RCTBubblingEventBlock onOSC;
+@property (nonatomic, copy) RCTBubblingEventBlock onConnected;
+@property (nonatomic, copy) RCTBubblingEventBlock onClosed;
 @property (nonatomic, copy) RCTBubblingEventBlock onSizeChanged;
 @property (nonatomic, copy) RCTBubblingEventBlock onHostCurrentDirectoryUpdate;
 @property (nonatomic, copy) RCTBubblingEventBlock onScrolled;
@@ -24,11 +28,11 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, copy) RCTBubblingEventBlock onClipboardCopy;
 @property (nonatomic, copy) RCTBubblingEventBlock onITermContent;
 @property (nonatomic, copy) RCTBubblingEventBlock onRangeChanged;
-@property (nonatomic, copy) RCTBubblingEventBlock onConnected;
-@property (nonatomic, copy) RCTBubblingEventBlock onClosed;
-@property (nonatomic, copy) RCTBubblingEventBlock onSshError;
-@property (nonatomic, copy) RCTBubblingEventBlock onSshConnectionError;
 
+- (void)connect:(Boolean)forceConnect;
+- (void)connect;
+- (void)close;
+- (void)writeCommand:(NSString *) command;
 - (void)sendMotionWithButtonFlags:(NSInteger)buttonFlags
                                 x:(NSInteger)x
                                 y:(NSInteger)y

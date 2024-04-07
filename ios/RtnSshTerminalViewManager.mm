@@ -3,7 +3,7 @@
 #import <React/RCTEventDispatcher.h>
 #import <React/UIView+React.h>
 #import <React/RCTBridge.h>
-// #import "Utils.h"
+
 #import "RtnSshTerminalView.h"
 
 @interface RtnSshTerminalViewManager : RCTViewManager
@@ -20,36 +20,28 @@ RCT_EXPORT_MODULE(RtnSshTerminalView)
 
 #pragma mark - Exported View Properties
 
-// RCT_CUSTOM_VIEW_PROPERTY(color, NSString, UIView)
-// {
-//   [view setBackgroundColor: [Utils hexStringToColor:json]];
-// }
-
 RCT_EXPORT_VIEW_PROPERTY(initialText, NSString);
 
-RCT_EXPORT_VIEW_PROPERTY(inputEnabled, BOOL);
+//TODO: Support inputEnabled prop
+//RCT_EXPORT_VIEW_PROPERTY(inputEnabled, BOOL);
 
 RCT_EXPORT_VIEW_PROPERTY(debug, BOOL);
 
-RCT_EXPORT_VIEW_PROPERTY(host, NSString);
+RCT_EXPORT_VIEW_PROPERTY(autoConnect, BOOL);
 
-RCT_EXPORT_VIEW_PROPERTY(port, UInt16);
+RCT_EXPORT_VIEW_PROPERTY(hostConfig, NSDictionary);
 
-RCT_EXPORT_VIEW_PROPERTY(username, NSString);
+RCT_EXPORT_VIEW_PROPERTY(authConfig, NSDictionary);
 
-RCT_EXPORT_VIEW_PROPERTY(password, NSString);
+RCT_EXPORT_VIEW_PROPERTY(oscHandlerCodes, NSArray);
 
-RCT_EXPORT_VIEW_PROPERTY(fontColor, NSString);
+RCT_EXPORT_VIEW_PROPERTY(onTerminalLog, RCTBubblingEventBlock);
 
-RCT_EXPORT_VIEW_PROPERTY(fontSize, CGFloat);
+RCT_EXPORT_VIEW_PROPERTY(onConnect, RCTBubblingEventBlock);
 
-RCT_EXPORT_VIEW_PROPERTY(fontFamily, NSString);
+RCT_EXPORT_VIEW_PROPERTY(onClosed, RCTBubblingEventBlock);
 
-RCT_EXPORT_VIEW_PROPERTY(backgroundColor, NSString);
-
-RCT_EXPORT_VIEW_PROPERTY(cursorColor, NSString);
-
-RCT_EXPORT_VIEW_PROPERTY(scrollbackLines, NSInteger);
+RCT_EXPORT_VIEW_PROPERTY(onOSC, RCTBubblingEventBlock);
 
 RCT_EXPORT_VIEW_PROPERTY(onConnectionChanged, RCTBubblingEventBlock);
 
@@ -68,16 +60,6 @@ RCT_EXPORT_VIEW_PROPERTY(onClipboardCopy, RCTBubblingEventBlock);
 RCT_EXPORT_VIEW_PROPERTY(onITermContent, RCTBubblingEventBlock);
 
 RCT_EXPORT_VIEW_PROPERTY(onRangeChanged, RCTBubblingEventBlock);
-
-RCT_EXPORT_VIEW_PROPERTY(onTerminalLoad, RCTBubblingEventBlock);
-
-RCT_EXPORT_VIEW_PROPERTY(onConnect, RCTBubblingEventBlock);
-
-RCT_EXPORT_VIEW_PROPERTY(onClosed, RCTBubblingEventBlock);
-
-RCT_EXPORT_VIEW_PROPERTY(onSshError, RCTBubblingEventBlock);
-
-RCT_EXPORT_VIEW_PROPERTY(onSshConnectionError, RCTBubblingEventBlock);
 
 // BASE_VIEW_PER_OS(), QUICK_RCT_EXPORT_COMMAND_METHOD(), and QUICK_RCT_EXPORT_COMMAND_METHOD_PARAMS example from react-native-webview
 // See: https://github.com/react-native-webview/react-native-webview/blob/b989bd679a447c34435538588b27c86b3045ae53/apple/RNCWebViewManager.mm
@@ -112,15 +94,24 @@ RtnSshTerminalView *view = (RtnSshTerminalView *)viewRegistry[reactTag];        
   }];                                                                                                                                   \
 }
 
-QUICK_RCT_EXPORT_COMMAND_METHOD(clearUpdateRange)
-QUICK_RCT_EXPORT_COMMAND_METHOD(emitLineFeed)
-QUICK_RCT_EXPORT_COMMAND_METHOD(garbageCollectPayload)
-QUICK_RCT_EXPORT_COMMAND_METHOD(hideCursor)
-QUICK_RCT_EXPORT_COMMAND_METHOD(showCursor)
-QUICK_RCT_EXPORT_COMMAND_METHOD(resetToInitialState)
-QUICK_RCT_EXPORT_COMMAND_METHOD(scroll)
-QUICK_RCT_EXPORT_COMMAND_METHOD(softReset)
-QUICK_RCT_EXPORT_COMMAND_METHOD(updateFullScreen)
+QUICK_RCT_EXPORT_COMMAND_METHOD(connect)
+QUICK_RCT_EXPORT_COMMAND_METHOD(close)
+
+RCT_EXPORT_METHOD(write:(nonnull NSNumber *)reactTag
+                  command:(NSString *)command)
+{
+    [self.bridge.uiManager addUIBlock:^(RCTUIManager *uiManager, NSDictionary<NSNumber *, UIView *> *viewRegistry) {
+        RtnSshTerminalView *view = (RtnSshTerminalView *)viewRegistry[reactTag];
+        if ([view isKindOfClass:[RtnSshTerminalView class]]) {
+            [view writeCommand:command];
+        }
+    }];
+}
+
+// Terminal methods
+
+// TODO: Support callback and interactive authentication
+// QUICK_RCT_EXPORT_COMMAND_METHOD(sendInteractiveAuthentication)
 
 // TODO: Consider supporting QUICK_RCT_EXPORT_COMMAND_METHOD_PARAMS instead
 RCT_EXPORT_METHOD(sendMotionWithButtonFlags:(nonnull NSNumber *)reactTag
@@ -219,17 +210,18 @@ RCT_EXPORT_METHOD(feedText:(nonnull NSNumber *)reactTag
 //    }];
 //}
 
-RCT_EXPORT_METHOD(sendResponse:(nonnull NSNumber *)reactTag
-                  items:(NSString *)items)
-{
-    [self.bridge.uiManager addUIBlock:^(RCTUIManager *uiManager, NSDictionary<NSNumber *, UIView *> *viewRegistry) {
-        RtnSshTerminalView *view = (RtnSshTerminalView *)viewRegistry[reactTag];
-        if ([view isKindOfClass:[RtnSshTerminalView class]]) {
-            NSData *data = [[NSData alloc] initWithBase64EncodedString:items options:0];
-            [view sendResponse:data];
-        }
-    }];
-}
+// TODO: Consider supporting for release (custom codegen typing? JSON?)
+// RCT_EXPORT_METHOD(sendResponse:(nonnull NSNumber *)reactTag
+//                   items:(NSString *)items)
+// {
+//     [self.bridge.uiManager addUIBlock:^(RCTUIManager *uiManager, NSDictionary<NSNumber *, UIView *> *viewRegistry) {
+//         RtnSshTerminalView *view = (RtnSshTerminalView *)viewRegistry[reactTag];
+//         if ([view isKindOfClass:[RtnSshTerminalView class]]) {
+//             NSData *data = [[NSData alloc] initWithBase64EncodedString:items options:0];
+//             [view sendResponse:data];
+//         }
+//     }];
+// }
 
 RCT_EXPORT_METHOD(sendResponseText:(nonnull NSNumber *)reactTag
                   text:(NSString *)text)
@@ -258,6 +250,10 @@ RCT_EXPORT_METHOD(changedLines:(nonnull NSNumber *)reactTag
     }];
 }
 
+QUICK_RCT_EXPORT_COMMAND_METHOD(clearUpdateRange)
+QUICK_RCT_EXPORT_COMMAND_METHOD(emitLineFeed)
+QUICK_RCT_EXPORT_COMMAND_METHOD(garbageCollectPayload)
+
 RCT_EXPORT_METHOD(getBufferAsString:(nonnull NSNumber *)reactTag
                   resolver:(RCTPromiseResolveBlock)resolve
                   rejecter:(RCTPromiseRejectBlock)reject)
@@ -273,6 +269,21 @@ RCT_EXPORT_METHOD(getBufferAsString:(nonnull NSNumber *)reactTag
     }];
 }
 
+//RCT_EXPORT_METHOD(getText:(nonnull NSNumber *)reactTag
+//                  resolver:(RCTPromiseResolveBlock)resolve
+//                  rejecter:(RCTPromiseRejectBlock)reject)
+//{
+//    [self.bridge.uiManager addUIBlock:^(RCTUIManager *uiManager, NSDictionary<NSNumber *, UIView *> *viewRegistry) {
+//        RtnSshTerminalView *view = (RtnSshTerminalView *)viewRegistry[reactTag];
+//        if ([view isKindOfClass:[RtnSshTerminalView class]]) {
+//            NSString *text = [view getText];
+//            resolve(text);
+//        } else {
+//            reject(@"no_view", @"Couldn't find RtnSshTerminalView", nil);
+//        }
+//    }];
+//}
+
 RCT_EXPORT_METHOD(getTopVisibleRow:(nonnull NSNumber *)reactTag
                   resolver:(RCTPromiseResolveBlock)resolve
                   rejecter:(RCTPromiseRejectBlock)reject)
@@ -287,6 +298,133 @@ RCT_EXPORT_METHOD(getTopVisibleRow:(nonnull NSNumber *)reactTag
         }
     }];
 }
+
+// **
+
+//RCT_EXPORT_METHOD(getCharDataString:(nonnull NSNumber *)reactTag
+//                  resolver:(RCTPromiseResolveBlock)resolve
+//                  rejecter:(RCTPromiseRejectBlock)reject)
+//{
+//    [self.bridge.uiManager addUIBlock:^(RCTUIManager *uiManager, NSDictionary<NSNumber *, UIView *> *viewRegistry) {
+//        RtnSshTerminalView *view = (RtnSshTerminalView *)viewRegistry[reactTag];
+//        if ([view isKindOfClass:[RtnSshTerminalView class]]) {
+//            NSString *charDataString = [view getCharDataString];
+//            resolve(charDataString);
+//        } else {
+//            reject(@"no_view", @"Couldn't find RtnSshTerminalView", nil);
+//        }
+//    }];
+//}
+
+// RCT_EXPORT_METHOD(getCharacter:(nonnull NSNumber *)reactTag
+//                   resolver:(RCTPromiseResolveBlock)resolve
+//                   rejecter:(RCTPromiseRejectBlock)reject)
+// {
+//     [self.bridge.uiManager addUIBlock:^(RCTUIManager *uiManager, NSDictionary<NSNumber *, UIView *> *viewRegistry) {
+//         RtnSshTerminalView *view = (RtnSshTerminalView *)viewRegistry[reactTag];
+//         if ([view isKindOfClass:[RtnSshTerminalView class]]) {
+//             NSString *charDataString = [view getCharacter];
+//             resolve(charDataString);
+//         } else {
+//             reject(@"no_view", @"Couldn't find RtnSshTerminalView", nil);
+//         }
+//     }];
+// }
+
+// RCT_EXPORT_METHOD(getCursorLocation:(nonnull NSNumber *)reactTag
+//                   resolver:(RCTPromiseResolveBlock)resolve
+//                   rejecter:(RCTPromiseRejectBlock)reject)
+// {
+//     [self.bridge.uiManager addUIBlock:^(RCTUIManager *uiManager, NSDictionary<NSNumber *, UIView *> *viewRegistry) {
+//         RtnSshTerminalView *view = (RtnSshTerminalView *)viewRegistry[reactTag];
+//         if ([view isKindOfClass:[RtnSshTerminalView class]]) {
+//             NSString *charDataString = [view getCursorLocation];
+//             resolve(charDataString);
+//         } else {
+//             reject(@"no_view", @"Couldn't find RtnSshTerminalView", nil);
+//         }
+//     }];
+// }
+
+// RCT_EXPORT_METHOD(getDims:(nonnull NSNumber *)reactTag
+//                   resolver:(RCTPromiseResolveBlock)resolve
+//                   rejecter:(RCTPromiseRejectBlock)reject)
+// {
+//     [self.bridge.uiManager addUIBlock:^(RCTUIManager *uiManager, NSDictionary<NSNumber *, UIView *> *viewRegistry) {
+//         RtnSshTerminalView *view = (RtnSshTerminalView *)viewRegistry[reactTag];
+//         if ([view isKindOfClass:[RtnSshTerminalView class]]) {
+//             NSString *charDataString = [view getDims];
+//             resolve(charDataString);
+//         } else {
+//             reject(@"no_view", @"Couldn't find RtnSshTerminalView", nil);
+//         }
+//     }];
+// }
+
+// RCT_EXPORT_METHOD(getLine:(nonnull NSNumber *)reactTag
+//                   resolver:(RCTPromiseResolveBlock)resolve
+//                   rejecter:(RCTPromiseRejectBlock)reject)
+// {
+//     [self.bridge.uiManager addUIBlock:^(RCTUIManager *uiManager, NSDictionary<NSNumber *, UIView *> *viewRegistry) {
+//         RtnSshTerminalView *view = (RtnSshTerminalView *)viewRegistry[reactTag];
+//         if ([view isKindOfClass:[RtnSshTerminalView class]]) {
+//             NSString *charDataString = [view getLine];
+//             resolve(charDataString);
+//         } else {
+//             reject(@"no_view", @"Couldn't find RtnSshTerminalView", nil);
+//         }
+//     }];
+// }
+
+// RCT_EXPORT_METHOD(getScrollInvariantLine:(nonnull NSNumber *)reactTag
+//                   resolver:(RCTPromiseResolveBlock)resolve
+//                   rejecter:(RCTPromiseRejectBlock)reject)
+// {
+//     [self.bridge.uiManager addUIBlock:^(RCTUIManager *uiManager, NSDictionary<NSNumber *, UIView *> *viewRegistry) {
+//         RtnSshTerminalView *view = (RtnSshTerminalView *)viewRegistry[reactTag];
+//         if ([view isKindOfClass:[RtnSshTerminalView class]]) {
+//             NSString *charDataString = [view getScrollInvariantLine];
+//             resolve(charDataString);
+//         } else {
+//             reject(@"no_view", @"Couldn't find RtnSshTerminalView", nil);
+//         }
+//     }];
+// }
+
+// RCT_EXPORT_METHOD(getScrollInvariantUpdateRange:(nonnull NSNumber *)reactTag
+//                   resolver:(RCTPromiseResolveBlock)resolve
+//                   rejecter:(RCTPromiseRejectBlock)reject)
+// {
+//     [self.bridge.uiManager addUIBlock:^(RCTUIManager *uiManager, NSDictionary<NSNumber *, UIView *> *viewRegistry) {
+//         RtnSshTerminalView *view = (RtnSshTerminalView *)viewRegistry[reactTag];
+//         if ([view isKindOfClass:[RtnSshTerminalView class]]) {
+//             NSString *charDataString = [view getScrollInvariantUpdateRange];
+//             resolve(charDataString);
+//         } else {
+//             reject(@"no_view", @"Couldn't find RtnSshTerminalView", nil);
+//         }
+//     }];
+// }
+
+// RCT_EXPORT_METHOD(getUpdateRange:(nonnull NSNumber *)reactTag
+//                   resolver:(RCTPromiseResolveBlock)resolve
+//                   rejecter:(RCTPromiseRejectBlock)reject)
+// {
+//     [self.bridge.uiManager addUIBlock:^(RCTUIManager *uiManager, NSDictionary<NSNumber *, UIView *> *viewRegistry) {
+//         RtnSshTerminalView *view = (RtnSshTerminalView *)viewRegistry[reactTag];
+//         if ([view isKindOfClass:[RtnSshTerminalView class]]) {
+//             NSString *charDataString = [view getUpdateRange];
+//             resolve(charDataString);
+//         } else {
+//             reject(@"no_view", @"Couldn't find RtnSshTerminalView", nil);
+//         }
+//     }];
+// }
+
+// **
+
+QUICK_RCT_EXPORT_COMMAND_METHOD(hideCursor)
+QUICK_RCT_EXPORT_COMMAND_METHOD(showCursor)
 
 RCT_EXPORT_METHOD(installColors:(nonnull NSNumber *)reactTag
                   colors:(NSString *)colors)
@@ -311,6 +449,8 @@ RCT_EXPORT_METHOD(refresh:(nonnull NSNumber *)reactTag
     }];
 }
 
+QUICK_RCT_EXPORT_COMMAND_METHOD(resetToInitialState)
+
 RCT_EXPORT_METHOD(resize:(nonnull NSNumber *)reactTag
                   cols:(NSInteger)cols
                   rows:(NSInteger)rows)
@@ -322,6 +462,19 @@ RCT_EXPORT_METHOD(resize:(nonnull NSNumber *)reactTag
         }
     }];
 }
+
+QUICK_RCT_EXPORT_COMMAND_METHOD(scroll)
+
+//RCT_EXPORT_METHOD(setCursorStyle:(nonnull NSNumber *)reactTag
+//                  text:(NSString *)text)
+//{
+//    [self.bridge.uiManager addUIBlock:^(RCTUIManager *uiManager, NSDictionary<NSNumber *, UIView *> *viewRegistry) {
+//        RtnSshTerminalView *view = (RtnSshTerminalView *)viewRegistry[reactTag];
+//        if ([view isKindOfClass:[RtnSshTerminalView class]]) {
+//            [view setCursorStyle:text];
+//        }
+//    }];
+//}
 
 RCT_EXPORT_METHOD(setIconTitle:(nonnull NSNumber *)reactTag
                   text:(NSString *)text)
@@ -344,5 +497,19 @@ RCT_EXPORT_METHOD(setTitle:(nonnull NSNumber *)reactTag
         }
     }];
 }
+
+QUICK_RCT_EXPORT_COMMAND_METHOD(softReset)
+QUICK_RCT_EXPORT_COMMAND_METHOD(updateFullScreen)
+
+// RCT_EXPORT_METHOD(registerOscHandler:(nonnull NSNumber *)reactTag
+//                   text:(NSString *)text)
+// {
+//     [self.bridge.uiManager addUIBlock:^(RCTUIManager *uiManager, NSDictionary<NSNumber *, UIView *> *viewRegistry) {
+//         RtnSshTerminalView *view = (RtnSshTerminalView *)viewRegistry[reactTag];
+//         if ([view isKindOfClass:[RtnSshTerminalView class]]) {
+//             [view registerOscHandler:text];
+//         }
+//     }];
+// }
 
 @end

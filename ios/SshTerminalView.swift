@@ -11,8 +11,46 @@ import UIKit
 import SwiftSH
 import SwiftTerm
 
+struct SSHConnectionConfig: Codable {
+    let method: String
+    let host: String
+    let port: UInt16
+    let username: String
+    let password: String?
+    let publicKeyPath: String?
+    let privateKeyPath: String?
+    let publicKey: String?
+    let privateKey: String?
+    let initialText: String
+    let inputEnabled: Bool
+    let debug: Bool
+}
+
+extension SSHConnectionConfig {
+    init(dictionary: [String: Any]) {
+        self.method = dictionary["method"] as? String ?? Utils.nsString(from: AuthMethod.password)
+        self.host = dictionary["host"] as? String ?? ""
+        self.port = dictionary["port"] as? UInt16 ?? 22
+        self.username = dictionary["username"] as? String ?? ""
+        self.password = dictionary["password"] as? String
+        self.publicKeyPath = dictionary["publicKeyPath"] as? String
+        self.privateKeyPath = dictionary["privateKeyPath"] as? String
+        self.publicKey = dictionary["publicKey"] as? String
+        self.privateKey = dictionary["privateKey"] as? String
+        self.initialText = dictionary["initialText"] as? String ?? ""
+        self.inputEnabled = dictionary["inputEnabled"] as? Bool ?? true
+        self.debug = dictionary["debug"] as? Bool ?? true
+    }
+}
+
 @objc(SshTerminalViewDelegate)
 public protocol SshTerminalViewDelegate: AnyObject {
+//    rtn-dev-console events
+    func onTerminalLog(source: TerminalView?, logType: String, message: String)
+    func onConnect(source: TerminalView)
+    func onClosed(source: TerminalView, reason: String)
+    func onOSC(source: TerminalView, code: Int, data: String)
+//    SwiftTerm delegate events
     func onSizeChanged(source: TerminalView, newCols: Int, newRows: Int)
     func onHostCurrentDirectoryUpdate(source: TerminalView, directory: String?)
     func onScrolled(source: TerminalView, position: Double)
@@ -21,11 +59,6 @@ public protocol SshTerminalViewDelegate: AnyObject {
     func onClipboardCopy(source: TerminalView, content: String)
     func onITermContent(source: TerminalView, content: Data)
     func onRangeChanged(source: TerminalView, startY: Int, endY: Int)
-    func onTerminalLoad(source: TerminalView)
-    func onConnect(source: TerminalView)
-    func onClosed(source: TerminalView, reason: String)
-    func onSshError(source: TerminalView?, error: Data)
-    func onSshConnectionError(source: TerminalView, error: Error)
 }
 
 @objc(SshTerminalView)
@@ -60,18 +93,34 @@ public class SshTerminalView: TerminalView, TerminalViewDelegate {
     required init?(coder aDecoder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
+    
+    @objc
+    public func closeSSHConnection(_ completion: (() -> Void)?) {
+        shell?.close(completion)
+    }
 
     @objc
-    public func initSSHConnection(host: String, port: UInt16, username: String, password: String, inputEnabled: Bool, initialText: String, debug: Bool) {
+    public func initSSHConnection(withConfig config: [String: Any]) {
         do {
-//            self.onTerminalLoad(source: self)
-            try setupSSHConnection(host: host, port: port, username: username, password: password, inputEnabled: inputEnabled, initialText: initialText, debug: debug)
+            let configuration = SSHConnectionConfig(dictionary: config)
+            try setupSSHConnection(with: configuration)
         } catch {
-            print("Failed to setup SSH connection: \(error)")
+            let message = "Failed to setup SSH connection: \(error)"
+            self.logMessage(message: message, logType: LogType.error, terminalMessage: message)
         }
     }
     
-    func setupSSHConnection(host: String, port: UInt16, username: String, password: String, inputEnabled: Bool, initialText: String, debug: Bool) throws {
+    func setupSSHConnection(with config: SSHConnectionConfig) throws {
+        let host = config.host
+        let port = config.port
+        
+        let username = config.username
+        
+//        let inputEnabled = config.inputEnabled
+        let initialText = config.initialText
+        
+        let debug = config.debug
+
         let environment: [Environment] = []
         
         let terminal = getTerminal()
@@ -82,39 +131,146 @@ public class SshTerminalView: TerminalView, TerminalViewDelegate {
         
         debugTerminal = debug
         
-        if debugTerminal {
-            terminal.feed(text: "rtn-dev-console - connecting to my \(host):\(port) with password authentication...\r\n\n")
-        }
+        self.terminalMessage(message: "connecting to my \(host):\(port)...")
         
         shell = try SSHShell(sshLibrary: Libssh2.self, host: host, port: port, environment: environment, terminal: "vanilla")
-                
+        
         shell?.onSessionClose = {
             DispatchQueue.main.async {
-                print("SshTerminalView onSessionClose")
                 self.onClosed(source: self, reason: "close")
             }
         }
         
-        shell?
-        .withCallback { [weak self] (data: Data?, error: Data?) in
-            if let data = data, let string = String(data: data, encoding: .utf8) {
-                DispatchQueue.main.async {
-                    self?.feed(text: string)
+        if let authenticationChallenge: AuthenticationChallenge = determineAuthenticationChallenge(from: config, username: username) {
+            shell?
+            .withCallback { [weak self] (data: Data?, error: Data?) in
+                if let data = data, let string = String(data: data, encoding: .utf8) {
+                    DispatchQueue.main.async {
+                        self?.feed(text: string)
+                    }
+                }
+                
+                if let error = error {
+                    let jsonError = Utils.jsonString(from: error)
+                    let message = "SSH error: \(jsonError!)"
+                    self!.logMessage(message: message, logType: LogType.error, terminalMessage: message)
                 }
             }
-            
-            if let error = error {
-                self?.onSshError(source: self, error: error)
+            .connect().authenticate(authenticationChallenge).open { error in
+                if let error = error {
+                    let message = "SSH connection error: \(error)"
+                    self.logMessage(message: message, logType: LogType.error, terminalMessage: message)
+                    return
+                }
+                
+                self.terminalMessage(message: "onConnect")
+                
+                self.onConnect(source: self)
             }
         }
-        .connect().authenticate(AuthenticationChallenge.byPassword(username: username, password: password)).open { error in
-            if let error = error {
-                self.onSshConnectionError(source: self, error: error)
-                return
+    }
+
+    private func determineAuthenticationChallenge(from config: SSHConnectionConfig, username: String) -> AuthenticationChallenge? {
+        switch (config.method) {
+        case "PubkeyFile":
+            if let privateKeyPath = config.privateKeyPath {
+                let fileManager = FileManager.default
+                if let documentsPath = fileManager.urls(for: .documentDirectory, in: .userDomainMask).first {
+                    let privateKeyDocumentPath = documentsPath.appendingPathComponent(privateKeyPath).path
+                    var publicKeyDocumentPath: String? = nil
+
+                    if let publicKeyPath = config.publicKeyPath {
+                        publicKeyDocumentPath = documentsPath.appendingPathComponent(publicKeyPath).path
+                        self.terminalMessage(message: "Using pubKey auth from file")
+                    } else {
+                        self.terminalMessage(message: "Using privateKey auth from file, no publicKey provided")
+                    }
+
+                    return .byPublicKeyFromFile(username: username, password: config.password ?? "", publicKey: publicKeyDocumentPath, privateKey: privateKeyDocumentPath)
+                } else {
+                    let message = "Failed to get documents path."
+                    logMessage(message: message, logType: .error, terminalMessage: message)
+                }
+            } else {
+                let message = "PrivateKey path is not provided in config."
+                logMessage(message: message, logType: .error, terminalMessage: message)
+            }
+            return nil
+        case "PubkeyMemory":
+            if let publicKey = config.publicKey,
+                      let privateKey = config.privateKey {
+                if let publicKeyData = publicKey.data(using: .utf8),
+                   let privateKeyData = privateKey.data(using: .utf8) {
+                    
+                    self.terminalMessage(message: "using pubKey auth from memory")
+                    
+                    return .byPublicKeyFromMemory(username: username, password: config.password ?? "", publicKey: publicKeyData, privateKey: privateKeyData)
+                } else {
+                    let message = "Failed to decode publicKey or privateKey from base64."
+                    logMessage(message: message, logType: LogType.error, terminalMessage: message)
+                }
+            } else {
+                let message = "Failed to get publicKey/privateKey (memory) from config."
+                logMessage(message: message, logType: LogType.error, terminalMessage: message)
+            }
+            return nil
+        case "Password":
+            if let password = config.password {
+                self.terminalMessage(message: "using password auth")
+                
+                return .byPassword(username: username, password: password)
             }
             
-            self.onConnect(source: self)
+            let message = "Failed to get password from config."
+            logMessage(message: message, logType: LogType.error, terminalMessage: message)
+            
+            return nil
+        // TODO: implement callback and interactive auth
+        // case "interactive"
+        //     if let callback = ???? {
+        //         return .byKeyboardInteractive(username: username, callback: callback)
+        //     }
+        //     return nil
+        default:
+            let message = "Unknown auth method type provided: \(config.method)."
+            logMessage(message: message, logType: LogType.error, terminalMessage: message)
+            return nil
         }
+    }
+    
+    func terminalMessage(message: String?) {
+        if self.debugTerminal && message != nil {
+            let terminal = getTerminal()
+            terminal.feed(text: "rtn-dev-console - \(message ?? "")\r\n\n")
+        }
+    }
+    
+    func logMessage(message: String, logType: LogType, terminalMessage: String?) {
+        print(message)
+        
+        self.terminalMessage(message: terminalMessage)
+        
+        DispatchQueue.main.async {
+            let logType = Utils.nsString(from: logType)
+            self.sshTerminalViewDelegate?.onTerminalLog(source: self, logType: logType!, message: message)
+        }
+    }
+    
+    @objc
+    public func writeCommand(command: String) {
+        shell?.write(command) { error in
+            if let error = error {
+                let message = "SSH write error: \(error)"
+                self.logMessage(message: message, logType: LogType.error, terminalMessage: message)
+            } else {
+                print("Command sent successfully.")
+            }
+        }
+    }
+    
+    @objc
+    public func notifyOSC(code: Int, data: String) {
+        self.sshTerminalViewDelegate?.onOSC(source: self, code: code, data: data)
     }
 
     // MARK: TerminalViewDelegate methods
@@ -193,36 +349,6 @@ public class SshTerminalView: TerminalView, TerminalViewDelegate {
     public func rangeChanged(source: TerminalView, startY: Int, endY: Int) {
         print("SshTerminalView onRangeChanged - startY: \(startY) | endY: \(endY)")
         sshTerminalViewDelegate?.onRangeChanged(source: source, startY: startY, endY: endY)
-    }
-    
-    @objc
-    public func onSshError(source: TerminalView?, error: Data) {
-        print("SshTerminalView onSshError: \(error)")
-        
-        if debugTerminal && (source != nil) {
-            let terminal = source!.getTerminal()
-            terminal.feed(text: "SSH Error: \(error)")
-        }
-        
-        sshTerminalViewDelegate?.onSshError(source: source, error: error)
-    }
-    
-    @objc
-    public func onSshConnectionError(source: TerminalView, error: Error) {
-        print("SshTerminalView onSshConnectionError: \(error)")
-        
-        if debugTerminal {
-            let terminal = source.getTerminal()
-            terminal.feed(text: "SSH Connection Error: \(error)")
-        }
-        
-        sshTerminalViewDelegate?.onSshConnectionError(source: source, error: error)
-    }
-    
-    @objc
-    public func onTerminalLoad(source: TerminalView) {
-//        print("SshTerminalView onTerminalLoad")
-//        sshTerminalViewDelegate?.onTerminalLoad(source: source)
     }
     
     @objc

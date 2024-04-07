@@ -8,7 +8,7 @@ import RtnSshTerminalView, {
 import type { SshTerminalMethods } from './SshTerminalTypes';
 
 const SshTerminal = forwardRef<SshTerminalMethods, NativeProps>(
-  (props, ref) => {
+  ({ ...props }, ref) => {
     const consoleRef = useRef<React.ComponentRef<
       HostComponent<NativeProps>
     > | null>(null);
@@ -16,6 +16,17 @@ const SshTerminal = forwardRef<SshTerminalMethods, NativeProps>(
     useImperativeHandle(
       ref,
       () => ({
+        connect: () => {
+          consoleRef.current && Commands.connect(consoleRef.current);
+        },
+        close: () => {
+          consoleRef.current && Commands.close(consoleRef.current);
+        },
+        writeCommand: (command: string) => {
+          consoleRef.current &&
+            Commands.writeCommand(consoleRef.current, command);
+        },
+        // TerminalView methods
         sendMotionWithButtonFlags: (
           buttonFlags: number,
           x: number,
@@ -182,9 +193,8 @@ const SshTerminal = forwardRef<SshTerminalMethods, NativeProps>(
           consoleRef.current &&
             Commands.resetToInitialState(consoleRef.current);
         },
-        resizeTerminal: (cols: number, rows: number) => {
-          consoleRef.current &&
-            Commands.resizeTerminal(consoleRef.current, cols, rows);
+        resize: (cols: number, rows: number) => {
+          consoleRef.current && Commands.resize(consoleRef.current, cols, rows);
         },
         scroll: () => {
           consoleRef.current && Commands.scroll(consoleRef.current);

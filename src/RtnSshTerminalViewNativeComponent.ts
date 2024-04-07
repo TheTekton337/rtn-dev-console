@@ -8,69 +8,201 @@ import type {
   DirectEventHandler,
 } from 'react-native/Libraries/Types/CodegenTypes';
 
-export type SizeChangedEvent = Readonly<{
-  terminalId: Int32;
-  newCols: Int32;
-  newRows: Int32;
-}>;
-
-export type HostCurrentDirectoryUpdateEvent = Readonly<{
-  terminalId: Int32;
-  directory: string;
-}>;
-
-export type ScrollEvent = Readonly<{
-  terminalId: Int32;
-  position: Double;
-}>;
-
-export type RequestOpenLinkEvent = {
-  terminalId: Int32;
-  link: string;
-  params: string;
+export type HostConfiguration = {
+  /**
+   * The host to connect to.
+   */
+  host: string;
+  /**
+   * The port to connect to.
+   */
+  port?: WithDefault<Int32, 22>;
 };
 
-export type BellEvent = Readonly<{
-  terminalId: Int32;
-}>;
+export type AuthConfiguration = {
+  /**
+   * The type of authentication to use.
+   */
+  authType?: WithDefault<
+    'password' | 'pubkeyFile' | 'pubkeyMemory' | 'interactive',
+    'password'
+  >;
+  /**
+   * The username to use.
+   */
+  username?: string;
+  /**
+   * The password to use. (Used as passphrase for pubkey auth.)
+   */
+  password?: string;
+  /**
+   * The optional path to the public key file in the documents directory.
+   */
+  publicKeyPath?: string;
+  /**
+   * The path to the private key file in the documents directory.
+   */
+  privateKeyPath?: string;
+  /**
+   * The optional public key string.
+   */
+  publicKey?: string;
+  /**
+   * The private key string.
+   */
+  privateKey?: string;
+};
 
-export type ClipboardCopyEvent = Readonly<{
-  terminalId: Int32;
-  content: string;
-}>;
-
-export type ITermContentEvent = Readonly<{
-  terminalId: Int32;
-  content: string;
-}>;
-
-export type RangeChangedEvent = Readonly<{
-  terminalId: Int32;
-  startY: Int32;
-  endY: Int32;
-}>;
-
-export type LoadEvent = Readonly<{
-  terminalId: Int32;
+export type TerminalLogEvent = Readonly<{
+  /**
+   * The terminal that logged the event.
+   */
+  terminalId?: Int32;
+  /**
+   * The type of log.
+   */
+  logType?: WithDefault<
+    'info' | 'warning' | 'error' | 'connectionError',
+    'info'
+  >;
+  /**
+   * The message of the log.
+   */
+  message: string;
 }>;
 
 export type ConnectEvent = Readonly<{
+  /**
+   * The terminal that was connected.
+   */
   terminalId: Int32;
 }>;
 
 export type ClosedEvent = Readonly<{
+  /**
+   * The terminal that was closed.
+   */
   terminalId: Int32;
+  /**
+   * The reason for the close.
+   */
   reason: string;
 }>;
 
-export type SshErrorEvent = Readonly<{
-  terminalId: Int32;
-  error: string;
+export type OSCEvent = Readonly<{
+  /**
+   * The terminal that received the OSC.
+   */
+  terminalId?: Int32;
+  /**
+   * The OSC code.
+   */
+  code: Int32;
+  /**
+   * The OSC command.
+   */
+  data: string;
 }>;
 
-export type SshConnectionErrorEvent = Readonly<{
+// TODO: Implement callback and interactive authentication
+// export type InteractiveAuthRequestEvent = Readonly<{
+//   prompt: string;
+// }>;
+
+export type SizeChangedEvent = Readonly<{
+  /**
+   * The terminal that changed its size.
+   */
   terminalId: Int32;
-  error: string;
+  /**
+   * The new width.
+   */
+  newCols: Int32;
+  /**
+   * The new height.
+   */
+  newRows: Int32;
+}>;
+
+export type HostCurrentDirectoryUpdateEvent = Readonly<{
+  /**
+   * The terminal that changed its current directory.
+   */
+  terminalId: Int32;
+  /**
+   * The new current directory.
+   */
+  directory: string;
+}>;
+
+export type ScrollEvent = Readonly<{
+  /**
+   * The terminal that scrolled.
+   */
+  terminalId: Int32;
+  /**
+   * The new scroll position.
+   */
+  position: Double;
+}>;
+
+export type RequestOpenLinkEvent = {
+  /**
+   * The terminal that requested the link.
+   */
+  terminalId: Int32;
+  /**
+   * The link that was requested.
+   */
+  link: string;
+  /**
+   * The link parameters.
+   */
+  params: string;
+};
+
+export type BellEvent = Readonly<{
+  /**
+   * The terminal that beeped.
+   */
+  terminalId: Int32;
+}>;
+
+export type ClipboardCopyEvent = Readonly<{
+  /**
+   * The terminal that copied to the clipboard.
+   */
+  terminalId: Int32;
+  /**
+   * The content that was copied to the clipboard.
+   */
+  content: string;
+}>;
+
+export type ITermContentEvent = Readonly<{
+  /**
+   * The terminal that received the content.
+   */
+  terminalId: Int32;
+  /**
+   * The content.
+   */
+  content: string;
+}>;
+
+export type RangeChangedEvent = Readonly<{
+  /**
+   * The terminal that changed its selection.
+   */
+  terminalId: Int32;
+  /**
+   * The start of the selection.
+   */
+  startY: Int32;
+  /**
+   * The end of the selection.
+   */
+  endY: Int32;
 }>;
 
 export interface NativeProps extends ViewProps {
@@ -78,6 +210,28 @@ export interface NativeProps extends ViewProps {
    * Prints connection debug output to terminal.
    */
   debug?: WithDefault<boolean, false>;
+
+  /**
+   * Enables or disables input.
+   * TODO: Support inputEnabled prop
+   */
+  // inputEnabled?: WithDefault<boolean, true>;
+
+  /**
+   * SSH connection established automatically when true and
+   * hostConfig/authConfig are provided.
+   */
+  autoConnect?: WithDefault<boolean, true>;
+
+  /**
+   * SSH host configuration
+   */
+  hostConfig: Readonly<HostConfiguration>;
+
+  /**
+   * SSH authentication configuration
+   */
+  authConfig: Readonly<AuthConfiguration>;
 
   /**
    * Initial text to be displayed in the terminal.
@@ -88,22 +242,32 @@ export interface NativeProps extends ViewProps {
   >;
 
   /**
-   * SSH server host
+   * OSC handler codes to be registered.
    */
-  host?: WithDefault<string, '127.0.0.1'>;
+  oscHandlerCodes?: Int32[];
+
   /**
-   * SSH server port
+   * Callback invoked when a terminal log event occurs.
    */
-  port?: WithDefault<Int32, 22>;
-  // TODO: Add support for key auth
+  onTerminalLog?: DirectEventHandler<TerminalLogEvent>;
+
   /**
-   * SSH server username
+   * Callback invoked when a terminal SSH connection opens.
    */
-  username: string;
+  onConnect?: DirectEventHandler<ConnectEvent>;
+
   /**
-   * SSH server password
+   * Callback invoked when a terminal SSH connection closes.
    */
-  password: string;
+  onClosed?: DirectEventHandler<ClosedEvent>;
+
+  /**
+   * Callback invoked when the terminal receives an OSC command.
+   */
+  onOSC?: DirectEventHandler<OSCEvent>;
+
+  // TODO: Implement callback and interactive authentication
+  // onInteractiveAuthentication?: DirectEventHandler<InteractiveAuthRequestEvent>;
 
   /**
    * Callback invoked when the terminal size changes, for example, after a device rotation.
@@ -150,34 +314,26 @@ export interface NativeProps extends ViewProps {
    * the `notifyUpdateChanges` variable is set to true.
    */
   onRangeChanged?: DirectEventHandler<RangeChangedEvent>;
-
-  /**
-   * Callback invoked when a terminal SSH connection error event occurs.
-   */
-  onTerminalLoad?: DirectEventHandler<LoadEvent>;
-
-  /**
-   * Callback invoked when a terminal SSH connection opens.
-   */
-  onConnect?: DirectEventHandler<ConnectEvent>;
-
-  /**
-   * Callback invoked when a terminal SSH connection closes.
-   */
-  onClosed?: DirectEventHandler<ClosedEvent>;
-
-  /**
-   * Callback invoked when a terminal SSH error event occurs.
-   */
-  onSshError?: DirectEventHandler<SshErrorEvent>;
-
-  /**
-   * Callback invoked when a terminal SSH connection error event occurs.
-   */
-  onSshConnectionError?: DirectEventHandler<SshConnectionErrorEvent>;
 }
 
 export interface NativeCommands {
+  // rtn-dev-console methods
+  connect: (
+    viewRef: React.ElementRef<HostComponent<NativeProps>>
+  ) => Promise<boolean>;
+  close: (
+    viewRef: React.ElementRef<HostComponent<NativeProps>>
+  ) => Promise<boolean>;
+  writeCommand: (
+    viewRef: React.ElementRef<HostComponent<NativeProps>>,
+    command: string
+  ) => void;
+  // TODO: Support callback and interactive authentication
+  // sendInteractiveAuthentication: (
+  //   viewRef: React.ElementRef<HostComponent<NativeProps>>,
+  //   prompt: string
+  // ) => void;
+  // Terminal methods
   sendMotionWithButtonFlags: (
     viewRef: React.ElementRef<HostComponent<NativeProps>>,
     buttonFlags: Int32,
@@ -241,9 +397,12 @@ export interface NativeCommands {
   garbageCollectPayload: (
     viewRef: React.ElementRef<HostComponent<NativeProps>>
   ) => void;
-  getBufferAsData: (
+  getBufferAsString: (
     viewRef: React.ElementRef<HostComponent<NativeProps>>
   ) => Promise<string>;
+  // getText: (
+  //   viewRef: React.ElementRef<HostComponent<NativeProps>>
+  // ) => Promise<string>;
   // getCharData: (viewRef: React.ElementRef<HostComponent<NativeProps>>) => Promise<any>;
   // getCharacter: (viewRef: React.ElementRef<HostComponent<NativeProps>>) => Promise<string>;
   // getCursorLocation: (viewRef: React.ElementRef<HostComponent<NativeProps>>) => Promise<{x: Int32, y: Int32}>;
@@ -270,7 +429,7 @@ export interface NativeCommands {
   resetToInitialState: (
     viewRef: React.ElementRef<HostComponent<NativeProps>>
   ) => void;
-  resizeTerminal: (
+  resize: (
     viewRef: React.ElementRef<HostComponent<NativeProps>>,
     cols: Int32,
     rows: Int32
@@ -293,6 +452,12 @@ export interface NativeCommands {
 
 export const Commands = codegenNativeCommands<NativeCommands>({
   supportedCommands: [
+    // rtn-dev-console methods
+    'connect',
+    'close',
+    // TODO: Support callback and interactive authentication
+    // 'sendInteractiveAuthentication',
+    // Terminal methods
     'sendMotionWithButtonFlags',
     'encodeButtonWithButton',
     'sendEventWithButtonFlags',
@@ -306,9 +471,10 @@ export const Commands = codegenNativeCommands<NativeCommands>({
     'clearUpdateRange',
     'emitLineFeed',
     'garbageCollectPayload',
-    'getBufferAsData',
+    'getBufferAsString',
     // 'getText',
     'getTopVisibleRow',
+    // **
     // 'getCharData',
     // 'getCharacter',
     // 'getCursorLocation',
@@ -317,19 +483,20 @@ export const Commands = codegenNativeCommands<NativeCommands>({
     // 'getScrollInvariantLine',
     // 'getScrollInvariantUpdateRange',
     // 'getUpdateRange',
+    // **
     'hideCursor',
     'showCursor',
     'installColors',
     'refresh',
     'resetToInitialState',
-    'resizeTerminal',
+    'resize',
     'scroll',
     // 'setCursorStyle',
     'setIconTitle',
     'setTitle',
     'softReset',
     'updateFullScreen',
-    // 'registerOscHandler'
+    'writeCommand',
   ],
 });
 
