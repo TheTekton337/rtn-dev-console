@@ -35,7 +35,7 @@ jobs:
         run: yarn prepare
 
       - name: Build the Project
-        run: xcodebuild -workspace example/ios/RtnDevConsoleExample.xcworkspace -scheme RtnConsoleExample build
+        run: xcodebuild -workspace example/ios/RtnDevConsoleExample.xcworkspace -scheme RtnDevConsoleExample build
 
       - name: Initialize CodeQL
         uses: github/codeql-action/init@v1
