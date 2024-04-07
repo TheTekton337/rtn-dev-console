@@ -5561,11 +5561,11 @@ __metadata:
   linkType: hard
 
 "envinfo@npm:^7.10.0":
-  version: 7.11.1
-  resolution: "envinfo@npm:7.11.1"
+  version: 7.12.0
+  resolution: "envinfo@npm:7.12.0"
   bin:
     envinfo: dist/cli.js
-  checksum: f3d38ab6bc62388466e86e2f5665f90f238ca349c81bb36b311d908cb5ca96650569b43b308c9dcb6725a222693f6c43a704794e74a68fb445ec5575a90ca05e
+  checksum: 4c83a55768cf8b7e553155c29e7fa7bbdb0fb2c1156208efc373fc030045c6aca5e8e642e96027d3eb0c752156922ea3fca6183d9e13f38507f0e02ec82c23a1
   languageName: node
   linkType: hard
 
@@ -11381,21 +11381,11 @@ __metadata:
     babel-plugin-module-resolver: ^5.0.0
     react: 18.2.0
     react-native: 0.73.6
-    rtn-dev-console: ../rtn-dev-console-0.0.0-local.86.tgz
+    rtn-dev-console: ^0.2.0
   languageName: unknown
   linkType: soft
 
-"rtn-dev-console@file:../rtn-dev-console-0.0.0-local.86.tgz::locator=rtn-dev-console-example%40workspace%3Aexample":
-  version: 0.1.4
-  resolution: "rtn-dev-console@file:../rtn-dev-console-0.0.0-local.86.tgz::locator=rtn-dev-console-example%40workspace%3Aexample"
-  peerDependencies:
-    react: "*"
-    react-native: "*"
-  checksum: 4a1a7d0008155b75427eb4329427be3058ae01ecf0e19a632dd87d557b44839f393a675782bc9c4b0b01aef94f0059e2572a0147e57673d7ec90c872ad35efac
-  languageName: node
-  linkType: hard
-
-"rtn-dev-console@workspace:.":
+"rtn-dev-console@^0.2.0, rtn-dev-console@workspace:.":
   version: 0.0.0-use.local
   resolution: "rtn-dev-console@workspace:."
   dependencies:
