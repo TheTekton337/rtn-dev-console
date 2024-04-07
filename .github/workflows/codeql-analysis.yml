@@ -21,7 +21,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        language: ['javascript', 'typescript', 'objective-c', 'swift']
+        language: ['javascript', 'typescript', 'objective-c']
         # language: ['javascript', 'typescript', 'objective-c', 'swift', 'java', 'kotlin']
     steps:
       - name: Checkout repository
@@ -33,7 +33,7 @@ jobs:
       - name: Build package
         run: yarn prepare
 
-      # TODO: Fix this
+      # TODO: Fix xcodebuild so swift can be introduced into CodeQL analysis
       # - name: Build the Project
       #   run: xcodebuild -workspace example/ios/RtnDevConsoleExample.xcworkspace -scheme RtnDevConsoleExample build
 
