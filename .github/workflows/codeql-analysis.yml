@@ -21,15 +21,16 @@ jobs:
         uses: actions/checkout@v2
 
       - name: Set up Ruby 2.7 for CocoaPods
-        uses: actions/setup-ruby@v1
+        uses: ruby/setup-ruby@v1
         with:
-          ruby-version: 2.7
+          ruby-version: '2.7'
+          bundler-cache: true
 
       - name: Install CocoaPods
-        run: gem install cocoapods
+        run: bundle install
 
       - name: Install Pods
-        run: pod install
+        run: yarn pod-install
 
       - name: Build the Project
         run: xcodebuild -workspace example/ios/RtnDevConsoleExample.xcworkspace -scheme RtnConsoleExample build
