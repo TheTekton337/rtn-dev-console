@@ -16,21 +16,23 @@ jobs:
   analyze:
     name: Analyze
     runs-on: macOS-latest
+    permissions:
+      contents: read
+      security-events: write
+    strategy:
+      fail-fast: false
+      matrix:
+        language: ['javascript', 'typescript', 'objective-c', 'swift']
+        # language: ['javascript', 'typescript', 'objective-c', 'swift', 'java', 'kotlin']
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
 
-      - name: Set up Ruby 2.7 for CocoaPods
-        uses: ruby/setup-ruby@v1
-        with:
-          ruby-version: '2.7'
-          bundler-cache: true
+      - name: Setup
+        uses: ./.github/actions/setup
 
-      - name: Install CocoaPods
-        run: bundle install
-
-      - name: Install Pods
-        run: yarn pod-install
+      - name: Build package
+        run: yarn prepare
 
       - name: Build the Project
         run: xcodebuild -workspace example/ios/RtnDevConsoleExample.xcworkspace -scheme RtnConsoleExample build
@@ -38,7 +40,7 @@ jobs:
       - name: Initialize CodeQL
         uses: github/codeql-action/init@v1
         with:
-          languages: 'swift'
+          languages: ${{ matrix.language }}
 
       - name: Perform CodeQL Analysis
         uses: github/codeql-action/analyze@v1
