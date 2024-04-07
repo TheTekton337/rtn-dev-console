@@ -1097,7 +1097,7 @@ PODS:
     - React-jsi (= 0.73.6)
     - React-logger (= 0.73.6)
     - React-perflogger (= 0.73.6)
-  - rtn-dev-console (0.1.1):
+  - rtn-dev-console (0.1.4):
     - CSSH
     - CSwiftSH
     - glog
@@ -1130,7 +1130,7 @@ PODS:
 DEPENDENCIES:
   - boost (from `../node_modules/react-native/third-party-podspecs/boost.podspec`)
   - CSSH (from `https://github.com/TheTekton337/Libssh2Prebuild/raw/master/CSSH.podspec`)
-  - CSwiftSH (from `https://github.com/TheTekton337/SwiftSH.git`, branch `master`)
+  - CSwiftSH (from `https://github.com/TheTekton337/SwiftSH.git`, branch `rtn-dev-console`)
   - DoubleConversion (from `../node_modules/react-native/third-party-podspecs/DoubleConversion.podspec`)
   - FBLazyVector (from `../node_modules/react-native/Libraries/FBLazyVector`)
   - glog (from `../node_modules/react-native/third-party-podspecs/glog.podspec`)
@@ -1184,7 +1184,7 @@ DEPENDENCIES:
   - React-utils (from `../node_modules/react-native/ReactCommon/react/utils`)
   - ReactCommon/turbomodule/core (from `../node_modules/react-native/ReactCommon`)
   - rtn-dev-console (from `../..`)
-  - SwiftSH (from `https://github.com/TheTekton337/SwiftSH.git`, branch `master`)
+  - SwiftSH (from `https://github.com/TheTekton337/SwiftSH.git`, branch `rtn-dev-console`)
   - SwiftTerm (from `https://github.com/TheTekton337/SwiftTerm.git`, branch `podspec`)
   - Yoga (from `../node_modules/react-native/ReactCommon/yoga`)
 
@@ -1200,7 +1200,7 @@ EXTERNAL SOURCES:
   CSSH:
     :podspec: https://github.com/TheTekton337/Libssh2Prebuild/raw/master/CSSH.podspec
   CSwiftSH:
-    :branch: master
+    :branch: rtn-dev-console
     :git: https://github.com/TheTekton337/SwiftSH.git
   DoubleConversion:
     :podspec: "../node_modules/react-native/third-party-podspecs/DoubleConversion.podspec"
@@ -1304,7 +1304,7 @@ EXTERNAL SOURCES:
   rtn-dev-console:
     :path: "../.."
   SwiftSH:
-    :branch: master
+    :branch: rtn-dev-console
     :git: https://github.com/TheTekton337/SwiftSH.git
   SwiftTerm:
     :branch: podspec
@@ -1314,10 +1314,10 @@ EXTERNAL SOURCES:
 
 CHECKOUT OPTIONS:
   CSwiftSH:
-    :commit: 1b8a646fc55ca4794c614088907b0004476b85a1
+    :commit: 31c253281d9fb902f331cec0bc5c37cd25dcf72f
     :git: https://github.com/TheTekton337/SwiftSH.git
   SwiftSH:
-    :commit: 1b8a646fc55ca4794c614088907b0004476b85a1
+    :commit: 31c253281d9fb902f331cec0bc5c37cd25dcf72f
     :git: https://github.com/TheTekton337/SwiftSH.git
   SwiftTerm:
     :commit: ad571cbe039b888dd4f7f54db65c0d00b6d07ae2
@@ -1378,12 +1378,12 @@ SPEC CHECKSUMS:
   React-runtimescheduler: 4fa81221f3bb96df737d682fa828b574bea3827c
   React-utils: a45dd70919baff681d43a4a457e9884ef96b4581
   ReactCommon: e168ee1704806f10f47ee8c7f825b5850b18eaea
-  rtn-dev-console: c28329b8b4727e45d6658a023fff3cf56a100952
+  rtn-dev-console: 80f453b99999b83abb4eb0797304cf1125b0bede
   SocketRocket: f32cd54efbe0f095c4d7594881e52619cfe80b17
   SwiftSH: 4a0f20d52fe65b7d1d0729574d66b11f636de605
   SwiftTerm: 6128b6f27658a30c882c3485df5bc98c8ee99b0a
   Yoga: d17d2cc8105eed528474683b42e2ea310e1daf61
 
-PODFILE CHECKSUM: a282b21727de25655bfd8cf1ee9c3f3d372a7ebb
+PODFILE CHECKSUM: 29ae2e60804ee2156fd6e97c4be2133f23b7c908
 
 COCOAPODS: 1.14.3
