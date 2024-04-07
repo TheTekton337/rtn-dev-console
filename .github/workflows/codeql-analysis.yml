@@ -34,13 +34,16 @@ jobs:
       - name: Build package
         run: yarn prepare
 
-      - name: Build the Project
-        run: xcodebuild -workspace example/ios/RtnDevConsoleExample.xcworkspace -scheme RtnDevConsoleExample build
+      # - name: Build the Project
+      #   run: xcodebuild -workspace example/ios/RtnDevConsoleExample.xcworkspace -scheme RtnDevConsoleExample build
 
       - name: Initialize CodeQL
         uses: github/codeql-action/init@v1
         with:
           languages: ${{ matrix.language }}
+
+      - name: Autobuild
+        uses: github/codeql-action/autobuild@v1
 
       - name: Perform CodeQL Analysis
         uses: github/codeql-action/analyze@v1
