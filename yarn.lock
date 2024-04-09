@@ -11381,21 +11381,11 @@ __metadata:
     babel-plugin-module-resolver: ^5.0.0
     react: 18.2.0
     react-native: 0.73.6
-    rtn-dev-console: ../rtn-dev-console-0.0.0-local.89.tgz
+    rtn-dev-console: ^0.2.0
   languageName: unknown
   linkType: soft
 
-"rtn-dev-console@file:../rtn-dev-console-0.0.0-local.89.tgz::locator=rtn-dev-console-example%40workspace%3Aexample":
-  version: 0.2.0
-  resolution: "rtn-dev-console@file:../rtn-dev-console-0.0.0-local.89.tgz::locator=rtn-dev-console-example%40workspace%3Aexample"
-  peerDependencies:
-    react: "*"
-    react-native: "*"
-  checksum: d481bf4912a362c23fe80a1391294d429a5c11763310c8612c3b455a7d89609ac53f6111912d5ae651597d554385843aab01a92bc9eee2c581e13415c8288f66
-  languageName: node
-  linkType: hard
-
-"rtn-dev-console@workspace:.":
+"rtn-dev-console@^0.2.0, rtn-dev-console@workspace:.":
   version: 0.0.0-use.local
   resolution: "rtn-dev-console@workspace:."
   dependencies:
