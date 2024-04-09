@@ -2,7 +2,7 @@
  * Command types
  */
 export enum Command {
-  Notification = 'notification',
+  notification = 'notification',
   // Add other commands as needed
 }
 
