@@ -14,6 +14,7 @@ import SwiftTerm
 struct SSHConnectionConfig: Codable {
     let method: String
     let host: String
+    let terminal: String
     let port: UInt16
     let username: String
     let password: String?
@@ -31,6 +32,7 @@ extension SSHConnectionConfig {
         self.method = dictionary["method"] as? String ?? Utils.nsString(from: AuthMethod.password)
         self.host = dictionary["host"] as? String ?? ""
         self.port = dictionary["port"] as? UInt16 ?? 22
+        self.terminal = dictionary["terminal"] as? String ?? ""
         self.username = dictionary["username"] as? String ?? ""
         self.password = dictionary["password"] as? String
         self.publicKeyPath = dictionary["publicKeyPath"] as? String
@@ -113,6 +115,7 @@ public class SshTerminalView: TerminalView, TerminalViewDelegate {
     func setupSSHConnection(with config: SSHConnectionConfig) throws {
         let host = config.host
         let port = config.port
+        let terminalType = config.terminal
         
         let username = config.username
         
@@ -131,9 +134,11 @@ public class SshTerminalView: TerminalView, TerminalViewDelegate {
         
         debugTerminal = debug
         
-        self.terminalMessage(message: "connecting to my \(host):\(port)...")
+        self.terminalMessage(message: "connecting to my \(host):\(port) [\(terminalType)]...")
         
-        shell = try SSHShell(sshLibrary: Libssh2.self, host: host, port: port, environment: environment, terminal: "vanilla")
+        let shellTerminal = Terminal(stringLiteral: terminalType)
+        
+        shell = try SSHShell(sshLibrary: Libssh2.self, host: host, port: port, environment: environment, terminal: shellTerminal)
         
         shell?.onSessionClose = {
             DispatchQueue.main.async {
@@ -360,6 +365,8 @@ public class SshTerminalView: TerminalView, TerminalViewDelegate {
     @objc
     public func onClosed(source: TerminalView, reason: String) {
         print("SshTerminalView onClosed reason: \(reason)")
+        let terminal = getTerminal()
+        terminal.feed(text: "\nSshTerminal - connection closed\n\n")
         sshTerminalViewDelegate?.onClosed(source: source, reason: reason)
     }
     

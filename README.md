@@ -7,10 +7,10 @@ Cross-platform terminal Fabric component for React Native, leveraging SwiftSH/Sw
 ## Features
 
 - **iOS Support**: Employs SwiftSH/SwiftTerm for comprehensive SSH connectivity and terminal emulation.
-- **Android Support**: Future integration with Termux planned, expanding cross-platform capabilities.
-- **Flexible Configuration**: A wide range of props allows for customizable terminal appearance and SSH connection settings.
-- **Event Handling**: Comprehensive event props for responding to user interactions and session changes effectively.
-- **Command Execution**: Execute commands programmatically within the terminal, enhancing dynamic interaction capabilities.
+- **Android Support**: Android support with feature parity planned for upcoming release.
+- **Flexible Configuration**: Customize terminal appearance, behavior, and functionality with props.
+- **Event Handling**: Receive terminal events to handle terminal events, state changes, command output, and more.
+- **Command Execution**: Execute commands programmatically within the terminal, or via the command line.
 
 ## Installation
 
@@ -20,50 +20,80 @@ To add rtn-dev-console to your React Native project, use the following npm comma
 npm install rtn-dev-console
 ```
 
+yarn:
+
+```sh
+yarn add rtn-dev-console
+```
+
+Note: To use the example app, use `./build.sh` in the `rtn-dev-console` project root first to pack and install the local `rtn-dev-console` package.
+
 ## Usage
 
-Incorporate the `SshTerminal` component into your application, configuring it with appropriate props for establishing an SSH connection and handling events:
+Add the `SshTerminal` component to your react native application, configuring it with appropriate props for establishing an SSH connection and handling events:
 
 ```js
 import React from 'react';
 import { SshTerminal } from 'rtn-dev-console';
 
+const initialText = 'Welcome to RNApp Terminal';
+
 function App() {
   return (
     <SshTerminal
-      host="192.168.1.1"
-      port={22}
-      username="your_username"
-      password="your_password"
-      onConnected={() => console.log('Connected')}
-      onClosed={() => console.log('Connection closed')}
+      hostConfig={{
+        host: '192.168.1.1',
+        port: 22,
+        terminal: 'xterm',
+      }}
+      authConfig={{
+        authType: 'password',
+        username: 'your_username',
+        password: 'your_password',
+      }}
+      initialText={initialText}
+      oscHandlerCodes={[1234]}
+      onOSC={
+        ({ nativeEvent: { code, data } }: OSCEvent) =>
+          console.log(`onOSC: ${code} | ${data}`)
+      }
+      onBell={() => console.log('onBell')}
+      onClosed={
+        ({ nativeEvent: { reason } }: ClosedEvent) =>
+          console.log(`onClosed: ${reason}`)
+      }
+      onConnect={() => console.log('onConnect')}
+      onTerminalLog={
+        ({ nativeEvent: { logType, message } }: TerminalLogEvent) =>
+          console.log(`onTerminalLog: ${logType}: ${message}`)
+      }
       style={{ flex: 1 }}
     />
   );
 }
 ```
 
-This snippet demonstrates the basic setup required to initiate an SSH session.
+This snippet demonstrates the basic setup required to initiate an SSH session with event handling. The `initialText` prop is used to set the initial text to display in the terminal upon connection.
 
 ## Props and Events
 
-The `SshTerminal` component offers a variety of props and event handlers for customizing the SSH session and terminal interface. These include connection details (`host`, `port`, `username`, `password`), debug options, and callbacks for significant terminal events (`onConnect`, `onClosed`, `onSizeChanged`, etc.).
+The `SshTerminal` component offers a variety of props and event handlers for customizing the SSH session and terminal interface. These include connection details (`hostConfig`, `authConfig`), debug options, and callbacks for significant terminal events (`onConnect`, `onClose`, `onSizeChanged`, etc.).
 
 ## Caveats
 
-- Basic functionality has been verified through example applications. However, as this is an early-stage project, certain terminal methods may exhibit instability.
-- Optimized for the new React Native architecture; legacy architecture support may be provided upon request.
+- Basic functionality has been verified through the example app. However, as this is an early-stage project, terminal methods may exhibit instability.
+- Created for the new React Native architecture; legacy architecture support will be implemented upon request or as community contributions are made.
 
 ## Special Thanks
 
 Acknowledgments to those whose contributions have made this project possible:
 
 - **Miguel de Icaza** for SwiftTerm and the SwiftSH fork. These foundational libraries are crucial for SSH communication and terminal emulation on iOS.
-- **Andrew Madsen** for his work on building OpenSSL for ARM/Apple silicon Macs, facilitating secure connections.
 - **Tommaso Madonia** for SwiftSH and invaluable build script examples, enhancing the project's build process and capabilities.
+- **Andrew Madsen** for his work on building OpenSSL for ARM/Apple silicon Macs, facilitating secure connections.
 
 Their efforts have significantly contributed to the development and functionality of rtn-dev-console, and we are grateful for their open-source contributions.
 
 ## Contributing
 
-We welcome contributions in all forms: bug reports, feature suggestions, and pull requests. Your involvement is key to the continued improvement and success of rtn-dev-console.
+We welcome contributions in all forms: bug reports, feature suggestions, and pull requests. Your involvement is key to the continued improvement and success of rtn-dev-console and the react native open source community.

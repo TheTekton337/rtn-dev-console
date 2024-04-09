@@ -122,14 +122,15 @@ export default function App() {
           hostConfig={{
             host: '192.168.1.1',
             port: 22,
+            terminal: 'xterm',
           }}
           authConfig={{
             authType: 'password',
             username: 'your_username',
             password: 'your_password',
           }}
-          oscHandlerCodes={[337]}
           initialText={initialText}
+          oscHandlerCodes={[337]}
           onOSC={onOSC}
           onBell={onBell}
           onClosed={onClosed}

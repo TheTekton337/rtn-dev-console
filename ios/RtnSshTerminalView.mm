@@ -33,6 +33,7 @@ using namespace facebook::react;
 
     NSString * _host;
     NSInteger _port;
+    NSString * _terminal;
     
     AuthMethod _authMethod;
     
@@ -150,6 +151,11 @@ using namespace facebook::react;
         hostConfigChanged = YES;
     }
     
+    if (oldViewProps.hostConfig.terminal != newViewProps.hostConfig.terminal) {
+        _terminal = [[NSString alloc] initWithUTF8String: newViewProps.hostConfig.terminal.c_str()];
+        hostConfigChanged = YES;
+    }
+    
     if (oldViewProps.authConfig.authType != newViewProps.authConfig.authType) {
         _authMethod = [self authMethodFromAuthType:newViewProps.authConfig.authType];
         authConfigChanged = YES;
@@ -218,13 +224,13 @@ using namespace facebook::react;
     
     switch (_authMethod) {
         case AuthMethodPassword:
-            shouldConnect = _username && _password;
+            shouldConnect = _host && _port && _terminal && _username && _password;
             break;
         case AuthMethodPubkeyFile:
-            shouldConnect = _username && _publicKeyPath && _privateKeyPath;
+            shouldConnect = _host && _port && _terminal && _username && _publicKeyPath && _privateKeyPath;
             break;
         case AuthMethodPubkeyMemory:
-            shouldConnect = _username && _publicKey && _privateKey;
+            shouldConnect = _host && _port && _terminal && _username && _publicKey && _privateKey;
             break;
         default:
             shouldConnect = NO;
@@ -264,6 +270,7 @@ using namespace facebook::react;
         @"method" : [Utils nsStringFromAuthMethod:_authMethod],
         @"host" : _host ?: @"",
         @"port" : @(_port),
+        @"terminal": _terminal ?: @"",
         @"inputEnabled" : @(_inputEnabled),
         @"debug" : @(_debug),
     }];
