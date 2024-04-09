@@ -1,7 +1,8 @@
 import * as React from 'react';
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 import {
+  Platform,
   SafeAreaView,
   StyleSheet,
   Text,
@@ -16,6 +17,9 @@ import {
   type SshTerminalMethods,
 } from 'rtn-dev-console';
 
+import { handleOSCEvent, OSC_CODES } from './utils/osc';
+import { Notifications } from 'react-native-notifications';
+
 const initialText = 'rtn-dev-console - connecting to my localhost\r\n\n';
 
 export default function App() {
@@ -24,6 +28,31 @@ export default function App() {
   const [borderColor, setBorderColor] = useState('transparent');
   const [borderWidth, setBorderWidth] = useState(0);
   const [_, setCursorVisible] = useState(true);
+
+  useEffect(() => {
+    requestPermissionsIos(['providesAppNotificationSettings']);
+    registerNotificationEvents();
+    // setCategories();
+    // getInitialNotification();
+  }, []);
+
+  const registerNotificationEvents = () => {
+    if (Platform.OS === 'ios') {
+      Notifications.ios.events().appNotificationSettingsLinked(() => {
+        console.warn('App Notification Settings Linked');
+      });
+    }
+  };
+
+  const requestPermissionsIos = (options: string[]) => {
+    Notifications.ios.registerRemoteNotifications(
+      Object.fromEntries(options.map((opt) => [opt, true]))
+    );
+  };
+
+  // const requestPermissions = () => {
+  //   Notifications.registerRemoteNotifications();
+  // };
 
   const onBell = () => {
     console.log('handleBell invoked');
@@ -52,13 +81,14 @@ export default function App() {
   };
 
   const onOSC = ({ nativeEvent: { code, data } }: OSCEvent) => {
-    console.log(`onOSC: ${code} | ${data}`);
-    setBorderColor('green');
-    setBorderWidth(1);
-    setTimeout(() => {
-      setBorderColor('transparent');
-      setBorderWidth(1);
-    }, 1000);
+    switch (code) {
+      case OSC_CODES.NOTIFICATION:
+        handleOSCEvent(code, data);
+        break;
+      default:
+        console.warn(`Unhandled OSC code: ${code}`);
+        break;
+    }
   };
 
   const onToggleCursorPress = () => {
