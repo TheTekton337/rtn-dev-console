@@ -17,6 +17,10 @@ export type HostConfiguration = {
    * The port to connect to.
    */
   port?: WithDefault<Int32, 22>;
+  /**
+   * The terminal type to use.
+   */
+  terminal?: WithDefault<string, 'xterm-256color'>;
 };
 
 export type AuthConfiguration = {
