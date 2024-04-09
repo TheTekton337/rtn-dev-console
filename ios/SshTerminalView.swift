@@ -380,7 +380,6 @@ public class SshTerminalView: TerminalView, TerminalViewDelegate {
     
     @objc
     public func setTerminalTitle(source: TerminalView, title: String) {
-        print("SshTerminalView setTerminalTitle: \(title)")
         let terminal = getTerminal()
         terminal.setTitle(text: title)
     }
