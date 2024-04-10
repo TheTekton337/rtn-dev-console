@@ -34,6 +34,7 @@ using namespace facebook::react;
     NSString * _host;
     NSInteger _port;
     NSString * _terminal;
+    NSMutableArray * _environmentVariables;
     
     AuthMethod _authMethod;
     
@@ -75,7 +76,8 @@ using namespace facebook::react;
 
     _debug = NO;
     _inputEnabled = YES;
-      
+    
+    _environmentVariables = [[NSMutableArray alloc] init];
     _oscHandlerCodes = [[NSMutableArray alloc] init];
     
     _sshTerminalViewController = [SshTerminalViewController new];
@@ -121,6 +123,19 @@ using namespace facebook::react;
     }
 }
 
+- (NSArray<NSDictionary *> *)convertEnvironmentVariablesToNSArray:(const std::vector<facebook::react::RtnSshTerminalViewHostConfigEnvironmentStruct> *)environmentVariablesPtr {
+    const auto& environmentVariables = *environmentVariablesPtr;
+    NSMutableArray<NSDictionary *> *envArray = [[NSMutableArray alloc] init];
+    
+    for (const auto& envVar : environmentVariables) {
+        NSString *name = [NSString stringWithUTF8String:envVar.name.c_str()];
+        NSString *variable = [NSString stringWithUTF8String:envVar.variable.c_str()];
+        [envArray addObject:@{@"name": name, @"variable": variable}];
+    }
+    
+    return envArray;
+}
+
 - (void)updateProps:(Props::Shared const &)props oldProps:(Props::Shared const &)oldProps
 {
     const auto &oldViewProps = *std::static_pointer_cast<RtnSshTerminalViewProps const>(_props);
@@ -140,6 +155,7 @@ using namespace facebook::react;
     
     BOOL hostConfigChanged = NO;
     BOOL authConfigChanged = NO;
+    BOOL environmentChanged = NO;
     
     if (oldViewProps.hostConfig.host != newViewProps.hostConfig.host) {
         _host = [[NSString alloc] initWithUTF8String: newViewProps.hostConfig.host.c_str()];
@@ -153,6 +169,30 @@ using namespace facebook::react;
     
     if (oldViewProps.hostConfig.terminal != newViewProps.hostConfig.terminal) {
         _terminal = [[NSString alloc] initWithUTF8String: newViewProps.hostConfig.terminal.c_str()];
+        hostConfigChanged = YES;
+    }
+    
+    const auto& oldEnv = oldViewProps.hostConfig.environment;
+    const auto& newEnv = newViewProps.hostConfig.environment;
+
+    if (oldEnv.size() != newEnv.size()) {
+        environmentChanged = YES;
+    } else {
+        for (size_t i = 0; i < newEnv.size(); i++) {
+            const auto& oldVar = oldEnv[i];
+            const auto& newVar = newEnv[i];
+            if (oldVar.name != newVar.name || oldVar.variable != newVar.variable) {
+                environmentChanged = YES;
+                break;
+            }
+        }
+    }
+    
+    if (environmentChanged) {
+        NSArray<NSDictionary *> *newEnvironmentNSArray = [self convertEnvironmentVariablesToNSArray:&newViewProps.hostConfig.environment];
+
+        _environmentVariables = [newEnvironmentNSArray mutableCopy];
+        
         hostConfigChanged = YES;
     }
     
@@ -271,6 +311,7 @@ using namespace facebook::react;
         @"host" : _host ?: @"",
         @"port" : @(_port),
         @"terminal": _terminal ?: @"",
+        @"environment" : _environmentVariables ?: @[],
         @"inputEnabled" : @(_inputEnabled),
         @"debug" : @(_debug),
     }];

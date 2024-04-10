@@ -8,6 +8,11 @@ import type {
   DirectEventHandler,
 } from 'react-native/Libraries/Types/CodegenTypes';
 
+export type EnvironmentVariable = {
+  name: string;
+  variable: string;
+};
+
 export type HostConfiguration = {
   /**
    * The host to connect to.
@@ -17,6 +22,10 @@ export type HostConfiguration = {
    * The port to connect to.
    */
   port?: WithDefault<Int32, 22>;
+  /**
+   * The terminal environment variables to use.
+   */
+  environment?: ReadonlyArray<EnvironmentVariable>;
   /**
    * The terminal type to use.
    */

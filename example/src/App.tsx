@@ -153,6 +153,13 @@ export default function App() {
             host: '192.168.1.1',
             port: 22,
             terminal: 'xterm',
+            environment: [
+              {
+                name: 'LC_RTN_DEV_CONSOLE',
+                variable:
+                  Platform.OS === 'ios' ? 'Apple_Terminal' : 'Android_Terminal',
+              },
+            ],
           }}
           authConfig={{
             authType: 'password',

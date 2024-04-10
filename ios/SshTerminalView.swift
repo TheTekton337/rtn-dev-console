@@ -11,10 +11,16 @@ import UIKit
 import SwiftSH
 import SwiftTerm
 
+struct EnvironmentVariable: Codable {
+    let name: String
+    let variable: String
+}
+
 struct SSHConnectionConfig: Codable {
     let method: String
     let host: String
     let terminal: String
+    let environment: [EnvironmentVariable]?
     let port: UInt16
     let username: String
     let password: String?
@@ -42,6 +48,16 @@ extension SSHConnectionConfig {
         self.initialText = dictionary["initialText"] as? String ?? ""
         self.inputEnabled = dictionary["inputEnabled"] as? Bool ?? true
         self.debug = dictionary["debug"] as? Bool ?? true
+        
+        if let envArray = dictionary["environment"] as? [[String: String]] {
+            self.environment = envArray.compactMap { dict in
+                let name = dict["name"]
+                let variable = dict["variable"]
+                return EnvironmentVariable(name: name ?? "", variable: variable ?? "")
+            }
+        } else {
+            self.environment = []
+        }
     }
 }
 
@@ -124,7 +140,10 @@ public class SshTerminalView: TerminalView, TerminalViewDelegate {
         
         let debug = config.debug
 
-        let environment: [Environment] = []
+        let environmentVariables: [EnvironmentVariable] = config.environment ?? []
+        let environment: [Environment] = environmentVariables.map { variable in
+            return Environment(name: variable.name, variable: variable.variable)
+        }
         
         let terminal = getTerminal()
         
