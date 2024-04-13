@@ -263,7 +263,7 @@ export default function App() {
           style={styles.container}
           autoConnect
           hostConfig={{
-            host: '192.168.0.146',
+            host: '192.168.1.1',
             port: 22,
             terminal: 'xterm',
             environment: [
@@ -276,8 +276,8 @@ export default function App() {
           }}
           authConfig={{
             authType: 'password',
-            username: 'tekton',
-            password: 'kkg7n5a4',
+            username: 'your_username',
+            password: 'your_password',
           }}
           initialText={initialText}
           oscHandlerCodes={[337]}
