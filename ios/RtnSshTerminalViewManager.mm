@@ -43,6 +43,14 @@ RCT_EXPORT_VIEW_PROPERTY(onClosed, RCTBubblingEventBlock);
 
 RCT_EXPORT_VIEW_PROPERTY(onOSC, RCTBubblingEventBlock);
 
+RCT_EXPORT_VIEW_PROPERTY(onScpReadComplete, RCTBubblingEventBlock);
+
+RCT_EXPORT_VIEW_PROPERTY(onScpWriteComplete, RCTBubblingEventBlock);
+
+RCT_EXPORT_VIEW_PROPERTY(onScpReadProgress, RCTBubblingEventBlock);
+
+RCT_EXPORT_VIEW_PROPERTY(onScpWriteProgress, RCTBubblingEventBlock);
+
 RCT_EXPORT_VIEW_PROPERTY(onConnectionChanged, RCTBubblingEventBlock);
 
 RCT_EXPORT_VIEW_PROPERTY(onSizeChanged, RCTBubblingEventBlock);
@@ -104,6 +112,32 @@ RCT_EXPORT_METHOD(write:(nonnull NSNumber *)reactTag
         RtnSshTerminalView *view = (RtnSshTerminalView *)viewRegistry[reactTag];
         if ([view isKindOfClass:[RtnSshTerminalView class]]) {
             [view writeCommand:command];
+        }
+    }];
+}
+
+RCT_EXPORT_METHOD(scpRead:(nonnull NSNumber *)reactTag
+                  callbackId:(NSString *)callbackId
+                  from:(NSString *)from
+                  to:(NSString *)to)
+{
+    [self.bridge.uiManager addUIBlock:^(RCTUIManager *uiManager, NSDictionary<NSNumber *, UIView *> *viewRegistry) {
+        RtnSshTerminalView *view = (RtnSshTerminalView *)viewRegistry[reactTag];
+        if ([view isKindOfClass:[RtnSshTerminalView class]]) {
+            [view scpRead:callbackId from:from to:to];
+        }
+    }];
+}
+
+RCT_EXPORT_METHOD(scpWrite:(nonnull NSNumber *)reactTag
+                  callbackId:(NSString *)callbackId
+                  from:(NSString *)from
+                  to:(NSString *)to)
+{
+    [self.bridge.uiManager addUIBlock:^(RCTUIManager *uiManager, NSDictionary<NSNumber *, UIView *> *viewRegistry) {
+        RtnSshTerminalView *view = (RtnSshTerminalView *)viewRegistry[reactTag];
+        if ([view isKindOfClass:[RtnSshTerminalView class]]) {
+            [view scpWrite:callbackId from:from to:to];
         }
     }];
 }

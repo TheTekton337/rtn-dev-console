@@ -117,6 +117,100 @@ export type OSCEvent = Readonly<{
   data: string;
 }>;
 
+export type SCPReadCompleteEvent = Readonly<{
+  /**
+   * The terminal that completed the SCP.
+   */
+  terminalId?: Int32;
+  /**
+   * The SCP callback ID.
+   */
+  callbackId: string;
+  /**
+   * The data transferred.
+   */
+  data?: string;
+  /**
+   * The exit code of the SCP.
+   */
+  // fileInfo: Readonly<{
+  //   /**
+  //    * The file size.
+  //    */
+  //   fileSize: Double;
+  //   /**
+  //    * The modification time.
+  //    */
+  //   modificationTime: Double;
+  //   /**
+  //    * The access time.
+  //    */
+  //   accessTime: Double;
+  //   /**
+  //    * The permissions.
+  //    */
+  //   permissions: Int32;
+  // }>;
+  fileInfo: string;
+  /**
+   * The error JSON.
+   */
+  error?: string;
+}>;
+
+export type SCPWriteCompleteEvent = Readonly<{
+  /**
+   * The terminal that completed the SCP.
+   */
+  terminalId?: Int32;
+  /**
+   * The SCP callback ID.
+   */
+  callbackId: string;
+  /**
+   * The bytes transferred.
+   */
+  bytesTransferred: Double;
+  /**
+   * The error JSON.
+   */
+  error?: string;
+}>;
+
+export type SCPReadProgressEvent = Readonly<{
+  /**
+   * The terminal that reported the SCP progress.
+   */
+  terminalId?: Int32;
+  /**
+   * The SCP callback ID.
+   */
+  callbackId: string;
+  /**
+   * The bytes transferred.
+   */
+  bytesTransferred: Double;
+}>;
+
+export type SCPWriteProgressEvent = Readonly<{
+  /**
+   * The terminal that reported the SCP progress.
+   */
+  terminalId?: Int32;
+  /**
+   * The SCP callback ID.
+   */
+  callbackId: string;
+  /**
+   * The total bytes to transfer.
+   */
+  totalBytes: Double;
+  /**
+   * The bytes transferred.
+   */
+  bytesTransferred: Double;
+}>;
+
 // TODO: Implement callback and interactive authentication
 // export type InteractiveAuthRequestEvent = Readonly<{
 //   prompt: string;
@@ -279,6 +373,26 @@ export interface NativeProps extends ViewProps {
    */
   onOSC?: DirectEventHandler<OSCEvent>;
 
+  /**
+   * Callback invoked when the terminal completes an SCP read transfer.
+   */
+  onScpReadComplete?: DirectEventHandler<SCPReadCompleteEvent>;
+
+  /**
+   * Callback invoked when the terminal completes an SCP write transfer.
+   */
+  onScpWriteComplete?: DirectEventHandler<SCPWriteCompleteEvent>;
+
+  /**
+   * Callback invoked when the terminal reports SCP read progress.
+   */
+  onScpReadProgress?: DirectEventHandler<SCPReadProgressEvent>;
+
+  /**
+   * Callback invoked when the terminal reports SCP write progress.
+   */
+  onScpWriteProgress?: DirectEventHandler<SCPWriteProgressEvent>;
+
   // TODO: Implement callback and interactive authentication
   // onInteractiveAuthentication?: DirectEventHandler<InteractiveAuthRequestEvent>;
 
@@ -341,6 +455,23 @@ export interface NativeCommands {
     viewRef: React.ElementRef<HostComponent<NativeProps>>,
     command: string
   ) => void;
+  // testCallback: (
+  //   viewRef: React.ElementRef<HostComponent<NativeProps>>,
+  //   callbackId: string,
+  //   value: string
+  // ) => void;
+  scpRead: (
+    viewRef: React.ElementRef<HostComponent<NativeProps>>,
+    callbackId: string,
+    from: string,
+    to: string
+  ) => Promise<boolean>;
+  scpWrite: (
+    viewRef: React.ElementRef<HostComponent<NativeProps>>,
+    callbackId: string,
+    from: string,
+    to: string
+  ) => Promise<boolean>;
   // TODO: Support callback and interactive authentication
   // sendInteractiveAuthentication: (
   //   viewRef: React.ElementRef<HostComponent<NativeProps>>,
@@ -468,6 +599,9 @@ export const Commands = codegenNativeCommands<NativeCommands>({
     // rtn-dev-console methods
     'connect',
     'close',
+    'writeCommand',
+    'scpRead',
+    'scpWrite',
     // TODO: Support callback and interactive authentication
     // 'sendInteractiveAuthentication',
     // Terminal methods
@@ -509,7 +643,6 @@ export const Commands = codegenNativeCommands<NativeCommands>({
     'setTitle',
     'softReset',
     'updateFullScreen',
-    'writeCommand',
   ],
 });
 

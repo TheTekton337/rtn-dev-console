@@ -172,6 +172,16 @@ public class SshTerminalViewController: UIViewController {
     }
     
     @objc
+    public func scpRead(callbackId: String, from: String, to: String) {
+        tv.scpRead(callbackId: callbackId, from: from, to: to)
+    }
+    
+    @objc
+    public func scpWrite(callbackId: String, from: String, to: String) {
+        tv.scpWrite(callbackId: callbackId, from: from, to: to)
+    }
+    
+    @objc
     public func sendMotion(buttonFlags: Int, x: Int, y: Int, pixelX: Int, pixelY: Int) {
         tv.sendMotion(buttonFlags: buttonFlags, x: x, y: y, pixelX: pixelX, pixelY: pixelY)
     }

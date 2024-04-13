@@ -17,10 +17,34 @@ import {
   type SshTerminalMethods,
 } from 'rtn-dev-console';
 
-import { handleOSCEvent, OSC_CODES } from './utils/osc';
+import uuid from 'react-native-uuid';
+
 import { Notifications } from 'react-native-notifications';
 
+import { handleOSCEvent, OSC_CODES } from './utils/osc';
+import { useEventCallbackManager } from './hooks/useEventCallbackManager';
+
 const initialText = 'rtn-dev-console - connecting to my localhost\r\n\n';
+
+interface ScpReadCompleteEvent {
+  data?: string;
+  fileInfo?: any;
+  error?: string;
+}
+
+interface ScpWriteCompleteEvent {
+  bytesTransferred?: string;
+  error?: string;
+}
+
+interface ScpReadProgressEvent {
+  bytesTransferred: number;
+}
+
+interface ScpWriteProgressEvent {
+  bytesTransferred: number;
+  totalBytes: number;
+}
 
 export default function App() {
   const ref = useRef<SshTerminalMethods | null>(null);
@@ -28,6 +52,8 @@ export default function App() {
   const [borderColor, setBorderColor] = useState('transparent');
   const [borderWidth, setBorderWidth] = useState(0);
   const [_, setCursorVisible] = useState(true);
+
+  const { registerCallback, getHandler } = useEventCallbackManager();
 
   useEffect(() => {
     requestPermissionsIos(['providesAppNotificationSettings']);
@@ -117,6 +143,72 @@ export default function App() {
     ref.current?.writeCommand('ls -la\n');
   };
 
+  const onScpReceivePress = () => {
+    console.log('onScpReceivePress');
+
+    const callbackId = uuid.v4().toString();
+
+    const from = '/home/tekton/test_nb.txt';
+    const to = 'test_nb.txt';
+
+    registerCallback<ScpReadCompleteEvent>(
+      callbackId,
+      'onScpReadComplete',
+      (data) => {
+        console.log(`ID: ${callbackId} File: ${data.data}`);
+      }
+    );
+
+    registerCallback<ScpReadProgressEvent>(
+      callbackId,
+      'onScpReadProgress',
+      (data) => {
+        console.log(
+          `ID: ${callbackId} Progress: ${data.bytesTransferred} bytes`
+        );
+      }
+    );
+
+    ref.current?.scpRead(callbackId, from, to);
+  };
+
+  const handleScpReadComplete = getHandler('onScpReadComplete');
+  const handleScpReadProgress = getHandler('onScpReadProgress');
+
+  const onScpWritePress = () => {
+    console.log('onScpWritePress');
+
+    const callbackId = uuid.v4().toString();
+
+    const from = 'test_scp2.txt';
+    const to = '/home/tekton/test_scp2.txt';
+
+    registerCallback<ScpWriteCompleteEvent>(
+      callbackId,
+      'onScpWriteComplete',
+      (data) => {
+        console.log(
+          `ID: ${callbackId} Transfer Complete: ${data.bytesTransferred}`
+        );
+      }
+    );
+
+    registerCallback<ScpWriteProgressEvent>(
+      callbackId,
+      'onScpWriteProgress',
+      (data) => {
+        console.log(
+          `ID: ${callbackId} Progress: ${data.bytesTransferred} bytes`
+        );
+      }
+    );
+
+    ref.current?.scpWrite(callbackId, from, to);
+  };
+
+  const handleScpWriteComplete = getHandler('onScpWriteComplete');
+  const handleScpWriteProgress = getHandler('onScpWriteProgress');
+
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.toolbar}>
@@ -143,6 +235,27 @@ export default function App() {
         >
           <Text>ls -la</Text>
         </TouchableOpacity>
+        {/* <TouchableOpacity
+          onPress={onTestScpSendPress}
+          disabled={!connected}
+          style={styles.button}
+        >
+          <Text>Send test_send.txt</Text>
+        </TouchableOpacity> */}
+        <TouchableOpacity
+          onPress={onScpReceivePress}
+          disabled={!connected}
+          style={styles.button}
+        >
+          <Text>Get test_scp.txt</Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          onPress={onScpWritePress}
+          disabled={!connected}
+          style={styles.button}
+        >
+          <Text>Send test_scp2.txt</Text>
+        </TouchableOpacity>
       </View>
       <View style={[styles.container, { borderColor, borderWidth }]}>
         <SshTerminal
@@ -150,7 +263,7 @@ export default function App() {
           style={styles.container}
           autoConnect
           hostConfig={{
-            host: '192.168.1.1',
+            host: '192.168.0.146',
             port: 22,
             terminal: 'xterm',
             environment: [
@@ -163,8 +276,8 @@ export default function App() {
           }}
           authConfig={{
             authType: 'password',
-            username: 'your_username',
-            password: 'your_password',
+            username: 'tekton',
+            password: 'kkg7n5a4',
           }}
           initialText={initialText}
           oscHandlerCodes={[337]}
@@ -173,6 +286,10 @@ export default function App() {
           onClosed={onClosed}
           onConnect={onConnect}
           onTerminalLog={onTerminalLog}
+          onScpReadComplete={handleScpReadComplete}
+          onScpWriteComplete={handleScpWriteComplete}
+          onScpReadProgress={handleScpReadProgress}
+          onScpWriteProgress={handleScpWriteProgress}
           // authConfig={{
           //   authType: 'pubkeyFile',
           //   username: 'your_username',

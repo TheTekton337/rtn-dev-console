@@ -68,6 +68,10 @@ public protocol SshTerminalViewDelegate: AnyObject {
     func onConnect(source: TerminalView)
     func onClosed(source: TerminalView, reason: String)
     func onOSC(source: TerminalView, code: Int, data: String)
+    func onScpWriteComplete(source: TerminalView, callbackId: String, bytesTransferred: Int, error: String?)
+    func onScpReadComplete(source: TerminalView, callbackId: String, data: String?, fileInfo: String?, error: String?)
+    func onScpWriteProgress(source: TerminalView, callbackId: String, bytesTransferred: Int, totalBytes: Int)
+    func onScpReadProgress(source: TerminalView, callbackId: String, bytesTransferred: Int)
 //    SwiftTerm delegate events
     func onSizeChanged(source: TerminalView, newCols: Int, newRows: Int)
     func onHostCurrentDirectoryUpdate(source: TerminalView, directory: String?)
@@ -401,6 +405,109 @@ public class SshTerminalView: TerminalView, TerminalViewDelegate {
     public func setTerminalTitle(source: TerminalView, title: String) {
         let terminal = getTerminal()
         terminal.setTitle(text: title)
+    }
+    
+    @objc
+    public func scpWrite(callbackId: String, from: String, to: String) {
+        guard let shell = shell else {
+            return
+        }
+            
+        DispatchQueue.main.async { [self] in
+            do {
+                let scpTransfer = try SCPTransfer(sshLibrary: Libssh2.self, sshSession: shell.session)
+                
+                scpTransfer.upload(localPath: from, remotePath: to, completion: { [self] bytesTransferred, error in
+                    DispatchQueue.main.async { [self] in
+                        let finalBytesTransfered = bytesTransferred ?? 0
+                        sshTerminalViewDelegate?.onScpWriteComplete(source: self, callbackId: callbackId, bytesTransferred: NSInteger(finalBytesTransfered), error: error?.localizedDescription)
+                    }
+                }, progress: { [self] bytesTransferred, totalBytes in
+                    DispatchQueue.main.async { [self] in
+                        sshTerminalViewDelegate?.onScpWriteProgress(source: self, callbackId: callbackId, bytesTransferred: NSInteger(bytesTransferred), totalBytes: NSInteger(totalBytes))
+                    }
+                })
+            } catch {
+                sshTerminalViewDelegate?.onScpWriteComplete(source: self, callbackId: callbackId, bytesTransferred: 0, error: error.localizedDescription)
+            }
+        }
+    }
+    
+    @objc
+    public func scpRead(callbackId: String, from: String, to: String) {
+        guard let shell = shell else {
+            return
+        }
+        
+        DispatchQueue.main.async { [self] in
+            do {
+                let scpTransfer = try SCPTransfer(sshLibrary: Libssh2.self, sshSession: shell.session)
+                
+                scpTransfer.download(remotePath: from, localPath: to, completion: { fileInfo, data, error in
+                    DispatchQueue.main.async { [self] in
+                        guard let data = data, let fileInfo = fileInfo else {
+                            sshTerminalViewDelegate?.onScpReadComplete(source: self, callbackId: callbackId, data: nil, fileInfo: nil, error: error?.localizedDescription)
+                            return
+                        }
+                        
+                        do {
+                            try saveFile(with: data, filename: to, using: fileInfo)
+
+                            let fileInfoString = fileInfo.toJSONString()
+                            sshTerminalViewDelegate?.onScpReadComplete(source: self, callbackId: callbackId, data: to, fileInfo: fileInfoString, error: nil)
+                        } catch {
+                            sshTerminalViewDelegate?.onScpReadComplete(source: self, callbackId: callbackId, data: nil, fileInfo: nil, error: error.localizedDescription)
+                        }
+                    }
+                }, progress: { bytesTransferred in
+                    DispatchQueue.main.async { [self] in
+                        self.sshTerminalViewDelegate?.onScpReadProgress(source: self, callbackId: callbackId, bytesTransferred: NSInteger(bytesTransferred))
+                    }
+                })
+            } catch {
+                sshTerminalViewDelegate?.onScpReadComplete(source: self, callbackId: callbackId, data: nil, fileInfo: nil, error: error.localizedDescription)
+            }
+        }
+    }
+    
+    /// Writes data to the specified file, optionally overwriting it with specified attributes based on FileInfo.
+    /// - Parameters:
+    ///   - data: The data to write to the file.
+    ///   - filename: The name of the file.
+    ///   - directory: The directory in which to save the file, default is `.documentDirectory`.
+    ///   - fileInfo: FileInfo object containing file attributes such as permissions.
+    ///   - overwrite: Whether to overwrite the file if it already exists.
+    /// - Throws: An error if the operation cannot be completed.
+    func saveFile(with data: Data, filename: String, in directory: FileManager.SearchPathDirectory = .documentDirectory, using fileInfo: FileInfo, overwrite: Bool = true) throws {
+        let fileManager = FileManager.default
+        guard let directoryURL = fileManager.urls(for: directory, in: .userDomainMask).first else {
+            throw NSError(domain: "FileManagerError", code: 1001, userInfo: [NSLocalizedDescriptionKey: "Unable to find specified directory."])
+        }
+
+        let fileURL = directoryURL.appendingPathComponent(filename)
+
+        // Check if the file exists
+        if fileManager.fileExists(atPath: fileURL.path) {
+            if overwrite {
+                do {
+                    try fileManager.removeItem(at: fileURL)
+                } catch {
+                    throw NSError(domain: "FileManagerError", code: 1002, userInfo: [NSLocalizedDescriptionKey: "Failed to remove existing file: \(error.localizedDescription)"])
+                }
+            } else {
+                throw NSError(domain: "FileManagerError", code: 1004, userInfo: [NSLocalizedDescriptionKey: "File already exists and overwrite is set to false."])
+            }
+        }
+
+        // Create the new file with data and attributes
+        if !fileManager.createFile(atPath: fileURL.path, contents: data, attributes: [.posixPermissions: NSNumber(value: fileInfo.permissions)]) {
+            throw NSError(domain: "FileManagerError", code: 1003, userInfo: [NSLocalizedDescriptionKey: "Failed to create file at \(fileURL.path)"])
+        }
+
+        // Optionally set modification and access times
+        let modificationDate = Date(timeIntervalSince1970: fileInfo.modificationTime)
+        let accessDate = Date(timeIntervalSince1970: fileInfo.accessTime)
+        try fileManager.setAttributes([.modificationDate: modificationDate, .creationDate: accessDate], ofItemAtPath: fileURL.path)
     }
     
     @objc

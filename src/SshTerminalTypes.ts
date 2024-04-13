@@ -11,6 +11,10 @@ import type {
   ClipboardCopyEvent as NativeClipboardCopyEvent,
   ITermContentEvent as NativeITermContentEvent,
   RangeChangedEvent as NativeRangeChangedEvent,
+  SCPReadCompleteEvent as NativeSCPReadCompleteEvent,
+  SCPWriteCompleteEvent as NativeSCPWriteCompleteEvent,
+  SCPReadProgressEvent as NativeSCPReadProgressEvent,
+  SCPWriteProgressEvent as NativeSCPWriteProgressEvent,
 } from './RtnSshTerminalViewNativeComponent';
 
 export interface TerminalLogEvent extends React.BaseSyntheticEvent {
@@ -62,10 +66,28 @@ export interface RangeChangedEvent extends React.BaseSyntheticEvent {
   nativeEvent: NativeRangeChangedEvent;
 }
 
+export interface SCPReadCompleteEvent extends React.BaseSyntheticEvent {
+  nativeEvent: NativeSCPReadCompleteEvent;
+}
+
+export interface SCPWriteCompleteEvent extends React.BaseSyntheticEvent {
+  nativeEvent: NativeSCPWriteCompleteEvent;
+}
+
+export interface SCPReadProgressEvent extends React.BaseSyntheticEvent {
+  nativeEvent: NativeSCPReadProgressEvent;
+}
+
+export interface SCPWriteProgressEvent extends React.BaseSyntheticEvent {
+  nativeEvent: NativeSCPWriteProgressEvent;
+}
+
 export interface SshTerminalMethods {
   connect: () => void;
   close: () => void;
   writeCommand: (command: string) => void;
+  scpRead: (callbackId: string, from: string, to: string) => void;
+  scpWrite: (callbackId: string, from: string, to: string) => void;
   sendMotionWithButtonFlags: (
     buttonFlags: number,
     x: number,
