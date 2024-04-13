@@ -26,22 +26,26 @@ import { useEventCallbackManager } from './hooks/useEventCallbackManager';
 
 const initialText = 'rtn-dev-console - connecting to my localhost\r\n\n';
 
-interface ScpReadCompleteEvent {
+interface DownloadCompleteEvent {
+  terminalId: number;
   data?: string;
   fileInfo?: any;
   error?: string;
 }
 
-interface ScpWriteCompleteEvent {
+interface UploadCompleteEvent {
+  terminalId: number;
   bytesTransferred?: string;
   error?: string;
 }
 
-interface ScpReadProgressEvent {
+interface DownloadProgressEvent {
+  terminalId: number;
   bytesTransferred: number;
 }
 
-interface ScpWriteProgressEvent {
+interface UploadProgressEvent {
+  terminalId: number;
   bytesTransferred: number;
   totalBytes: number;
 }
@@ -143,25 +147,25 @@ export default function App() {
     ref.current?.writeCommand('ls -la\n');
   };
 
-  const onScpReceivePress = () => {
-    console.log('onScpReceivePress');
+  const onDownloadPress = () => {
+    console.log('onDownloadPress');
 
     const callbackId = uuid.v4().toString();
 
     const from = '/home/tekton/test_nb.txt';
     const to = 'test_nb.txt';
 
-    registerCallback<ScpReadCompleteEvent>(
+    registerCallback<DownloadCompleteEvent>(
       callbackId,
-      'onScpReadComplete',
+      'onDownloadComplete',
       (data) => {
         console.log(`ID: ${callbackId} File: ${data.data}`);
       }
     );
 
-    registerCallback<ScpReadProgressEvent>(
+    registerCallback<DownloadProgressEvent>(
       callbackId,
-      'onScpReadProgress',
+      'onDownloadProgress',
       (data) => {
         console.log(
           `ID: ${callbackId} Progress: ${data.bytesTransferred} bytes`
@@ -169,23 +173,23 @@ export default function App() {
       }
     );
 
-    ref.current?.scpRead(callbackId, from, to);
+    ref.current?.download(callbackId, from, to);
   };
 
-  const handleScpReadComplete = getHandler('onScpReadComplete');
-  const handleScpReadProgress = getHandler('onScpReadProgress');
+  const handleDownloadComplete = getHandler('onDownloadComplete');
+  const handleDownloadProgress = getHandler('onDownloadProgress');
 
-  const onScpWritePress = () => {
-    console.log('onScpWritePress');
+  const onUploadPress = () => {
+    console.log('onUploadPress');
 
     const callbackId = uuid.v4().toString();
 
     const from = 'test_scp2.txt';
     const to = '/home/tekton/test_scp2.txt';
 
-    registerCallback<ScpWriteCompleteEvent>(
+    registerCallback<UploadCompleteEvent>(
       callbackId,
-      'onScpWriteComplete',
+      'onUploadComplete',
       (data) => {
         console.log(
           `ID: ${callbackId} Transfer Complete: ${data.bytesTransferred}`
@@ -193,9 +197,9 @@ export default function App() {
       }
     );
 
-    registerCallback<ScpWriteProgressEvent>(
+    registerCallback<UploadProgressEvent>(
       callbackId,
-      'onScpWriteProgress',
+      'onUploadProgress',
       (data) => {
         console.log(
           `ID: ${callbackId} Progress: ${data.bytesTransferred} bytes`
@@ -203,11 +207,11 @@ export default function App() {
       }
     );
 
-    ref.current?.scpWrite(callbackId, from, to);
+    ref.current?.upload(callbackId, from, to);
   };
 
-  const handleScpWriteComplete = getHandler('onScpWriteComplete');
-  const handleScpWriteProgress = getHandler('onScpWriteProgress');
+  const handleUploadComplete = getHandler('onUploadComplete');
+  const handleUploadProgress = getHandler('onUploadProgress');
 
   return (
     <SafeAreaView style={styles.container}>
@@ -243,14 +247,14 @@ export default function App() {
           <Text>Send test_send.txt</Text>
         </TouchableOpacity> */}
         <TouchableOpacity
-          onPress={onScpReceivePress}
+          onPress={onDownloadPress}
           disabled={!connected}
           style={styles.button}
         >
           <Text>Get test_scp.txt</Text>
         </TouchableOpacity>
         <TouchableOpacity
-          onPress={onScpWritePress}
+          onPress={onUploadPress}
           disabled={!connected}
           style={styles.button}
         >
@@ -286,10 +290,10 @@ export default function App() {
           onClosed={onClosed}
           onConnect={onConnect}
           onTerminalLog={onTerminalLog}
-          onScpReadComplete={handleScpReadComplete}
-          onScpWriteComplete={handleScpWriteComplete}
-          onScpReadProgress={handleScpReadProgress}
-          onScpWriteProgress={handleScpWriteProgress}
+          onDownloadComplete={handleDownloadComplete}
+          onUploadComplete={handleUploadComplete}
+          onDownloadProgress={handleDownloadProgress}
+          onUploadProgress={handleUploadProgress}
           // authConfig={{
           //   authType: 'pubkeyFile',
           //   username: 'your_username',

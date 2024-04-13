@@ -13,10 +13,10 @@ import type {
   SshTerminalMethods,
   SizeChangedEvent,
   TerminalLogEvent,
-  SCPReadCompleteEvent,
-  SCPReadProgressEvent,
-  SCPWriteCompleteEvent,
-  SCPWriteProgressEvent,
+  DownloadCompleteEvent,
+  DownloadProgressEvent,
+  UploadCompleteEvent,
+  UploadProgressEvent,
 } from './SshTerminalTypes';
 import {
   type NativeCommands,
@@ -40,9 +40,9 @@ export {
   type ConnectEvent,
   type ClosedEvent,
   type TerminalLogEvent,
-  type SCPReadCompleteEvent,
-  type SCPReadProgressEvent,
-  type SCPWriteCompleteEvent,
-  type SCPWriteProgressEvent,
+  type DownloadCompleteEvent,
+  type DownloadProgressEvent,
+  type UploadCompleteEvent,
+  type UploadProgressEvent,
 };
 export default SshTerminal;

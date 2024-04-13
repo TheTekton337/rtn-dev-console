@@ -172,13 +172,13 @@ public class SshTerminalViewController: UIViewController {
     }
     
     @objc
-    public func scpRead(callbackId: String, from: String, to: String) {
-        tv.scpRead(callbackId: callbackId, from: from, to: to)
+    public func download(callbackId: String, from: String, to: String) {
+        tv.download(callbackId: callbackId, from: from, to: to)
     }
     
     @objc
-    public func scpWrite(callbackId: String, from: String, to: String) {
-        tv.scpWrite(callbackId: callbackId, from: from, to: to)
+    public func upload(callbackId: String, from: String, to: String) {
+        tv.upload(callbackId: callbackId, from: from, to: to)
     }
     
     @objc

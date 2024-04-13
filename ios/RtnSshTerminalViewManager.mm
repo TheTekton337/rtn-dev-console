@@ -43,13 +43,13 @@ RCT_EXPORT_VIEW_PROPERTY(onClosed, RCTBubblingEventBlock);
 
 RCT_EXPORT_VIEW_PROPERTY(onOSC, RCTBubblingEventBlock);
 
-RCT_EXPORT_VIEW_PROPERTY(onScpReadComplete, RCTBubblingEventBlock);
+RCT_EXPORT_VIEW_PROPERTY(onDownloadComplete, RCTBubblingEventBlock);
 
-RCT_EXPORT_VIEW_PROPERTY(onScpWriteComplete, RCTBubblingEventBlock);
+RCT_EXPORT_VIEW_PROPERTY(onUploadComplete, RCTBubblingEventBlock);
 
-RCT_EXPORT_VIEW_PROPERTY(onScpReadProgress, RCTBubblingEventBlock);
+RCT_EXPORT_VIEW_PROPERTY(onDownloadProgress, RCTBubblingEventBlock);
 
-RCT_EXPORT_VIEW_PROPERTY(onScpWriteProgress, RCTBubblingEventBlock);
+RCT_EXPORT_VIEW_PROPERTY(onUploadProgress, RCTBubblingEventBlock);
 
 RCT_EXPORT_VIEW_PROPERTY(onConnectionChanged, RCTBubblingEventBlock);
 
@@ -116,7 +116,7 @@ RCT_EXPORT_METHOD(write:(nonnull NSNumber *)reactTag
     }];
 }
 
-RCT_EXPORT_METHOD(scpRead:(nonnull NSNumber *)reactTag
+RCT_EXPORT_METHOD(download:(nonnull NSNumber *)reactTag
                   callbackId:(NSString *)callbackId
                   from:(NSString *)from
                   to:(NSString *)to)
@@ -124,12 +124,12 @@ RCT_EXPORT_METHOD(scpRead:(nonnull NSNumber *)reactTag
     [self.bridge.uiManager addUIBlock:^(RCTUIManager *uiManager, NSDictionary<NSNumber *, UIView *> *viewRegistry) {
         RtnSshTerminalView *view = (RtnSshTerminalView *)viewRegistry[reactTag];
         if ([view isKindOfClass:[RtnSshTerminalView class]]) {
-            [view scpRead:callbackId from:from to:to];
+            [view download:callbackId from:from to:to];
         }
     }];
 }
 
-RCT_EXPORT_METHOD(scpWrite:(nonnull NSNumber *)reactTag
+RCT_EXPORT_METHOD(upload:(nonnull NSNumber *)reactTag
                   callbackId:(NSString *)callbackId
                   from:(NSString *)from
                   to:(NSString *)to)
@@ -137,7 +137,7 @@ RCT_EXPORT_METHOD(scpWrite:(nonnull NSNumber *)reactTag
     [self.bridge.uiManager addUIBlock:^(RCTUIManager *uiManager, NSDictionary<NSNumber *, UIView *> *viewRegistry) {
         RtnSshTerminalView *view = (RtnSshTerminalView *)viewRegistry[reactTag];
         if ([view isKindOfClass:[RtnSshTerminalView class]]) {
-            [view scpWrite:callbackId from:from to:to];
+            [view upload:callbackId from:from to:to];
         }
     }];
 }

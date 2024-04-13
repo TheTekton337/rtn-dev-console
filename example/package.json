@@ -18,7 +18,7 @@
     "react-native": "0.73.6",
     "react-native-notifications": "^5.1.0",
     "react-native-uuid": "^2.0.2",
-    "rtn-dev-console": "../rtn-dev-console-0.0.0-local.146.tgz"
+    "rtn-dev-console": "../rtn-dev-console-0.0.0-local.154.tgz"
   },
   "devDependencies": {
     "@babel/core": "^7.20.0",

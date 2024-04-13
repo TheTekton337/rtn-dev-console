@@ -20,10 +20,10 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, copy) RCTBubblingEventBlock onOSC;
 @property (nonatomic, copy) RCTBubblingEventBlock onConnected;
 @property (nonatomic, copy) RCTBubblingEventBlock onClosed;
-@property (nonatomic, copy) RCTBubblingEventBlock onScpReadComplete;
-@property (nonatomic, copy) RCTBubblingEventBlock onScpWriteComplete;
-@property (nonatomic, copy) RCTBubblingEventBlock onScpReadProgress;
-@property (nonatomic, copy) RCTBubblingEventBlock onScpWriteProgress;
+@property (nonatomic, copy) RCTBubblingEventBlock onDownloadComplete;
+@property (nonatomic, copy) RCTBubblingEventBlock onUploadComplete;
+@property (nonatomic, copy) RCTBubblingEventBlock onDownloadProgress;
+@property (nonatomic, copy) RCTBubblingEventBlock onUploadProgress;
 @property (nonatomic, copy) RCTBubblingEventBlock onSizeChanged;
 @property (nonatomic, copy) RCTBubblingEventBlock onHostCurrentDirectoryUpdate;
 @property (nonatomic, copy) RCTBubblingEventBlock onScrolled;
@@ -37,8 +37,8 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)connect;
 - (void)close;
 - (void)writeCommand:(NSString *) command;
-- (void)scpRead:(NSString *)callbackId from:(NSString *)from to:(NSString *)to;
-- (void)scpWrite:(NSString *)callbackId from:(NSString *)from to:(NSString *)to;
+- (void)download:(NSString *)callbackId from:(NSString *)from to:(NSString *)to;
+- (void)upload:(NSString *)callbackId from:(NSString *)from to:(NSString *)to;
 - (void)sendMotionWithButtonFlags:(NSInteger)buttonFlags
                                 x:(NSInteger)x
                                 y:(NSInteger)y

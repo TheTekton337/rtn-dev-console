@@ -11,10 +11,10 @@ import type {
   ClipboardCopyEvent as NativeClipboardCopyEvent,
   ITermContentEvent as NativeITermContentEvent,
   RangeChangedEvent as NativeRangeChangedEvent,
-  SCPReadCompleteEvent as NativeSCPReadCompleteEvent,
-  SCPWriteCompleteEvent as NativeSCPWriteCompleteEvent,
-  SCPReadProgressEvent as NativeSCPReadProgressEvent,
-  SCPWriteProgressEvent as NativeSCPWriteProgressEvent,
+  DownloadCompleteEvent as NativeDownloadCompleteEvent,
+  UploadCompleteEvent as NativeUploadCompleteEvent,
+  DownloadProgressEvent as NativeDownloadProgressEvent,
+  UploadProgressEvent as NativeUploadProgressEvent,
 } from './RtnSshTerminalViewNativeComponent';
 
 export interface TerminalLogEvent extends React.BaseSyntheticEvent {
@@ -66,28 +66,28 @@ export interface RangeChangedEvent extends React.BaseSyntheticEvent {
   nativeEvent: NativeRangeChangedEvent;
 }
 
-export interface SCPReadCompleteEvent extends React.BaseSyntheticEvent {
-  nativeEvent: NativeSCPReadCompleteEvent;
+export interface DownloadCompleteEvent extends React.BaseSyntheticEvent {
+  nativeEvent: NativeDownloadCompleteEvent;
 }
 
-export interface SCPWriteCompleteEvent extends React.BaseSyntheticEvent {
-  nativeEvent: NativeSCPWriteCompleteEvent;
+export interface UploadCompleteEvent extends React.BaseSyntheticEvent {
+  nativeEvent: NativeUploadCompleteEvent;
 }
 
-export interface SCPReadProgressEvent extends React.BaseSyntheticEvent {
-  nativeEvent: NativeSCPReadProgressEvent;
+export interface DownloadProgressEvent extends React.BaseSyntheticEvent {
+  nativeEvent: NativeDownloadProgressEvent;
 }
 
-export interface SCPWriteProgressEvent extends React.BaseSyntheticEvent {
-  nativeEvent: NativeSCPWriteProgressEvent;
+export interface UploadProgressEvent extends React.BaseSyntheticEvent {
+  nativeEvent: NativeUploadProgressEvent;
 }
 
 export interface SshTerminalMethods {
   connect: () => void;
   close: () => void;
   writeCommand: (command: string) => void;
-  scpRead: (callbackId: string, from: string, to: string) => void;
-  scpWrite: (callbackId: string, from: string, to: string) => void;
+  download: (callbackId: string, from: string, to: string) => void;
+  upload: (callbackId: string, from: string, to: string) => void;
   sendMotionWithButtonFlags: (
     buttonFlags: number,
     x: number,

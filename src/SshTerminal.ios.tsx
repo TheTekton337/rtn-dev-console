@@ -26,13 +26,13 @@ const SshTerminal = forwardRef<SshTerminalMethods, NativeProps>(
           consoleRef.current &&
             Commands.writeCommand(consoleRef.current, command);
         },
-        scpRead: (callbackId: string, from: string, to: string) => {
+        download: (callbackId: string, from: string, to: string) => {
           consoleRef.current &&
-            Commands.scpRead(consoleRef.current, callbackId, from, to);
+            Commands.download(consoleRef.current, callbackId, from, to);
         },
-        scpWrite: (callbackId: string, from: string, to: string) => {
+        upload: (callbackId: string, from: string, to: string) => {
           consoleRef.current &&
-            Commands.scpWrite(consoleRef.current, callbackId, from, to);
+            Commands.upload(consoleRef.current, callbackId, from, to);
         },
         // TerminalView methods
         sendMotionWithButtonFlags: (

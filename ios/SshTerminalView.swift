@@ -68,10 +68,10 @@ public protocol SshTerminalViewDelegate: AnyObject {
     func onConnect(source: TerminalView)
     func onClosed(source: TerminalView, reason: String)
     func onOSC(source: TerminalView, code: Int, data: String)
-    func onScpWriteComplete(source: TerminalView, callbackId: String, bytesTransferred: Int, error: String?)
-    func onScpReadComplete(source: TerminalView, callbackId: String, data: String?, fileInfo: String?, error: String?)
-    func onScpWriteProgress(source: TerminalView, callbackId: String, bytesTransferred: Int, totalBytes: Int)
-    func onScpReadProgress(source: TerminalView, callbackId: String, bytesTransferred: Int)
+    func onUploadComplete(source: TerminalView, callbackId: String, bytesTransferred: Int, error: String?)
+    func onDownloadComplete(source: TerminalView, callbackId: String, data: String?, fileInfo: String?, error: String?)
+    func onUploadProgress(source: TerminalView, callbackId: String, bytesTransferred: Int, totalBytes: Int)
+    func onDownloadProgress(source: TerminalView, callbackId: String, bytesTransferred: Int)
 //    SwiftTerm delegate events
     func onSizeChanged(source: TerminalView, newCols: Int, newRows: Int)
     func onHostCurrentDirectoryUpdate(source: TerminalView, directory: String?)
@@ -408,7 +408,7 @@ public class SshTerminalView: TerminalView, TerminalViewDelegate {
     }
     
     @objc
-    public func scpWrite(callbackId: String, from: String, to: String) {
+    public func upload(callbackId: String, from: String, to: String) {
         guard let shell = shell else {
             return
         }
@@ -419,22 +419,22 @@ public class SshTerminalView: TerminalView, TerminalViewDelegate {
                 
                 scpTransfer.upload(localPath: from, remotePath: to, completion: { [self] bytesTransferred, error in
                     DispatchQueue.main.async { [self] in
-                        let finalBytesTransfered = bytesTransferred ?? 0
-                        sshTerminalViewDelegate?.onScpWriteComplete(source: self, callbackId: callbackId, bytesTransferred: NSInteger(finalBytesTransfered), error: error?.localizedDescription)
+                        let finalBytesTransferred = bytesTransferred ?? 0
+                        sshTerminalViewDelegate?.onUploadComplete(source: self, callbackId: callbackId, bytesTransferred: NSInteger(finalBytesTransferred), error: nil)
                     }
                 }, progress: { [self] bytesTransferred, totalBytes in
                     DispatchQueue.main.async { [self] in
-                        sshTerminalViewDelegate?.onScpWriteProgress(source: self, callbackId: callbackId, bytesTransferred: NSInteger(bytesTransferred), totalBytes: NSInteger(totalBytes))
+                        sshTerminalViewDelegate?.onUploadProgress(source: self, callbackId: callbackId, bytesTransferred: NSInteger(bytesTransferred), totalBytes: NSInteger(totalBytes))
                     }
                 })
             } catch {
-                sshTerminalViewDelegate?.onScpWriteComplete(source: self, callbackId: callbackId, bytesTransferred: 0, error: error.localizedDescription)
+                sshTerminalViewDelegate?.onUploadComplete(source: self, callbackId: callbackId, bytesTransferred: 0, error: error.localizedDescription)
             }
         }
     }
     
     @objc
-    public func scpRead(callbackId: String, from: String, to: String) {
+    public func download(callbackId: String, from: String, to: String) {
         guard let shell = shell else {
             return
         }
@@ -446,7 +446,7 @@ public class SshTerminalView: TerminalView, TerminalViewDelegate {
                 scpTransfer.download(remotePath: from, localPath: to, completion: { fileInfo, data, error in
                     DispatchQueue.main.async { [self] in
                         guard let data = data, let fileInfo = fileInfo else {
-                            sshTerminalViewDelegate?.onScpReadComplete(source: self, callbackId: callbackId, data: nil, fileInfo: nil, error: error?.localizedDescription)
+                            sshTerminalViewDelegate?.onDownloadComplete(source: self, callbackId: callbackId, data: nil, fileInfo: nil, error: error?.localizedDescription)
                             return
                         }
                         
@@ -454,18 +454,18 @@ public class SshTerminalView: TerminalView, TerminalViewDelegate {
                             try saveFile(with: data, filename: to, using: fileInfo)
 
                             let fileInfoString = fileInfo.toJSONString()
-                            sshTerminalViewDelegate?.onScpReadComplete(source: self, callbackId: callbackId, data: to, fileInfo: fileInfoString, error: nil)
+                            sshTerminalViewDelegate?.onDownloadComplete(source: self, callbackId: callbackId, data: to, fileInfo: fileInfoString, error: nil)
                         } catch {
-                            sshTerminalViewDelegate?.onScpReadComplete(source: self, callbackId: callbackId, data: nil, fileInfo: nil, error: error.localizedDescription)
+                            sshTerminalViewDelegate?.onDownloadComplete(source: self, callbackId: callbackId, data: nil, fileInfo: nil, error: error.localizedDescription)
                         }
                     }
                 }, progress: { bytesTransferred in
                     DispatchQueue.main.async { [self] in
-                        self.sshTerminalViewDelegate?.onScpReadProgress(source: self, callbackId: callbackId, bytesTransferred: NSInteger(bytesTransferred))
+                        self.sshTerminalViewDelegate?.onDownloadProgress(source: self, callbackId: callbackId, bytesTransferred: NSInteger(bytesTransferred))
                     }
                 })
             } catch {
-                sshTerminalViewDelegate?.onScpReadComplete(source: self, callbackId: callbackId, data: nil, fileInfo: nil, error: error.localizedDescription)
+                sshTerminalViewDelegate?.onDownloadComplete(source: self, callbackId: callbackId, data: nil, fileInfo: nil, error: error.localizedDescription)
             }
         }
     }

@@ -11400,17 +11400,17 @@ __metadata:
     react-native: 0.73.6
     react-native-notifications: ^5.1.0
     react-native-uuid: ^2.0.2
-    rtn-dev-console: ../rtn-dev-console-0.0.0-local.146.tgz
+    rtn-dev-console: ../rtn-dev-console-0.0.0-local.154.tgz
   languageName: unknown
   linkType: soft
 
-"rtn-dev-console@file:../rtn-dev-console-0.0.0-local.146.tgz::locator=rtn-dev-console-example%40workspace%3Aexample":
+"rtn-dev-console@file:../rtn-dev-console-0.0.0-local.154.tgz::locator=rtn-dev-console-example%40workspace%3Aexample":
   version: 0.2.0
-  resolution: "rtn-dev-console@file:../rtn-dev-console-0.0.0-local.146.tgz::locator=rtn-dev-console-example%40workspace%3Aexample"
+  resolution: "rtn-dev-console@file:../rtn-dev-console-0.0.0-local.154.tgz::locator=rtn-dev-console-example%40workspace%3Aexample"
   peerDependencies:
     react: "*"
     react-native: "*"
-  checksum: 76119f852d867a8c04273a981f5b91ec6bd6e5ef8bea95d2cb03a1fda3feccb2d7ef71de7dc18378cf10075f0c8fd2650a8c5afc296acf67c515f7dd0fbbd31d
+  checksum: de2b6d4df17263bec41de8457e449ebe6c9e238ad8d927ddd0f6133dcf6ed93acd8d5ffe974098c07ebeec75eb096696cb8dc5332275a847aa6b249c2fa05de6
   languageName: node
   linkType: hard
 
