@@ -888,6 +888,10 @@ PODS:
   - React-Mapbuffer (0.73.6):
     - glog
     - React-debug
+  - react-native-config (1.5.1):
+    - react-native-config/App (= 1.5.1)
+  - react-native-config/App (1.5.1):
+    - React-Core
   - react-native-notifications (5.1.0):
     - React-Core
   - React-nativeconfig (0.73.6)
@@ -1162,6 +1166,7 @@ DEPENDENCIES:
   - React-jsitracing (from `../node_modules/react-native/ReactCommon/hermes/executor/`)
   - React-logger (from `../node_modules/react-native/ReactCommon/logger`)
   - React-Mapbuffer (from `../node_modules/react-native/ReactCommon`)
+  - react-native-config (from `../node_modules/react-native-config`)
   - react-native-notifications (from `../node_modules/react-native-notifications`)
   - React-nativeconfig (from `../node_modules/react-native/ReactCommon`)
   - React-NativeModulesApple (from `../node_modules/react-native/ReactCommon/react/nativemodule/core/platform/ios`)
@@ -1258,6 +1263,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native/ReactCommon/logger"
   React-Mapbuffer:
     :path: "../node_modules/react-native/ReactCommon"
+  react-native-config:
+    :path: "../node_modules/react-native-config"
   react-native-notifications:
     :path: "../node_modules/react-native-notifications"
   React-nativeconfig:
@@ -1319,10 +1326,10 @@ EXTERNAL SOURCES:
 
 CHECKOUT OPTIONS:
   CSwiftSH:
-    :commit: 3bdd5f3a9b65c098480ce54f257e2ba8b066ed9a
+    :commit: 37d513d83c2874d6e2baec06ac2aa8756b32333c
     :git: https://github.com/TheTekton337/SwiftSH.git
   SwiftSH:
-    :commit: 3bdd5f3a9b65c098480ce54f257e2ba8b066ed9a
+    :commit: 37d513d83c2874d6e2baec06ac2aa8756b32333c
     :git: https://github.com/TheTekton337/SwiftSH.git
   SwiftTerm:
     :commit: ac1a3c9d1355337e9e88602b4b44b4677d6c523b
@@ -1360,6 +1367,7 @@ SPEC CHECKSUMS:
   React-jsitracing: d7ff35144ff27c35aaf59904c97b8d159cb7e3b0
   React-logger: 3eb80a977f0d9669468ef641a5e1fabbc50a09ec
   React-Mapbuffer: d81d930c1b7f4db284e1d721fe7fdc99230ca108
+  react-native-config: 86038147314e2e6d10ea9972022aa171e6b1d4d8
   react-native-notifications: 4601a5a8db4ced6ae7cfc43b44d35fe437ac50c4
   React-nativeconfig: e700ac3ec3d66329076bd2c2787a204411815d43
   React-NativeModulesApple: f7fa541118d195ac850ca2ea460f338152ced167

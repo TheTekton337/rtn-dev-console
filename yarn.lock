@@ -3255,12 +3255,12 @@ __metadata:
   linkType: hard
 
 "@types/react@npm:^18.2.44":
-  version: 18.2.77
-  resolution: "@types/react@npm:18.2.77"
+  version: 18.2.79
+  resolution: "@types/react@npm:18.2.79"
   dependencies:
     "@types/prop-types": "*"
     csstype: ^3.0.2
-  checksum: 7014b06565228ffb24740e3b2cad168a52c1befa78f52f421c7eb61f86dcf599b494b8220c7bfc77882e19cb52440a1ed713d4a483dc8941c4ce824bd9729755
+  checksum: 85aa96e0e88725c84d8fc5f04f10a4da6a1f507dde33557ac9cc211414756867721264bfefd9e02bae1288ce2905351d949b652b931e734ea24519ee5c625138
   languageName: node
   linkType: hard
 
@@ -4329,9 +4329,9 @@ __metadata:
   linkType: hard
 
 "caniuse-lite@npm:^1.0.30001587":
-  version: 1.0.30001608
-  resolution: "caniuse-lite@npm:1.0.30001608"
-  checksum: 7ae62689ca358cd3bdb89b2db9b4841812299f8a0b3ab94b52e4548778bd5740814617c0e0b2504b6bfaf47acc2472e1730393bd2027d646acbe8dc8206ad9e7
+  version: 1.0.30001610
+  resolution: "caniuse-lite@npm:1.0.30001610"
+  checksum: 580c7367aafd7e524f4e3f0e8b22ac08d081a4d44ceece211f1758e214df9a87961750fb1e1ee28a2cd2830f0daf3edafe5e1d87bf1eefbbe7c6cf3d00e2979d
   languageName: node
   linkType: hard
 
@@ -4963,11 +4963,11 @@ __metadata:
   linkType: hard
 
 "core-js-compat@npm:^3.31.0, core-js-compat@npm:^3.36.1":
-  version: 3.36.1
-  resolution: "core-js-compat@npm:3.36.1"
+  version: 3.37.0
+  resolution: "core-js-compat@npm:3.37.0"
   dependencies:
     browserslist: ^4.23.0
-  checksum: c9109bd599a97b5d20f25fc8b8339b8c7f3fca5f9a1bebd397805383ff7699e117786c7ffe0f7a95058a6fa5e0e1435d4c10e5cda6ad86ce1957986bb6580562
+  checksum: cab5078e98625f889fd9bbbb19e84cb408f31c87e68302d380db0d26ae8e35c1b38cde084358ff345d4aa461af5f3c60d8a913a5b30bff3a83b4b7859374db36
   languageName: node
   linkType: hard
 
@@ -5486,6 +5486,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"dotenv@npm:^16.4.5":
+  version: 16.4.5
+  resolution: "dotenv@npm:16.4.5"
+  checksum: 301a12c3d44fd49888b74eb9ccf9f07a1f5df43f489e7fcb89647a2edcd84c42d6bc349dc8df099cd18f07c35c7b04685c1a4f3e6a6a9e6b30f8d48c15b7f49c
+  languageName: node
+  linkType: hard
+
 "eastasianwidth@npm:^0.2.0":
   version: 0.2.0
   resolution: "eastasianwidth@npm:0.2.0"
@@ -5501,9 +5508,9 @@ __metadata:
   linkType: hard
 
 "electron-to-chromium@npm:^1.4.668":
-  version: 1.4.735
-  resolution: "electron-to-chromium@npm:1.4.735"
-  checksum: feedf1f10b83430669e69a0bbb41f31b81dac97c07d76e1fe999d555c43fd6f5af1000c86dd6be8a9d609b97f1ddbcfac37edec4b55b2b379775655655989bd3
+  version: 1.4.738
+  resolution: "electron-to-chromium@npm:1.4.738"
+  checksum: 9adef299a9115f507389d2918162e12ab9dc8bff5e0b372bf05d795539c3b5ffa3ff029ab3db4e2d4d3dbebd38ec8bb931adc3e8f987170f93926d684b94a16c
   languageName: node
   linkType: hard
 
@@ -6368,12 +6375,12 @@ __metadata:
   linkType: hard
 
 "find-babel-config@npm:^2.0.0":
-  version: 2.0.0
-  resolution: "find-babel-config@npm:2.0.0"
+  version: 2.1.0
+  resolution: "find-babel-config@npm:2.1.0"
   dependencies:
-    json5: ^2.1.1
+    json5: ^2.2.3
     path-exists: ^4.0.0
-  checksum: d110308b02fe6a6411a0cfb7fd50af6740fbf5093eada3d6ddacf99b07fc8eea4aa3475356484710a0032433029a21ce733bb3ef88fda1d6e35c29a3e4983014
+  checksum: e4ec4f400055167a60d0aedd3086a41dc99d1734bcc48e687488361ea423956be4c9a89cc842bd9514820bdeb2a9c59fa35b037aae0f1fd8582141c9d1a2f7bc
   languageName: node
   linkType: hard
 
@@ -8668,7 +8675,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"json5@npm:^2.1.1, json5@npm:^2.2.1, json5@npm:^2.2.3":
+"json5@npm:^2.2.1, json5@npm:^2.2.3":
   version: 2.2.3
   resolution: "json5@npm:2.2.3"
   bin:
@@ -10798,6 +10805,29 @@ __metadata:
   languageName: node
   linkType: hard
 
+"react-native-config@npm:^1.5.1":
+  version: 1.5.1
+  resolution: "react-native-config@npm:1.5.1"
+  peerDependencies:
+    react-native-windows: ">=0.61"
+  peerDependenciesMeta:
+    react-native-windows:
+      optional: true
+  checksum: ae17b750e445310573ce33798db67c9b8c50e55cb2ba136e9a9ef8372dd3f7669ce236bb18bf1fa8a426fd1aa9e6b516fb2f593767bd24688242f6847cd37712
+  languageName: node
+  linkType: hard
+
+"react-native-dotenv@npm:^3.4.11":
+  version: 3.4.11
+  resolution: "react-native-dotenv@npm:3.4.11"
+  dependencies:
+    dotenv: ^16.4.5
+  peerDependencies:
+    "@babel/runtime": ^7.20.6
+  checksum: 3ebac2c2ed79dd7e4920fd3fc2da9187413b7190231618e4858b46c47833677838b96d531afe7bd5c4b0a60454dba40cb8708722210df5d522e30aefbf41da05
+  languageName: node
+  linkType: hard
+
 "react-native-notifications@npm:^5.1.0":
   version: 5.1.0
   resolution: "react-native-notifications@npm:5.1.0"
@@ -11398,19 +11428,21 @@ __metadata:
     babel-plugin-module-resolver: ^5.0.0
     react: 18.2.0
     react-native: 0.73.6
+    react-native-config: ^1.5.1
+    react-native-dotenv: ^3.4.11
     react-native-notifications: ^5.1.0
     react-native-uuid: ^2.0.2
-    rtn-dev-console: ../rtn-dev-console-0.0.0-local.154.tgz
+    rtn-dev-console: ../rtn-dev-console-0.0.0-local.161.tgz
   languageName: unknown
   linkType: soft
 
-"rtn-dev-console@file:../rtn-dev-console-0.0.0-local.154.tgz::locator=rtn-dev-console-example%40workspace%3Aexample":
+"rtn-dev-console@file:../rtn-dev-console-0.0.0-local.161.tgz::locator=rtn-dev-console-example%40workspace%3Aexample":
   version: 0.2.0
-  resolution: "rtn-dev-console@file:../rtn-dev-console-0.0.0-local.154.tgz::locator=rtn-dev-console-example%40workspace%3Aexample"
+  resolution: "rtn-dev-console@file:../rtn-dev-console-0.0.0-local.161.tgz::locator=rtn-dev-console-example%40workspace%3Aexample"
   peerDependencies:
     react: "*"
     react-native: "*"
-  checksum: de2b6d4df17263bec41de8457e449ebe6c9e238ad8d927ddd0f6133dcf6ed93acd8d5ffe974098c07ebeec75eb096696cb8dc5332275a847aa6b249c2fa05de6
+  checksum: 2f1a0d78eb7c65717f6604e59291ea2695969607ff03a71914ac4b4a1219ba84ca8f2a9f79670f9943a61ee412184ff58597abbab6bf57baba8078426c844f2c
   languageName: node
   linkType: hard
 
