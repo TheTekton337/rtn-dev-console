@@ -22,6 +22,10 @@ const SshTerminal = forwardRef<SshTerminalMethods, NativeProps>(
         close: () => {
           consoleRef.current && Commands.close(consoleRef.current);
         },
+        executeCommand: (callbackId: string, command: string) => {
+          consoleRef.current &&
+            Commands.executeCommand(consoleRef.current, callbackId, command);
+        },
         writeCommand: (command: string) => {
           consoleRef.current &&
             Commands.writeCommand(consoleRef.current, command);

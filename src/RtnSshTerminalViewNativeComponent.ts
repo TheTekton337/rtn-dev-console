@@ -211,6 +211,25 @@ export type UploadProgressEvent = Readonly<{
   bytesTransferred: Double;
 }>;
 
+export type CommandExecutedEvent = Readonly<{
+  /**
+   * The terminal that executed the command.
+   */
+  terminalId?: Int32;
+  /**
+   * The SSH callback ID.
+   */
+  callbackId: string;
+  /**
+   * The command output.
+   */
+  data?: string;
+  /**
+   * The error JSON.
+   */
+  error?: string;
+}>;
+
 // TODO: Implement callback and interactive authentication
 // export type InteractiveAuthRequestEvent = Readonly<{
 //   prompt: string;
@@ -393,6 +412,11 @@ export interface NativeProps extends ViewProps {
    */
   onUploadProgress?: DirectEventHandler<UploadProgressEvent>;
 
+  /**
+   * Callback invoked when the terminal completes an SSH command invoked by executeCommand().
+   */
+  onCommandExecuted?: DirectEventHandler<CommandExecutedEvent>;
+
   // TODO: Implement callback and interactive authentication
   // onInteractiveAuthentication?: DirectEventHandler<InteractiveAuthRequestEvent>;
 
@@ -451,6 +475,11 @@ export interface NativeCommands {
   close: (
     viewRef: React.ElementRef<HostComponent<NativeProps>>
   ) => Promise<boolean>;
+  executeCommand: (
+    viewRef: React.ElementRef<HostComponent<NativeProps>>,
+    callbackId: string,
+    command: string
+  ) => void;
   writeCommand: (
     viewRef: React.ElementRef<HostComponent<NativeProps>>,
     command: string
@@ -599,6 +628,7 @@ export const Commands = codegenNativeCommands<NativeCommands>({
     // rtn-dev-console methods
     'connect',
     'close',
+    'executeCommand',
     'writeCommand',
     'download',
     'upload',

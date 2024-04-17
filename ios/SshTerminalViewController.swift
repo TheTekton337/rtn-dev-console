@@ -167,6 +167,11 @@ public class SshTerminalViewController: UIViewController {
     }
     
     @objc
+    public func executeCommand(callbackId: String, command: String) {
+        tv.executeCommand(callbackId: callbackId, command: command)
+    }
+    
+    @objc
     public func writeCommand(command: String) {
         tv.writeCommand(command: command)
     }

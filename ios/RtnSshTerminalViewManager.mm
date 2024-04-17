@@ -51,6 +51,8 @@ RCT_EXPORT_VIEW_PROPERTY(onDownloadProgress, RCTBubblingEventBlock);
 
 RCT_EXPORT_VIEW_PROPERTY(onUploadProgress, RCTBubblingEventBlock);
 
+RCT_EXPORT_VIEW_PROPERTY(onCommandExecuted, RCTBubblingEventBlock);
+
 RCT_EXPORT_VIEW_PROPERTY(onConnectionChanged, RCTBubblingEventBlock);
 
 RCT_EXPORT_VIEW_PROPERTY(onSizeChanged, RCTBubblingEventBlock);
@@ -104,6 +106,18 @@ RtnSshTerminalView *view = (RtnSshTerminalView *)viewRegistry[reactTag];        
 
 QUICK_RCT_EXPORT_COMMAND_METHOD(connect)
 QUICK_RCT_EXPORT_COMMAND_METHOD(close)
+
+RCT_EXPORT_METHOD(execute:(nonnull NSNumber *)reactTag
+                  callbackId:(NSString *)callbackId
+                  command:(NSString *)command)
+{
+    [self.bridge.uiManager addUIBlock:^(RCTUIManager *uiManager, NSDictionary<NSNumber *, UIView *> *viewRegistry) {
+        RtnSshTerminalView *view = (RtnSshTerminalView *)viewRegistry[reactTag];
+        if ([view isKindOfClass:[RtnSshTerminalView class]]) {
+            [view executeCommand:callbackId command:command];
+        }
+    }];
+}
 
 RCT_EXPORT_METHOD(write:(nonnull NSNumber *)reactTag
                   command:(NSString *)command)
