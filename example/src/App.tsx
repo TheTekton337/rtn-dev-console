@@ -1,6 +1,8 @@
 import * as React from 'react';
 import { useEffect, useRef, useState } from 'react';
 
+import Config from 'react-native-config';
+
 import {
   Platform,
   SafeAreaView,
@@ -50,12 +52,26 @@ interface UploadProgressEvent {
   totalBytes: number;
 }
 
+interface CommandExecutedEvent {
+  terminalId: number;
+  data?: string;
+  error?: string;
+}
+
 export default function App() {
   const ref = useRef<SshTerminalMethods | null>(null);
   const [connected, setConnected] = useState(false);
   const [borderColor, setBorderColor] = useState('transparent');
   const [borderWidth, setBorderWidth] = useState(0);
   const [_, setCursorVisible] = useState(true);
+  // const [testDownloadProgress, setTestDownloadProgress] = useState(0);
+  const fileDownloadProgress = useRef<number>(0);
+  const fileUploadProgress = useRef<number>(0);
+
+  const host = Config.SSH_HOST;
+  const port = Config.SSH_PORT;
+  const username = Config.SSH_USER;
+  const password = Config.SSH_PASS;
 
   const { registerCallback, getHandler } = useEventCallbackManager();
 
@@ -150,16 +166,28 @@ export default function App() {
   const onDownloadPress = () => {
     console.log('onDownloadPress');
 
+    fileDownloadProgress.current = 0;
+
     const callbackId = uuid.v4().toString();
 
-    const from = '/home/tekton/test_nb.txt';
-    const to = 'test_nb.txt';
+    const from = '/home/tekton/test.webm';
+    const to = 'test.webm';
+    // const from = '/home/tekton/test_nb.txt';
+    // const to = 'test_nb.txt';
+    // const from = '/home/tekton/test_nb_invalid.txt';
+    // const to = 'test_nb.txt';
 
     registerCallback<DownloadCompleteEvent>(
       callbackId,
       'onDownloadComplete',
       (data) => {
-        console.log(`ID: ${callbackId} File: ${data.data}`);
+        if (data.error) {
+          console.log(`ID: ${callbackId} Error: ${data.error}`);
+          return;
+        }
+        console.log(
+          `ID: ${callbackId} File: ${data.data} FileInfo: ${JSON.stringify(data.fileInfo)}`
+        );
       }
     );
 
@@ -182,10 +210,12 @@ export default function App() {
   const onUploadPress = () => {
     console.log('onUploadPress');
 
+    fileUploadProgress.current = 0;
+
     const callbackId = uuid.v4().toString();
 
-    const from = 'test_scp2.txt';
-    const to = '/home/tekton/test_scp2.txt';
+    const from = 'test.webm';
+    const to = '/home/tekton/test_scp_write.webm';
 
     registerCallback<UploadCompleteEvent>(
       callbackId,
@@ -201,9 +231,24 @@ export default function App() {
       callbackId,
       'onUploadProgress',
       (data) => {
-        console.log(
-          `ID: ${callbackId} Progress: ${data.bytesTransferred} bytes`
-        );
+        let prevProgress = fileUploadProgress.current;
+        let nextProgress = data.bytesTransferred / data.totalBytes;
+
+        if (nextProgress === prevProgress) {
+          return;
+        }
+
+        const formatter = new Intl.NumberFormat('en-US', {
+          style: 'percent',
+          minimumFractionDigits: 2,
+          maximumFractionDigits: 2,
+        });
+        let progress = data.bytesTransferred / data.totalBytes;
+        let progressPercent = formatter.format(progress);
+
+        fileUploadProgress.current = nextProgress;
+
+        console.log(`ID: ${callbackId} Progress: ${progressPercent}`);
       }
     );
 
@@ -212,6 +257,31 @@ export default function App() {
 
   const handleUploadComplete = getHandler('onUploadComplete');
   const handleUploadProgress = getHandler('onUploadProgress');
+
+  const onExecutePress = () => {
+    console.log('onExecutePress');
+
+    const callbackId = uuid.v4().toString();
+
+    // const cmd = 'test -r /home/tekton/test_nb_invalid.txt; echo $?';
+    const cmd = 'echo "Hello World";';
+
+    registerCallback<CommandExecutedEvent>(
+      callbackId,
+      'onCommandExecuted',
+      (data) => {
+        if (data.error) {
+          console.log(`Command ID: ${callbackId} Error: ${data.error}`);
+          return;
+        }
+        console.log(`Command ID: ${callbackId} Data: ${data.data}`);
+      }
+    );
+
+    ref.current?.executeCommand(callbackId, cmd);
+  };
+
+  const handleCommandExecuted = getHandler('onCommandExecuted');
 
   return (
     <SafeAreaView style={styles.container}>
@@ -223,14 +293,14 @@ export default function App() {
             { backgroundColor: connected ? 'green' : 'red' },
           ]}
         />
-        <TouchableOpacity onPress={onToggleCursorPress}>
-          <Text>Toggle Cursor</Text>
-        </TouchableOpacity>
         <TouchableOpacity
           onPress={onToggleConnectionPress}
           style={styles.button}
         >
           <Text>{connected ? 'Disconnect' : 'Connect'}</Text>
+        </TouchableOpacity>
+        <TouchableOpacity onPress={onToggleCursorPress} disabled={!connected}>
+          <Text>Toggle Cursor</Text>
         </TouchableOpacity>
         <TouchableOpacity
           onPress={onSendPress}
@@ -251,14 +321,21 @@ export default function App() {
           disabled={!connected}
           style={styles.button}
         >
-          <Text>Get test_scp.txt</Text>
+          <Text>SCP Receive</Text>
         </TouchableOpacity>
         <TouchableOpacity
           onPress={onUploadPress}
           disabled={!connected}
           style={styles.button}
         >
-          <Text>Send test_scp2.txt</Text>
+          <Text>SCP Send</Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          onPress={onExecutePress}
+          disabled={!connected}
+          style={styles.button}
+        >
+          <Text>Exec test</Text>
         </TouchableOpacity>
       </View>
       <View style={[styles.container, { borderColor, borderWidth }]}>
@@ -267,8 +344,8 @@ export default function App() {
           style={styles.container}
           autoConnect
           hostConfig={{
-            host: '192.168.1.1',
-            port: 22,
+            host,
+            port,
             terminal: 'xterm',
             environment: [
               {
@@ -280,8 +357,8 @@ export default function App() {
           }}
           authConfig={{
             authType: 'password',
-            username: 'your_username',
-            password: 'your_password',
+            username,
+            password,
           }}
           initialText={initialText}
           oscHandlerCodes={[337]}
@@ -294,6 +371,7 @@ export default function App() {
           onUploadComplete={handleUploadComplete}
           onDownloadProgress={handleDownloadProgress}
           onUploadProgress={handleUploadProgress}
+          onCommandExecuted={handleCommandExecuted}
           // authConfig={{
           //   authType: 'pubkeyFile',
           //   username: 'your_username',
