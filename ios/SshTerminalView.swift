@@ -91,6 +91,9 @@ public class SshTerminalView: TerminalView, TerminalViewDelegate {
     var sshQueue: DispatchQueue
     var useAutoLayout: Bool
     var debugTerminal: Bool
+    
+    var connected: Bool
+    
     var lastScrollPosition: Double?
     var lastTerminalSize: (lastCols: Int, lastRows: Int)?
     var lastTitle: String?
@@ -109,6 +112,8 @@ public class SshTerminalView: TerminalView, TerminalViewDelegate {
         self.debugTerminal = false
         self.useAutoLayout = true
         
+        self.connected = false
+        
         super.init(frame: frame)
         terminalDelegate = self
                 
@@ -124,6 +129,15 @@ public class SshTerminalView: TerminalView, TerminalViewDelegate {
     
     @objc
     public func closeSSHConnection(_ completion: (() -> Void)?) {
+//        TODO: Add a confirmation when scpTransfer is active...
+        if (self.scpSession != nil) {
+            if ((self.scpSession?.channel.opened) != nil && self.scpSession?.channel.opened == true) {
+                self.scpSession?.close()
+            }
+        }
+        if (self.scpTransfer != nil) {
+            self.scpTransfer = nil
+        }
         shell?.close(completion)
     }
 
@@ -170,9 +184,13 @@ public class SshTerminalView: TerminalView, TerminalViewDelegate {
         
         shell = try SSHShell(sshLibrary: Libssh2.self, host: host, port: port, environment: environment, terminal: shellTerminal)
         
+//        TODO: Make sure we don't need to set connected anywhere else
         shell?.onSessionClose = {
-            DispatchQueue.main.async {
-                self.onClosed(source: self, reason: "close")
+            if (self.connected == true) {
+                DispatchQueue.main.async {
+                    self.onClosed(source: self, reason: "close")
+                }
+                self.connected = false
             }
         }
         
@@ -209,8 +227,7 @@ public class SshTerminalView: TerminalView, TerminalViewDelegate {
                     return
                 }
                 
-//                self.sshCommand = try! SSHCommand(session: self.shell!.sharedSession)
-//                shell?.addChannel(self.sshCommand)
+                self.connected = true
                 
                 self.terminalMessage(message: "onConnect")
                 
@@ -221,6 +238,7 @@ public class SshTerminalView: TerminalView, TerminalViewDelegate {
         }
     }
     
+//    TODO: This should be lazy loaded...
     private func setupSCPConnection() {
         guard let shell = shell else {
 //            TODO: Send error to RTN
@@ -546,7 +564,7 @@ public class SshTerminalView: TerminalView, TerminalViewDelegate {
                 guard let data = data, let fileInfo = fileInfo else {
                     self.sshTerminalViewDelegate?.onDownloadComplete(source: self, callbackId: callbackId, data: nil, fileInfo: nil, error: "File data unavailable for save")
                     return
-                }                
+                }
                 
                 let fileInfoString = fileInfo.toJSONString()
                 

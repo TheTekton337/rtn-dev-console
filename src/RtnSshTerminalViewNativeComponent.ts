@@ -68,9 +68,13 @@ export type AuthConfiguration = {
 
 export type TerminalLogEvent = Readonly<{
   /**
-   * The terminal that logged the event.
+   * The terminal view that logged the event.
    */
-  terminalId?: Int32;
+  terminalView?: Int32;
+  /**
+   * The terminal id that logged the event.
+   */
+  terminalId: string;
   /**
    * The type of log.
    */
@@ -86,16 +90,37 @@ export type TerminalLogEvent = Readonly<{
 
 export type ConnectEvent = Readonly<{
   /**
-   * The terminal that was connected.
+   * The terminal view that was connected.
    */
-  terminalId: Int32;
+  terminalView: Int32;
+  /**
+   * The terminal id that was connected.
+   */
+  terminalId: string;
+  /**
+   * The session id that was connected.
+   */
+  sessionId: string;
+  /**
+   * The SSH callback ID.
+   */
+  callbackId: string;
 }>;
 
 export type ClosedEvent = Readonly<{
   /**
-   * The terminal that was closed.
+   * TODO: Review events that report the view
+   * The terminal view that was closed.
    */
-  terminalId: Int32;
+  terminalView: Int32;
+  /**
+   * The terminal id that was closed.
+   */
+  terminalId: string;
+  /**
+   * The session id that was connected.
+   */
+  sessionId: string;
   /**
    * The reason for the close.
    */
@@ -104,9 +129,13 @@ export type ClosedEvent = Readonly<{
 
 export type OSCEvent = Readonly<{
   /**
-   * The terminal that received the OSC.
+   * The terminal view that received the OSC.
    */
-  terminalId?: Int32;
+  terminalView?: Int32;
+  /**
+   * The terminal id that received the OSC.
+   */
+  terminalId: string;
   /**
    * The OSC code.
    */
@@ -119,9 +148,13 @@ export type OSCEvent = Readonly<{
 
 export type DownloadCompleteEvent = Readonly<{
   /**
-   * The terminal that completed the SCP.
+   * The terminal view that completed the SCP.
    */
-  terminalId?: Int32;
+  terminalView?: Int32;
+  /**
+   * The terminal id that completed the SCP.
+   */
+  terminalId: string;
   /**
    * The SCP callback ID.
    */
@@ -160,9 +193,13 @@ export type DownloadCompleteEvent = Readonly<{
 
 export type UploadCompleteEvent = Readonly<{
   /**
-   * The terminal that completed the SCP.
+   * The terminal view that completed the SCP.
    */
-  terminalId?: Int32;
+  terminalView?: Int32;
+  /**
+   * The terminal id that completed the SCP.
+   */
+  terminalId: string;
   /**
    * The SCP callback ID.
    */
@@ -179,9 +216,13 @@ export type UploadCompleteEvent = Readonly<{
 
 export type DownloadProgressEvent = Readonly<{
   /**
-   * The terminal that reported the SCP progress.
+   * The terminal view that reported the SCP progress.
    */
-  terminalId?: Int32;
+  terminalView?: Int32;
+  /**
+   * The terminal id that reported the SCP progress.
+   */
+  terminalId: string;
   /**
    * The SCP callback ID.
    */
@@ -194,9 +235,13 @@ export type DownloadProgressEvent = Readonly<{
 
 export type UploadProgressEvent = Readonly<{
   /**
-   * The terminal that reported the SCP progress.
+   * The terminal view that reported the SCP progress.
    */
-  terminalId?: Int32;
+  terminalView?: Int32;
+  /**
+   * The terminal id that reported the SCP progress.
+   */
+  terminalId: string;
   /**
    * The SCP callback ID.
    */
@@ -213,9 +258,13 @@ export type UploadProgressEvent = Readonly<{
 
 export type CommandExecutedEvent = Readonly<{
   /**
-   * The terminal that executed the command.
+   * The terminal view that executed the command.
    */
-  terminalId?: Int32;
+  terminalView?: Int32;
+  /**
+   * The terminal id that executed the command.
+   */
+  terminalId: string;
   /**
    * The SSH callback ID.
    */
@@ -237,9 +286,13 @@ export type CommandExecutedEvent = Readonly<{
 
 export type SizeChangedEvent = Readonly<{
   /**
-   * The terminal that changed its size.
+   * The terminal view that changed its size.
    */
-  terminalId: Int32;
+  terminalView: Int32;
+  /**
+   * The terminal id that changed its size.
+   */
+  terminalId: string;
   /**
    * The new width.
    */
@@ -252,9 +305,13 @@ export type SizeChangedEvent = Readonly<{
 
 export type HostCurrentDirectoryUpdateEvent = Readonly<{
   /**
-   * The terminal that changed its current directory.
+   * The terminal view that changed its current directory.
    */
-  terminalId: Int32;
+  terminalView: Int32;
+  /**
+   * The terminal id that changed its current directory.
+   */
+  terminalId: string;
   /**
    * The new current directory.
    */
@@ -263,9 +320,13 @@ export type HostCurrentDirectoryUpdateEvent = Readonly<{
 
 export type ScrollEvent = Readonly<{
   /**
-   * The terminal that scrolled.
+   * The terminal view that scrolled.
    */
-  terminalId: Int32;
+  terminalView: Int32;
+  /**
+   * The terminal id that scrolled.
+   */
+  terminalId: string;
   /**
    * The new scroll position.
    */
@@ -274,9 +335,13 @@ export type ScrollEvent = Readonly<{
 
 export type RequestOpenLinkEvent = {
   /**
-   * The terminal that requested the link.
+   * The terminal view that requested the link.
    */
-  terminalId: Int32;
+  terminalView: Int32;
+  /**
+   * The terminal id that requested the link.
+   */
+  terminalId: string;
   /**
    * The link that was requested.
    */
@@ -289,16 +354,24 @@ export type RequestOpenLinkEvent = {
 
 export type BellEvent = Readonly<{
   /**
-   * The terminal that beeped.
+   * The terminal view that beeped.
    */
-  terminalId: Int32;
+  terminalView: Int32;
+  /**
+   * The terminal id that beeped.
+   */
+  terminalId: string;
 }>;
 
 export type ClipboardCopyEvent = Readonly<{
   /**
-   * The terminal that copied to the clipboard.
+   * The terminal view that copied to the clipboard.
    */
-  terminalId: Int32;
+  terminalView: Int32;
+  /**
+   * The terminal id that copied to the clipboard.
+   */
+  terminalId: string;
   /**
    * The content that was copied to the clipboard.
    */
@@ -307,9 +380,13 @@ export type ClipboardCopyEvent = Readonly<{
 
 export type ITermContentEvent = Readonly<{
   /**
-   * The terminal that received the content.
+   * The terminal view that received the content.
    */
-  terminalId: Int32;
+  terminalView: Int32;
+  /**
+   * The terminal id that received the content.
+   */
+  terminalId: string;
   /**
    * The content.
    */
@@ -318,9 +395,13 @@ export type ITermContentEvent = Readonly<{
 
 export type RangeChangedEvent = Readonly<{
   /**
-   * The terminal that changed its selection.
+   * The terminal view that changed its selection.
    */
-  terminalId: Int32;
+  terminalView: Int32;
+  /**
+   * The terminal id that changed its selection.
+   */
+  terminalId: string;
   /**
    * The start of the selection.
    */
@@ -336,6 +417,16 @@ export interface NativeProps extends ViewProps {
    * Prints connection debug output to terminal.
    */
   debug?: WithDefault<boolean, false>;
+
+  /**
+   * The RTN terminal ID.
+   */
+  terminalId: string;
+
+  /**
+   * The RTN session ID.
+   */
+  sessionId: string;
 
   /**
    * Enables or disables input.

@@ -1,3 +1,5 @@
+// TODO: Improve comments
+
 /**
  * Command types
  */

@@ -1193,7 +1193,7 @@ DEPENDENCIES:
   - ReactCommon/turbomodule/core (from `../node_modules/react-native/ReactCommon`)
   - rtn-dev-console (from `../..`)
   - SwiftSH (from `https://github.com/TheTekton337/SwiftSH.git`, branch `rtn-dev-console`)
-  - SwiftTerm (from `https://github.com/TheTekton337/SwiftTerm.git`, branch `podspec`)
+  - SwiftTerm (from `https://github.com/TheTekton337/SwiftTerm.git`, branch `rtn-dev-console`)
   - Yoga (from `../node_modules/react-native/ReactCommon/yoga`)
 
 SPEC REPOS:
@@ -1319,20 +1319,20 @@ EXTERNAL SOURCES:
     :branch: rtn-dev-console
     :git: https://github.com/TheTekton337/SwiftSH.git
   SwiftTerm:
-    :branch: podspec
+    :branch: rtn-dev-console
     :git: https://github.com/TheTekton337/SwiftTerm.git
   Yoga:
     :path: "../node_modules/react-native/ReactCommon/yoga"
 
 CHECKOUT OPTIONS:
   CSwiftSH:
-    :commit: 37d513d83c2874d6e2baec06ac2aa8756b32333c
+    :commit: 4d72fa650e1889c9c8159436ddeaf06b9876c981
     :git: https://github.com/TheTekton337/SwiftSH.git
   SwiftSH:
-    :commit: 37d513d83c2874d6e2baec06ac2aa8756b32333c
+    :commit: 4d72fa650e1889c9c8159436ddeaf06b9876c981
     :git: https://github.com/TheTekton337/SwiftSH.git
   SwiftTerm:
-    :commit: ac1a3c9d1355337e9e88602b4b44b4677d6c523b
+    :commit: 0663fa0def6676f56f81a97b34b065ee20e17eaa
     :git: https://github.com/TheTekton337/SwiftTerm.git
 
 SPEC CHECKSUMS:
@@ -1398,6 +1398,6 @@ SPEC CHECKSUMS:
   SwiftTerm: 6128b6f27658a30c882c3485df5bc98c8ee99b0a
   Yoga: d17d2cc8105eed528474683b42e2ea310e1daf61
 
-PODFILE CHECKSUM: 29ae2e60804ee2156fd6e97c4be2133f23b7c908
+PODFILE CHECKSUM: 29c57fea1445afdaa0134d2485ac72f4e142310e
 
 COCOAPODS: 1.14.3

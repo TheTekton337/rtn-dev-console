@@ -25,6 +25,8 @@ using namespace facebook::react;
     Boolean _connected;
     
     Boolean _debug;
+    NSString * _sessionId;
+    NSString * _terminalId;
     Boolean _autoConnect;
     Boolean _canConnect;
     Boolean _inputEnabled;
@@ -143,6 +145,14 @@ using namespace facebook::react;
 
     if (oldViewProps.debug != newViewProps.debug) {
         _debug = newViewProps.debug;
+    }
+    
+    if (oldViewProps.sessionId != newViewProps.sessionId) {
+        _sessionId = [[NSString alloc] initWithUTF8String: newViewProps.sessionId.c_str()];
+    }
+    
+    if (oldViewProps.terminalId != newViewProps.terminalId) {
+        _terminalId = [[NSString alloc] initWithUTF8String: newViewProps.terminalId.c_str()];
     }
     
     if (oldViewProps.autoConnect != newViewProps.autoConnect) {
@@ -264,13 +274,13 @@ using namespace facebook::react;
     
     switch (_authMethod) {
         case AuthMethodPassword:
-            shouldConnect = _host && _port && _terminal && _username && _password;
+            shouldConnect = _sessionId && _terminalId && _host && _port && _terminal && _username && _password;
             break;
         case AuthMethodPubkeyFile:
-            shouldConnect = _host && _port && _terminal && _username && _publicKeyPath && _privateKeyPath;
+            shouldConnect = _sessionId && _terminalId && _host && _port && _terminal && _username && _publicKeyPath && _privateKeyPath;
             break;
         case AuthMethodPubkeyMemory:
-            shouldConnect = _host && _port && _terminal && _username && _publicKey && _privateKey;
+            shouldConnect = _sessionId && _terminalId && _host && _port && _terminal && _username && _publicKey && _privateKey;
             break;
         default:
             shouldConnect = NO;
@@ -403,7 +413,8 @@ Class<RCTComponentViewProtocol> RtnSshTerminalViewCls(void)
     LogType logType = [Utils logTypeFromNSString:logTypeString];
     
     facebook::react::RtnSshTerminalViewEventEmitter::OnTerminalLog data = {
-        .terminalId = static_cast<int>(source.tag),
+        .terminalView = static_cast<int>(source.tag),
+        .terminalId = std::string([_terminalId UTF8String]),
         .logType = ConvertLogTypeToCpp(logType),
         .message = std::string([message UTF8String])
     };
@@ -415,7 +426,8 @@ Class<RCTComponentViewProtocol> RtnSshTerminalViewCls(void)
     auto rtnSshTerminalEventEmitter = std::static_pointer_cast<RtnSshTerminalViewEventEmitter const>(_eventEmitter);
     
     facebook::react::RtnSshTerminalViewEventEmitter::OnOSC data = {
-        .terminalId = static_cast<int>(source.tag),
+        .terminalView = static_cast<int>(source.tag),
+        .terminalId = std::string([_terminalId UTF8String]),
         .code = static_cast<int>(code),
         .data = std::string([oscData UTF8String]),
     };
@@ -441,7 +453,9 @@ facebook::react::RtnSshTerminalViewEventEmitter::OnTerminalLogLogType ConvertLog
     auto rtnSshTerminalEventEmitter = std::static_pointer_cast<RtnSshTerminalViewEventEmitter const>(_eventEmitter);
     
     facebook::react::RtnSshTerminalViewEventEmitter::OnConnect data = {
-        .terminalId = static_cast<int>(source.tag)
+        .terminalView = static_cast<int>(source.tag),
+        .terminalId = std::string([_terminalId UTF8String]),
+        .sessionId = std::string([_sessionId UTF8String]),
     };
     
     rtnSshTerminalEventEmitter->onConnect(data);
@@ -451,7 +465,9 @@ facebook::react::RtnSshTerminalViewEventEmitter::OnTerminalLogLogType ConvertLog
     auto rtnSshTerminalEventEmitter = std::static_pointer_cast<RtnSshTerminalViewEventEmitter const>(_eventEmitter);
     
     facebook::react::RtnSshTerminalViewEventEmitter::OnClosed data = {
-        .terminalId = static_cast<int>(source.tag),
+        .terminalView = static_cast<int>(source.tag),
+        .terminalId = std::string([_terminalId UTF8String]),
+        .sessionId = std::string([_sessionId UTF8String]),
         .reason = std::string([reason UTF8String])
     };
     
@@ -462,7 +478,8 @@ facebook::react::RtnSshTerminalViewEventEmitter::OnTerminalLogLogType ConvertLog
     auto rtnSshTerminalEventEmitter = std::static_pointer_cast<RtnSshTerminalViewEventEmitter const>(_eventEmitter);
     
     facebook::react::RtnSshTerminalViewEventEmitter::OnDownloadComplete data = {
-        .terminalId = static_cast<int>(source.tag),
+        .terminalView = static_cast<int>(source.tag),
+        .terminalId = std::string([_terminalId UTF8String]),
         .callbackId = std::string([callbackId UTF8String])
     };
     
@@ -485,7 +502,8 @@ facebook::react::RtnSshTerminalViewEventEmitter::OnTerminalLogLogType ConvertLog
     auto rtnSshTerminalEventEmitter = std::static_pointer_cast<RtnSshTerminalViewEventEmitter const>(_eventEmitter);
     
     facebook::react::RtnSshTerminalViewEventEmitter::OnUploadComplete data = {
-        .terminalId = static_cast<int>(source.tag),
+        .terminalView = static_cast<int>(source.tag),
+        .terminalId = std::string([_terminalId UTF8String]),
         .callbackId = std::string([callbackId UTF8String]),
         .bytesTransferred = static_cast<double>(bytesTransferred)
     };
@@ -501,7 +519,8 @@ facebook::react::RtnSshTerminalViewEventEmitter::OnTerminalLogLogType ConvertLog
     auto rtnSshTerminalEventEmitter = std::static_pointer_cast<RtnSshTerminalViewEventEmitter const>(_eventEmitter);
     
     facebook::react::RtnSshTerminalViewEventEmitter::OnDownloadProgress data = {
-        .terminalId = static_cast<int>(source.tag),
+        .terminalView = static_cast<int>(source.tag),
+        .terminalId = std::string([_terminalId UTF8String]),
         .callbackId = std::string([callbackId UTF8String]),
         .bytesTransferred = static_cast<double>(bytesTransferred)
     };
@@ -513,7 +532,8 @@ facebook::react::RtnSshTerminalViewEventEmitter::OnTerminalLogLogType ConvertLog
     auto rtnSshTerminalEventEmitter = std::static_pointer_cast<RtnSshTerminalViewEventEmitter const>(_eventEmitter);
     
     facebook::react::RtnSshTerminalViewEventEmitter::OnUploadProgress data = {
-        .terminalId = static_cast<int>(source.tag),
+        .terminalView = static_cast<int>(source.tag),
+        .terminalId = std::string([_terminalId UTF8String]),
         .callbackId = std::string([callbackId UTF8String]),
         .bytesTransferred = static_cast<double>(bytesTransferred),
         .totalBytes = static_cast<double>(totalBytes)
@@ -526,7 +546,8 @@ facebook::react::RtnSshTerminalViewEventEmitter::OnTerminalLogLogType ConvertLog
     auto rtnSshTerminalEventEmitter = std::static_pointer_cast<RtnSshTerminalViewEventEmitter const>(_eventEmitter);
     
     facebook::react::RtnSshTerminalViewEventEmitter::OnCommandExecuted data = {
-        .terminalId = static_cast<int>(source.tag),
+        .terminalView = static_cast<int>(source.tag),
+        .terminalId = std::string([_terminalId UTF8String]),
         .callbackId = std::string([callbackId UTF8String])
     };
     
@@ -545,7 +566,8 @@ facebook::react::RtnSshTerminalViewEventEmitter::OnTerminalLogLogType ConvertLog
     auto rtnSshTerminalEventEmitter = std::static_pointer_cast<RtnSshTerminalViewEventEmitter const>(_eventEmitter);
     
     facebook::react::RtnSshTerminalViewEventEmitter::OnSizeChanged data = {
-        .terminalId = static_cast<int>(source.tag),
+        .terminalView = static_cast<int>(source.tag),
+        .terminalId = std::string([_terminalId UTF8String]),
         .newCols = static_cast<int>(newCols),
         .newRows = static_cast<int>(newRows),
     };
@@ -557,7 +579,8 @@ facebook::react::RtnSshTerminalViewEventEmitter::OnTerminalLogLogType ConvertLog
     auto rtnSshTerminalEventEmitter = std::static_pointer_cast<RtnSshTerminalViewEventEmitter const>(_eventEmitter);
     
     facebook::react::RtnSshTerminalViewEventEmitter::OnHostCurrentDirectoryUpdate data = {
-        .terminalId = static_cast<int>(source.tag),
+        .terminalView = static_cast<int>(source.tag),
+        .terminalId = std::string([_terminalId UTF8String]),
         .directory = directory ? std::string([directory UTF8String]) : std::string(),
     };
     
@@ -568,7 +591,8 @@ facebook::react::RtnSshTerminalViewEventEmitter::OnTerminalLogLogType ConvertLog
     auto rtnSshTerminalEventEmitter = std::static_pointer_cast<RtnSshTerminalViewEventEmitter const>(_eventEmitter);
     
     facebook::react::RtnSshTerminalViewEventEmitter::OnScrolled data = {
-        .terminalId = static_cast<int>(source.tag),
+        .terminalView = static_cast<int>(source.tag),
+        .terminalId = std::string([_terminalId UTF8String]),
         .position = static_cast<double>(position),
     };
     
@@ -590,7 +614,8 @@ facebook::react::RtnSshTerminalViewEventEmitter::OnTerminalLogLogType ConvertLog
     NSString *paramsJson = [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
     
     facebook::react::RtnSshTerminalViewEventEmitter::OnRequestOpenLink data = {
-        .terminalId = static_cast<int>(source.tag),
+        .terminalView = static_cast<int>(source.tag),
+        .terminalId = std::string([_terminalId UTF8String]),
         .link = std::string([link UTF8String]),
         .params = std::string([paramsJson UTF8String]),
     };
@@ -602,7 +627,8 @@ facebook::react::RtnSshTerminalViewEventEmitter::OnTerminalLogLogType ConvertLog
     auto rtnSshTerminalEventEmitter = std::static_pointer_cast<RtnSshTerminalViewEventEmitter const>(_eventEmitter);
     
     facebook::react::RtnSshTerminalViewEventEmitter::OnBell data = {
-        .terminalId = static_cast<int>(source.tag),
+        .terminalView = static_cast<int>(source.tag),
+        .terminalId = std::string([_terminalId UTF8String]),
     };
     
     rtnSshTerminalEventEmitter->onBell(data);
@@ -612,7 +638,8 @@ facebook::react::RtnSshTerminalViewEventEmitter::OnTerminalLogLogType ConvertLog
     auto rtnSshTerminalEventEmitter = std::static_pointer_cast<RtnSshTerminalViewEventEmitter const>(_eventEmitter);
     
     facebook::react::RtnSshTerminalViewEventEmitter::OnClipboardCopy data = {
-        .terminalId = static_cast<int>(source.tag),
+        .terminalView = static_cast<int>(source.tag),
+        .terminalId = std::string([_terminalId UTF8String]),
         .content = std::string([content UTF8String]),
     };
     
@@ -634,7 +661,8 @@ facebook::react::RtnSshTerminalViewEventEmitter::OnTerminalLogLogType ConvertLog
     NSString *paramsJson = [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
     
     facebook::react::RtnSshTerminalViewEventEmitter::OnITermContent data = {
-        .terminalId = static_cast<int>(source.tag),
+        .terminalView = static_cast<int>(source.tag),
+        .terminalId = std::string([_terminalId UTF8String]),
         .content = std::string([paramsJson UTF8String]),
     };
     
@@ -645,7 +673,8 @@ facebook::react::RtnSshTerminalViewEventEmitter::OnTerminalLogLogType ConvertLog
     auto rtnSshTerminalEventEmitter = std::static_pointer_cast<RtnSshTerminalViewEventEmitter const>(_eventEmitter);
     
     facebook::react::RtnSshTerminalViewEventEmitter::OnRangeChanged data = {
-        .terminalId = static_cast<int>(source.tag),
+        .terminalView = static_cast<int>(source.tag),
+        .terminalId = std::string([_terminalId UTF8String]),
         .startY = static_cast<int>(startY),
         .endY = static_cast<int>(endY),
     };

@@ -37,14 +37,14 @@ INTRO_TEXT=$'Mobile applications often face limitations based on the tools avail
 type_out "$INTRO_TEXT"
 
 # Unicode and Emoji Rendering
-UNICODE_TEXT=$'Unicode and Emoji rendering (needs work):\n'
-type_out "$UNICODE_TEXT"
+# UNICODE_TEXT=$'Unicode and Emoji rendering (needs work):\n'
+# type_out "$UNICODE_TEXT"
 
-echo "🌍 Hello, world! 🌎"
+# echo "🌍 Hello, world! 🌎"
 
-echo "🚀 Rocketing through the space of Unicode: 🛸"
+# echo "🚀 Rocketing through the space of Unicode: 🛸"
 
-echo "Combining characters: Z͋͂a͂̓l͂͑g̔̓o͐͋"
+# echo "Combining characters: Z͋͂a͂̓l͂͑g̔̓o͐͋"
 
 sleep 2 # A brief pause before moving to the next demo part
 
@@ -76,6 +76,10 @@ type_out "Next, let's look at TrueColor support. Here's a hot pink..."
 echo -e "\033[38;2;255;105;180mHot Pink (TrueColor)\033[0m\n"
 
 sleep 2 # A brief pause to ensure users are ready for the next part
+
+type_out "Now, let's test out local notifications while backgrounded.\n"
+
+. ./osc_notifications.demo.sh
 
 # Preparing to display images with imgcat
 #IMAGE_INTRO_TEXT=$'Displaying images with imgcat for graphics support demo. Please observe the quality of black and white, color, and blur effects on these images.'

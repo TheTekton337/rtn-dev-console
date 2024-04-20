@@ -20,6 +20,10 @@ RCT_EXPORT_MODULE(RtnSshTerminalView)
 
 #pragma mark - Exported View Properties
 
+RCT_EXPORT_VIEW_PROPERTY(terminalId, NSString);
+
+RCT_EXPORT_VIEW_PROPERTY(sessionId, NSString);
+
 RCT_EXPORT_VIEW_PROPERTY(initialText, NSString);
 
 //TODO: Support inputEnabled prop

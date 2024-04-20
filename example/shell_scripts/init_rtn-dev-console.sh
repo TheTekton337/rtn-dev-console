@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# TODO: Refactor to support setting up screens on login based on configs from RTN.
+# TODO: Create RFC for standardizing this within pntkl project.
+
 # Check if the environment variable LC_RTN_DEV_CONSOLE is set
 if [ -n "$LC_RTN_DEV_CONSOLE" ]; then
     # Define session names
