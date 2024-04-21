@@ -8,6 +8,11 @@ import type {
   DirectEventHandler,
 } from 'react-native/Libraries/Types/CodegenTypes';
 
+export type EnvironmentVariable = {
+  name: string;
+  variable: string;
+};
+
 export type HostConfiguration = {
   /**
    * The host to connect to.
@@ -17,6 +22,10 @@ export type HostConfiguration = {
    * The port to connect to.
    */
   port?: WithDefault<Int32, 22>;
+  /**
+   * The terminal environment variables to use.
+   */
+  environment?: ReadonlyArray<EnvironmentVariable>;
   /**
    * The terminal type to use.
    */
@@ -59,9 +68,13 @@ export type AuthConfiguration = {
 
 export type TerminalLogEvent = Readonly<{
   /**
-   * The terminal that logged the event.
+   * The terminal view that logged the event.
    */
-  terminalId?: Int32;
+  terminalView?: Int32;
+  /**
+   * The terminal id that logged the event.
+   */
+  terminalId: string;
   /**
    * The type of log.
    */
@@ -77,16 +90,37 @@ export type TerminalLogEvent = Readonly<{
 
 export type ConnectEvent = Readonly<{
   /**
-   * The terminal that was connected.
+   * The terminal view that was connected.
    */
-  terminalId: Int32;
+  terminalView: Int32;
+  /**
+   * The terminal id that was connected.
+   */
+  terminalId: string;
+  /**
+   * The session id that was connected.
+   */
+  sessionId: string;
+  /**
+   * The SSH callback ID.
+   */
+  callbackId: string;
 }>;
 
 export type ClosedEvent = Readonly<{
   /**
-   * The terminal that was closed.
+   * TODO: Review events that report the view
+   * The terminal view that was closed.
    */
-  terminalId: Int32;
+  terminalView: Int32;
+  /**
+   * The terminal id that was closed.
+   */
+  terminalId: string;
+  /**
+   * The session id that was connected.
+   */
+  sessionId: string;
   /**
    * The reason for the close.
    */
@@ -95,9 +129,13 @@ export type ClosedEvent = Readonly<{
 
 export type OSCEvent = Readonly<{
   /**
-   * The terminal that received the OSC.
+   * The terminal view that received the OSC.
    */
-  terminalId?: Int32;
+  terminalView?: Int32;
+  /**
+   * The terminal id that received the OSC.
+   */
+  terminalId: string;
   /**
    * The OSC code.
    */
@@ -108,6 +146,139 @@ export type OSCEvent = Readonly<{
   data: string;
 }>;
 
+export type DownloadCompleteEvent = Readonly<{
+  /**
+   * The terminal view that completed the SCP.
+   */
+  terminalView?: Int32;
+  /**
+   * The terminal id that completed the SCP.
+   */
+  terminalId: string;
+  /**
+   * The SCP callback ID.
+   */
+  callbackId: string;
+  /**
+   * The data transferred.
+   */
+  data?: string;
+  /**
+   * The exit code of the SCP.
+   */
+  // fileInfo: Readonly<{
+  //   /**
+  //    * The file size.
+  //    */
+  //   fileSize: Double;
+  //   /**
+  //    * The modification time.
+  //    */
+  //   modificationTime: Double;
+  //   /**
+  //    * The access time.
+  //    */
+  //   accessTime: Double;
+  //   /**
+  //    * The permissions.
+  //    */
+  //   permissions: Int32;
+  // }>;
+  fileInfo: string;
+  /**
+   * The error JSON.
+   */
+  error?: string;
+}>;
+
+export type UploadCompleteEvent = Readonly<{
+  /**
+   * The terminal view that completed the SCP.
+   */
+  terminalView?: Int32;
+  /**
+   * The terminal id that completed the SCP.
+   */
+  terminalId: string;
+  /**
+   * The SCP callback ID.
+   */
+  callbackId: string;
+  /**
+   * The bytes transferred.
+   */
+  bytesTransferred: Double;
+  /**
+   * The error JSON.
+   */
+  error?: string;
+}>;
+
+export type DownloadProgressEvent = Readonly<{
+  /**
+   * The terminal view that reported the SCP progress.
+   */
+  terminalView?: Int32;
+  /**
+   * The terminal id that reported the SCP progress.
+   */
+  terminalId: string;
+  /**
+   * The SCP callback ID.
+   */
+  callbackId: string;
+  /**
+   * The bytes transferred.
+   */
+  bytesTransferred: Double;
+}>;
+
+export type UploadProgressEvent = Readonly<{
+  /**
+   * The terminal view that reported the SCP progress.
+   */
+  terminalView?: Int32;
+  /**
+   * The terminal id that reported the SCP progress.
+   */
+  terminalId: string;
+  /**
+   * The SCP callback ID.
+   */
+  callbackId: string;
+  /**
+   * The total bytes to transfer.
+   */
+  totalBytes: Double;
+  /**
+   * The bytes transferred.
+   */
+  bytesTransferred: Double;
+}>;
+
+export type CommandExecutedEvent = Readonly<{
+  /**
+   * The terminal view that executed the command.
+   */
+  terminalView?: Int32;
+  /**
+   * The terminal id that executed the command.
+   */
+  terminalId: string;
+  /**
+   * The SSH callback ID.
+   */
+  callbackId: string;
+  /**
+   * The command output.
+   */
+  data?: string;
+  /**
+   * The error JSON.
+   */
+  error?: string;
+}>;
+
 // TODO: Implement callback and interactive authentication
 // export type InteractiveAuthRequestEvent = Readonly<{
 //   prompt: string;
@@ -115,9 +286,13 @@ export type OSCEvent = Readonly<{
 
 export type SizeChangedEvent = Readonly<{
   /**
-   * The terminal that changed its size.
+   * The terminal view that changed its size.
    */
-  terminalId: Int32;
+  terminalView: Int32;
+  /**
+   * The terminal id that changed its size.
+   */
+  terminalId: string;
   /**
    * The new width.
    */
@@ -130,9 +305,13 @@ export type SizeChangedEvent = Readonly<{
 
 export type HostCurrentDirectoryUpdateEvent = Readonly<{
   /**
-   * The terminal that changed its current directory.
+   * The terminal view that changed its current directory.
    */
-  terminalId: Int32;
+  terminalView: Int32;
+  /**
+   * The terminal id that changed its current directory.
+   */
+  terminalId: string;
   /**
    * The new current directory.
    */
@@ -141,9 +320,13 @@ export type HostCurrentDirectoryUpdateEvent = Readonly<{
 
 export type ScrollEvent = Readonly<{
   /**
-   * The terminal that scrolled.
+   * The terminal view that scrolled.
    */
-  terminalId: Int32;
+  terminalView: Int32;
+  /**
+   * The terminal id that scrolled.
+   */
+  terminalId: string;
   /**
    * The new scroll position.
    */
@@ -152,9 +335,13 @@ export type ScrollEvent = Readonly<{
 
 export type RequestOpenLinkEvent = {
   /**
-   * The terminal that requested the link.
+   * The terminal view that requested the link.
    */
-  terminalId: Int32;
+  terminalView: Int32;
+  /**
+   * The terminal id that requested the link.
+   */
+  terminalId: string;
   /**
    * The link that was requested.
    */
@@ -167,16 +354,24 @@ export type RequestOpenLinkEvent = {
 
 export type BellEvent = Readonly<{
   /**
-   * The terminal that beeped.
+   * The terminal view that beeped.
    */
-  terminalId: Int32;
+  terminalView: Int32;
+  /**
+   * The terminal id that beeped.
+   */
+  terminalId: string;
 }>;
 
 export type ClipboardCopyEvent = Readonly<{
   /**
-   * The terminal that copied to the clipboard.
+   * The terminal view that copied to the clipboard.
    */
-  terminalId: Int32;
+  terminalView: Int32;
+  /**
+   * The terminal id that copied to the clipboard.
+   */
+  terminalId: string;
   /**
    * The content that was copied to the clipboard.
    */
@@ -185,9 +380,13 @@ export type ClipboardCopyEvent = Readonly<{
 
 export type ITermContentEvent = Readonly<{
   /**
-   * The terminal that received the content.
+   * The terminal view that received the content.
    */
-  terminalId: Int32;
+  terminalView: Int32;
+  /**
+   * The terminal id that received the content.
+   */
+  terminalId: string;
   /**
    * The content.
    */
@@ -196,9 +395,13 @@ export type ITermContentEvent = Readonly<{
 
 export type RangeChangedEvent = Readonly<{
   /**
-   * The terminal that changed its selection.
+   * The terminal view that changed its selection.
    */
-  terminalId: Int32;
+  terminalView: Int32;
+  /**
+   * The terminal id that changed its selection.
+   */
+  terminalId: string;
   /**
    * The start of the selection.
    */
@@ -214,6 +417,16 @@ export interface NativeProps extends ViewProps {
    * Prints connection debug output to terminal.
    */
   debug?: WithDefault<boolean, false>;
+
+  /**
+   * The RTN terminal ID.
+   */
+  terminalId: string;
+
+  /**
+   * The RTN session ID.
+   */
+  sessionId: string;
 
   /**
    * Enables or disables input.
@@ -269,6 +482,31 @@ export interface NativeProps extends ViewProps {
    * Callback invoked when the terminal receives an OSC command.
    */
   onOSC?: DirectEventHandler<OSCEvent>;
+
+  /**
+   * Callback invoked when the terminal completes an SCP read transfer.
+   */
+  onDownloadComplete?: DirectEventHandler<DownloadCompleteEvent>;
+
+  /**
+   * Callback invoked when the terminal completes an SCP write transfer.
+   */
+  onUploadComplete?: DirectEventHandler<UploadCompleteEvent>;
+
+  /**
+   * Callback invoked when the terminal reports SCP read progress.
+   */
+  onDownloadProgress?: DirectEventHandler<DownloadProgressEvent>;
+
+  /**
+   * Callback invoked when the terminal reports SCP write progress.
+   */
+  onUploadProgress?: DirectEventHandler<UploadProgressEvent>;
+
+  /**
+   * Callback invoked when the terminal completes an SSH command invoked by executeCommand().
+   */
+  onCommandExecuted?: DirectEventHandler<CommandExecutedEvent>;
 
   // TODO: Implement callback and interactive authentication
   // onInteractiveAuthentication?: DirectEventHandler<InteractiveAuthRequestEvent>;
@@ -328,10 +566,32 @@ export interface NativeCommands {
   close: (
     viewRef: React.ElementRef<HostComponent<NativeProps>>
   ) => Promise<boolean>;
+  executeCommand: (
+    viewRef: React.ElementRef<HostComponent<NativeProps>>,
+    callbackId: string,
+    command: string
+  ) => void;
   writeCommand: (
     viewRef: React.ElementRef<HostComponent<NativeProps>>,
     command: string
   ) => void;
+  // testCallback: (
+  //   viewRef: React.ElementRef<HostComponent<NativeProps>>,
+  //   callbackId: string,
+  //   value: string
+  // ) => void;
+  download: (
+    viewRef: React.ElementRef<HostComponent<NativeProps>>,
+    callbackId: string,
+    from: string,
+    to: string
+  ) => Promise<boolean>;
+  upload: (
+    viewRef: React.ElementRef<HostComponent<NativeProps>>,
+    callbackId: string,
+    from: string,
+    to: string
+  ) => Promise<boolean>;
   // TODO: Support callback and interactive authentication
   // sendInteractiveAuthentication: (
   //   viewRef: React.ElementRef<HostComponent<NativeProps>>,
@@ -459,6 +719,10 @@ export const Commands = codegenNativeCommands<NativeCommands>({
     // rtn-dev-console methods
     'connect',
     'close',
+    'executeCommand',
+    'writeCommand',
+    'download',
+    'upload',
     // TODO: Support callback and interactive authentication
     // 'sendInteractiveAuthentication',
     // Terminal methods
@@ -500,7 +764,6 @@ export const Commands = codegenNativeCommands<NativeCommands>({
     'setTitle',
     'softReset',
     'updateFullScreen',
-    'writeCommand',
   ],
 });
 

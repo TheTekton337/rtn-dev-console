@@ -1,188 +1,79 @@
-import * as React from 'react';
-import { useRef, useState } from 'react';
+import React, { useEffect, useRef, useState, type RefObject } from 'react';
+import { SafeAreaView, StyleSheet, View } from 'react-native';
 
-import {
-  SafeAreaView,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
-} from 'react-native';
-import {
-  SshTerminal,
-  type ClosedEvent,
-  type OSCEvent,
-  type TerminalLogEvent,
-  type SshTerminalMethods,
-} from 'rtn-dev-console';
+import ErrorBoundary from 'react-native-error-boundary';
+import uuid from 'react-native-uuid';
+import type { SshTerminalMethods } from 'rtn-dev-console';
 
-const initialText = 'rtn-dev-console - connecting to my localhost\r\n\n';
+import { log, LogLevel } from './utils/log';
+
+import type { NativeTerminal } from './types/Terminal';
+
+import TerminalProvider from './providers/TerminalProvider';
+
+import { setTerminalInstance } from './observables/TerminalService';
+
+import Terminal from './components/Terminal/Terminal';
+import Toolbar from './components/Toolbar/Toolbar';
+
+import useSshConnectionStatus from './hooks/useSshConnectionStatus';
+
+const logModule = 'App';
 
 export default function App() {
-  const ref = useRef<SshTerminalMethods | null>(null);
-  const [connected, setConnected] = useState(false);
-  const [borderColor, setBorderColor] = useState('transparent');
-  const [borderWidth, setBorderWidth] = useState(0);
-  const [_, setCursorVisible] = useState(true);
+  const sshTerminalRef = useRef<SshTerminalMethods>(null);
 
-  const onBell = () => {
-    console.log('handleBell invoked');
-    setBorderColor('red');
-    setBorderWidth(1);
-    setTimeout(() => {
-      setBorderColor('transparent');
-      setBorderWidth(1);
-    }, 1000);
+  const [sessionId] = useState(uuid.v4().toString());
+  const [terminalId] = useState(uuid.v4().toString());
+  const [terminal, setInternalTerminal] = useState<NativeTerminal | null>(null);
+
+  const [connectionStatus] = useSshConnectionStatus(sessionId, terminal);
+
+  const setTerminal = (ref: NativeTerminal) => {
+    setInternalTerminal(ref);
   };
 
-  const onConnect = () => {
-    console.log('Connected');
-    setConnected(true);
-  };
+  useEffect(() => {
+    let cleanupRef: RefObject<SshTerminalMethods>;
 
-  const onClosed = ({ nativeEvent: { reason } }: ClosedEvent) => {
-    console.log(`Connection closed: ${reason}`);
-    setConnected(false);
-  };
-
-  const onTerminalLog = ({
-    nativeEvent: { logType, message },
-  }: TerminalLogEvent) => {
-    console.log(`onTerminalLog: ${logType}: ${message}`);
-  };
-
-  const onOSC = ({ nativeEvent: { code, data } }: OSCEvent) => {
-    console.log(`onOSC: ${code} | ${data}`);
-    setBorderColor('green');
-    setBorderWidth(1);
-    setTimeout(() => {
-      setBorderColor('transparent');
-      setBorderWidth(1);
-    }, 1000);
-  };
-
-  const onToggleCursorPress = () => {
-    setCursorVisible((prevCursorVisible) => {
-      const nextCursorVisible = !prevCursorVisible;
-
-      if (nextCursorVisible) {
-        ref.current?.showCursor();
-      } else {
-        ref.current?.hideCursor();
-      }
-
-      return !prevCursorVisible;
-    });
-  };
-
-  const onToggleConnectionPress = () => {
-    if (connected) {
-      ref.current?.close();
+    if (sshTerminalRef.current) {
+      cleanupRef = sshTerminalRef;
+      setTerminalInstance(sshTerminalRef.current);
     } else {
-      ref.current?.connect();
+      log(LogLevel.WARN, logModule, 'sshTerminalRef is null');
     }
-  };
 
-  const onSendPress = () => {
-    ref.current?.writeCommand('ls -la\n');
-  };
+    return () => {
+      log(LogLevel.DEBUG, logModule, 'cleanup');
+      if (cleanupRef.current) {
+        log(LogLevel.DEBUG, logModule, 'closing');
+        cleanupRef.current?.close();
+      }
+    };
+  }, []);
 
   return (
-    <SafeAreaView style={styles.container}>
-      <View style={styles.toolbar}>
-        <View
-          style={[
-            styles.statusDot,
-            // eslint-disable-next-line react-native/no-inline-styles
-            { backgroundColor: connected ? 'green' : 'red' },
-          ]}
-        />
-        <TouchableOpacity onPress={onToggleCursorPress}>
-          <Text>Toggle Cursor</Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          onPress={onToggleConnectionPress}
-          style={styles.button}
-        >
-          <Text>{connected ? 'Disconnect' : 'Connect'}</Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          onPress={onSendPress}
-          disabled={!connected}
-          style={styles.button}
-        >
-          <Text>ls -la</Text>
-        </TouchableOpacity>
-      </View>
-      <View style={[styles.container, { borderColor, borderWidth }]}>
-        <SshTerminal
-          ref={ref}
-          style={styles.container}
-          autoConnect
-          hostConfig={{
-            host: '192.168.1.1',
-            port: 22,
-            terminal: 'xterm',
-          }}
-          authConfig={{
-            authType: 'password',
-            username: 'your_username',
-            password: 'your_password',
-          }}
-          initialText={initialText}
-          oscHandlerCodes={[337]}
-          onOSC={onOSC}
-          onBell={onBell}
-          onClosed={onClosed}
-          onConnect={onConnect}
-          onTerminalLog={onTerminalLog}
-          // authConfig={{
-          //   authType: 'pubkeyFile',
-          //   username: 'your_username',
-          //   privateKeyPath: 'privateKey.txt',
-          //   // publicKeyPath: 'publicKey.txt', // Optional
-          //   // password: 'your_passhrase', // Optional
-          // }}
-          // authConfig={{
-          //   authType: 'pubkeyMemory',
-          //   username: 'your_username',
-          //   privateKey: privateKeyString,
-          //   // publicKey: publickKeyString, // Optional
-          //   // password: 'your_passhrase', // Optional
-          // }}
-          // TODO: Add support for callback and interactive auth
-          // authConfig={{
-          //   type: 'interactive',
-          //   username: 'your_username',
-          //   interactiveCallback: handleInteractiveAuth
-          // }}
-        />
-      </View>
-    </SafeAreaView>
+    <ErrorBoundary>
+      <SafeAreaView style={styles.container}>
+        <View style={styles.container}>
+          <TerminalProvider
+            sessionId={sessionId}
+            terminalId={terminalId}
+            connectionStatus={connectionStatus}
+            terminal={terminal}
+            setTerminal={setTerminal}
+          >
+            <Toolbar />
+            <Terminal ref={sshTerminalRef} />
+          </TerminalProvider>
+        </View>
+      </SafeAreaView>
+    </ErrorBoundary>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-  },
-  toolbar: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    height: 50,
-    paddingHorizontal: 10,
-  },
-  statusDot: {
-    width: 10,
-    height: 10,
-    borderRadius: 5,
-    marginRight: 10,
-  },
-  button: {
-    backgroundColor: '#e7e7e7',
-    paddingHorizontal: 15,
-    paddingVertical: 5,
-    borderRadius: 5,
-    marginLeft: 10,
   },
 });

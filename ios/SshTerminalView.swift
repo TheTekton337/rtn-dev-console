@@ -11,10 +11,16 @@ import UIKit
 import SwiftSH
 import SwiftTerm
 
+struct EnvironmentVariable: Codable {
+    let name: String
+    let variable: String
+}
+
 struct SSHConnectionConfig: Codable {
     let method: String
     let host: String
     let terminal: String
+    let environment: [EnvironmentVariable]?
     let port: UInt16
     let username: String
     let password: String?
@@ -42,6 +48,16 @@ extension SSHConnectionConfig {
         self.initialText = dictionary["initialText"] as? String ?? ""
         self.inputEnabled = dictionary["inputEnabled"] as? Bool ?? true
         self.debug = dictionary["debug"] as? Bool ?? true
+        
+        if let envArray = dictionary["environment"] as? [[String: String]] {
+            self.environment = envArray.compactMap { dict in
+                let name = dict["name"]
+                let variable = dict["variable"]
+                return EnvironmentVariable(name: name ?? "", variable: variable ?? "")
+            }
+        } else {
+            self.environment = []
+        }
     }
 }
 
@@ -52,6 +68,11 @@ public protocol SshTerminalViewDelegate: AnyObject {
     func onConnect(source: TerminalView)
     func onClosed(source: TerminalView, reason: String)
     func onOSC(source: TerminalView, code: Int, data: String)
+    func onUploadComplete(source: TerminalView, callbackId: String, bytesTransferred: Int, error: String?)
+    func onDownloadComplete(source: TerminalView, callbackId: String, data: String?, fileInfo: String?, error: String?)
+    func onUploadProgress(source: TerminalView, callbackId: String, bytesTransferred: Int, totalBytes: Int)
+    func onDownloadProgress(source: TerminalView, callbackId: String, bytesTransferred: Int)
+    func onCommandExecuted(source: TerminalView, callbackId: String, data: String?, error: String?)
 //    SwiftTerm delegate events
     func onSizeChanged(source: TerminalView, newCols: Int, newRows: Int)
     func onHostCurrentDirectoryUpdate(source: TerminalView, directory: String?)
@@ -70,8 +91,16 @@ public class SshTerminalView: TerminalView, TerminalViewDelegate {
     var sshQueue: DispatchQueue
     var useAutoLayout: Bool
     var debugTerminal: Bool
+    
+    var connected: Bool
+    
     var lastScrollPosition: Double?
     var lastTerminalSize: (lastCols: Int, lastRows: Int)?
+    var lastTitle: String?
+    
+    var scpSession: SCPSession?
+    var scpTransfer: SCPTransfer?
+    var sshCommand: SSHCommand!
     
     @objc
     weak public var sshTerminalViewDelegate: (SshTerminalViewDelegate)?
@@ -82,6 +111,8 @@ public class SshTerminalView: TerminalView, TerminalViewDelegate {
         
         self.debugTerminal = false
         self.useAutoLayout = true
+        
+        self.connected = false
         
         super.init(frame: frame)
         terminalDelegate = self
@@ -98,6 +129,15 @@ public class SshTerminalView: TerminalView, TerminalViewDelegate {
     
     @objc
     public func closeSSHConnection(_ completion: (() -> Void)?) {
+//        TODO: Add a confirmation when scpTransfer is active...
+        if (self.scpSession != nil) {
+            if ((self.scpSession?.channel.opened) != nil && self.scpSession?.channel.opened == true) {
+                self.scpSession?.close()
+            }
+        }
+        if (self.scpTransfer != nil) {
+            self.scpTransfer = nil
+        }
         shell?.close(completion)
     }
 
@@ -107,8 +147,9 @@ public class SshTerminalView: TerminalView, TerminalViewDelegate {
             let configuration = SSHConnectionConfig(dictionary: config)
             try setupSSHConnection(with: configuration)
         } catch {
+//            TODO: Send error to RTN
             let message = "Failed to setup SSH connection: \(error)"
-            self.logMessage(message: message, logType: LogType.error, terminalMessage: message)
+            self.logMessage(message: message, logType: LogType.error, terminalMessage: nil)
         }
     }
     
@@ -124,7 +165,10 @@ public class SshTerminalView: TerminalView, TerminalViewDelegate {
         
         let debug = config.debug
 
-        let environment: [Environment] = []
+        let environmentVariables: [EnvironmentVariable] = config.environment ?? []
+        let environment: [Environment] = environmentVariables.map { variable in
+            return Environment(name: variable.name, variable: variable.variable)
+        }
         
         let terminal = getTerminal()
         
@@ -140,38 +184,78 @@ public class SshTerminalView: TerminalView, TerminalViewDelegate {
         
         shell = try SSHShell(sshLibrary: Libssh2.self, host: host, port: port, environment: environment, terminal: shellTerminal)
         
+//        TODO: Make sure we don't need to set connected anywhere else
         shell?.onSessionClose = {
-            DispatchQueue.main.async {
-                self.onClosed(source: self, reason: "close")
+            if (self.connected == true) {
+                DispatchQueue.main.async {
+                    self.onClosed(source: self, reason: "close")
+                }
+                self.connected = false
             }
         }
         
         if let authenticationChallenge: AuthenticationChallenge = determineAuthenticationChallenge(from: config, username: username) {
             shell?
             .withCallback { [weak self] (data: Data?, error: Data?) in
+                guard let self = self else {
+                    return
+                }
+                
                 if let data = data, let string = String(data: data, encoding: .utf8) {
                     DispatchQueue.main.async {
-                        self?.feed(text: string)
+                        self.feed(text: string)
                     }
                 }
                 
                 if let error = error {
+//                    TODO: Send error to RTN
                     let jsonError = Utils.jsonString(from: error)
                     let message = "SSH error: \(jsonError!)"
-                    self!.logMessage(message: message, logType: LogType.error, terminalMessage: message)
+                    self.logMessage(message: message, logType: LogType.error, terminalMessage: nil)
                 }
             }
-            .connect().authenticate(authenticationChallenge).open { error in
-                if let error = error {
-                    let message = "SSH connection error: \(error)"
-                    self.logMessage(message: message, logType: LogType.error, terminalMessage: message)
+            .connect().authenticate(authenticationChallenge).open { [weak self] error in
+                guard let self = self else {
+//                    TODO: Improve error handling
+                    print("Error: Unable to open SSH connection")
                     return
                 }
+                
+                if let error = error {
+                    let message = "SSH connection error: \(error)"
+                    self.logMessage(message: message, logType: LogType.error, terminalMessage: nil)
+                    return
+                }
+                
+                self.connected = true
                 
                 self.terminalMessage(message: "onConnect")
                 
                 self.onConnect(source: self)
+                
+                self.setupSCPConnection()
             }
+        }
+    }
+    
+//    TODO: This should be lazy loaded...
+    private func setupSCPConnection() {
+        guard let shell = shell else {
+//            TODO: Send error to RTN
+            let message = "setupSCPConnection could not be initialized due to missing shell"
+            self.logMessage(message: message, logType: LogType.error, terminalMessage: nil)
+            return
+        }
+        
+        do {
+//            TODO: Review scpTransfer vars and guard scpSession/scpTransfer results
+            self.scpSession = try SCPSession(sshLibrary: Libssh2.self, session: shell.session)
+            self.scpTransfer = try SCPTransfer(sshLibrary: Libssh2.self, sshSession: shell.session, scpSession: self.scpSession!)
+            shell.addChannel(self.scpSession!)
+        } catch {
+//            TODO: Send error to RTN
+            let message = "setupSCPConnection Error: \(error)"
+            self.logMessage(message: message, logType: LogType.error, terminalMessage: nil)
         }
     }
 
@@ -183,7 +267,8 @@ public class SshTerminalView: TerminalView, TerminalViewDelegate {
                 if let documentsPath = fileManager.urls(for: .documentDirectory, in: .userDomainMask).first {
                     let privateKeyDocumentPath = documentsPath.appendingPathComponent(privateKeyPath).path
                     var publicKeyDocumentPath: String? = nil
-
+                    
+//                    TODO: Review auth terminal messaging
                     if let publicKeyPath = config.publicKeyPath {
                         publicKeyDocumentPath = documentsPath.appendingPathComponent(publicKeyPath).path
                         self.terminalMessage(message: "Using pubKey auth from file")
@@ -193,10 +278,12 @@ public class SshTerminalView: TerminalView, TerminalViewDelegate {
 
                     return .byPublicKeyFromFile(username: username, password: config.password ?? "", publicKey: publicKeyDocumentPath, privateKey: privateKeyDocumentPath)
                 } else {
+//                    TODO: Notify RTN
                     let message = "Failed to get documents path."
                     logMessage(message: message, logType: .error, terminalMessage: message)
                 }
             } else {
+//                TODO: Notify RTN
                 let message = "PrivateKey path is not provided in config."
                 logMessage(message: message, logType: .error, terminalMessage: message)
             }
@@ -207,14 +294,17 @@ public class SshTerminalView: TerminalView, TerminalViewDelegate {
                 if let publicKeyData = publicKey.data(using: .utf8),
                    let privateKeyData = privateKey.data(using: .utf8) {
                     
+//                    TODO: Review auth terminal messaging
                     self.terminalMessage(message: "using pubKey auth from memory")
                     
                     return .byPublicKeyFromMemory(username: username, password: config.password ?? "", publicKey: publicKeyData, privateKey: privateKeyData)
                 } else {
+//                    TODO: Notify RTN
                     let message = "Failed to decode publicKey or privateKey from base64."
                     logMessage(message: message, logType: LogType.error, terminalMessage: message)
                 }
             } else {
+//                TODO: Notify RTN
                 let message = "Failed to get publicKey/privateKey (memory) from config."
                 logMessage(message: message, logType: LogType.error, terminalMessage: message)
             }
@@ -226,6 +316,7 @@ public class SshTerminalView: TerminalView, TerminalViewDelegate {
                 return .byPassword(username: username, password: password)
             }
             
+//            TODO: Notify RTN
             let message = "Failed to get password from config."
             logMessage(message: message, logType: LogType.error, terminalMessage: message)
             
@@ -237,8 +328,9 @@ public class SshTerminalView: TerminalView, TerminalViewDelegate {
         //     }
         //     return nil
         default:
+//            TODO: Notify RTN
             let message = "Unknown auth method type provided: \(config.method)."
-            logMessage(message: message, logType: LogType.error, terminalMessage: message)
+            logMessage(message: message, logType: LogType.error, terminalMessage: nil)
             return nil
         }
     }
@@ -262,20 +354,62 @@ public class SshTerminalView: TerminalView, TerminalViewDelegate {
     }
     
     @objc
-    public func writeCommand(command: String) {
-        shell?.write(command) { error in
+    public func executeCommand(callbackId: String, command: String) {
+        let cmd = try! SSHCommand(session: self.shell!.sharedSession)
+        
+        cmd.execute(command) { [weak self] (command: String, data: String?, error: Error?) in
+            guard let self = self else {
+                print("executeCommand: self instance unavailable")
+                return
+            }
+            
+            guard let shell = shell else {
+                let shellError = "executeCommand: shell instance unavailable"
+                DispatchQueue.main.async {
+                    self.sshTerminalViewDelegate?.onCommandExecuted(source: self, callbackId: callbackId, data: nil, error: shellError)
+                }
+                return
+            }
+            shell.removeChannel(cmd)
             if let error = error {
-                let message = "SSH write error: \(error)"
-                self.logMessage(message: message, logType: LogType.error, terminalMessage: message)
-            } else {
-                print("Command sent successfully.")
+                let errorMessage = (error as? DescriptiveError)?.description() ?? "\(error)"
+                DispatchQueue.main.async {
+                    self.sshTerminalViewDelegate?.onCommandExecuted(source: self, callbackId: callbackId, data: nil, error: errorMessage)
+                }
+                return
+            }
+            guard let data = data else {
+                let fallbackError = "executeCommand: unable to read data"
+                DispatchQueue.main.async {
+                    self.sshTerminalViewDelegate?.onCommandExecuted(source: self, callbackId: callbackId, data: nil, error: fallbackError)
+                }
+                return
+            }
+            DispatchQueue.main.async {
+                self.sshTerminalViewDelegate?.onCommandExecuted(source: self, callbackId: callbackId, data: data, error: nil)
             }
         }
     }
     
     @objc
+    public func writeCommand(command: String) {
+        shell?.write(command) { error in
+            if let error = error {
+                let message = "SSH write error: \(error)"
+                self.logMessage(message: message, logType: LogType.error, terminalMessage: nil)
+                return
+            }
+            
+            let message = "Command sent successfully."
+            self.logMessage(message: message, logType: LogType.info, terminalMessage: nil)
+        }
+    }
+    
+    @objc
     public func notifyOSC(code: Int, data: String) {
-        self.sshTerminalViewDelegate?.onOSC(source: self, code: code, data: data)
+        DispatchQueue.main.async {
+            self.sshTerminalViewDelegate?.onOSC(source: self, code: code, data: data)
+        }
     }
 
     // MARK: TerminalViewDelegate methods
@@ -291,16 +425,21 @@ public class SshTerminalView: TerminalView, TerminalViewDelegate {
             return
         }
         lastTerminalSize = (lastCols: newCols, lastRows: newRows)
-        print("SshTerminalView onSizeChanged - columns: \(newCols), rows: \(newRows)")
-        sshTerminalViewDelegate?.onSizeChanged(source: source, newCols: newCols, newRows: newRows)
+        let message = "SshTerminalView onSizeChanged - columns: \(newCols), rows: \(newRows)"
+        self.logMessage(message: message, logType: LogType.info, terminalMessage: nil)
+        DispatchQueue.main.async {
+            self.sshTerminalViewDelegate?.onSizeChanged(source: source, newCols: newCols, newRows: newRows)
+        }
     }
     
     @objc
     public func hostCurrentDirectoryUpdate(source: TerminalView, directory: String?) {
-        if let directory = directory {
-            print("SshTerminalView onHostCurrentDirectoryUpdate updated: \(directory)")
+        guard let directory = directory else {
+            return
         }
-        sshTerminalViewDelegate?.onHostCurrentDirectoryUpdate(source: source, directory: directory)
+        DispatchQueue.main.async {
+            self.sshTerminalViewDelegate?.onHostCurrentDirectoryUpdate(source: source, directory: directory)
+        }
     }
     
     @objc
@@ -310,23 +449,26 @@ public class SshTerminalView: TerminalView, TerminalViewDelegate {
         }
         lastScrollPosition = position
         print("SshTerminalView onScrolled position: \(position)")
-        sshTerminalViewDelegate?.onScrolled(source: source, position: position)
+        DispatchQueue.main.async {
+            self.sshTerminalViewDelegate?.onScrolled(source: source, position: position)
+        }
     }
     
     @objc
     public func requestOpenLink(source: TerminalView, link: String, params: [String:String]) {
         guard let fixedup = link.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed),
               let url = URL(string: fixedup) else { return }
+        print("SshTerminalView onRequestOpenLink - link: \(link) | params: \(params)")
         DispatchQueue.main.async {
             UIApplication.shared.open(url)
+            self.sshTerminalViewDelegate?.onRequestOpenLink(source: source, link: link, params: params)
         }
-        print("SshTerminalView onRequestOpenLink - link: \(link) | params: \(params)")
-        sshTerminalViewDelegate?.onRequestOpenLink(source: source, link: link, params: params)
     }
 
     @objc
     public func bell(source: TerminalView) {
-        print("SshTerminalView onBell")
+        let message = "SshTerminalView onBell"
+        self.logMessage(message: message, logType: LogType.info, terminalMessage: nil)
         #if os(iOS)
         let generator = UINotificationFeedbackGenerator()
         generator.notificationOccurred(.warning)
@@ -339,34 +481,37 @@ public class SshTerminalView: TerminalView, TerminalViewDelegate {
         let str = String(bytes: content, encoding: .utf8) ?? ""
         
         UIPasteboard.general.string = str
-        print("SshTerminalView onClipboardCopy content: \(str)")
+        let message = "SshTerminalView onClipboardCopy content: \(str)"
+        self.logMessage(message: message, logType: LogType.info, terminalMessage: nil)
         
         sshTerminalViewDelegate?.onClipboardCopy(source: source, content: str)
     }
 
     @objc
     public func iTermContent(source: TerminalView, content: Data) {
-        print("SshTerminalView onITermContent content: \(content)")
+        let message = "SshTerminalView onITermContent content: \(content)"
+        self.logMessage(message: message, logType: LogType.info, terminalMessage: nil)
         sshTerminalViewDelegate?.onITermContent(source: source, content: content)
     }
     
     @objc
     public func rangeChanged(source: TerminalView, startY: Int, endY: Int) {
-        print("SshTerminalView onRangeChanged - startY: \(startY) | endY: \(endY)")
+        let message = "SshTerminalView onRangeChanged - startY: \(startY) | endY: \(endY)"
+        self.logMessage(message: message, logType: LogType.info, terminalMessage: nil)
         sshTerminalViewDelegate?.onRangeChanged(source: source, startY: startY, endY: endY)
     }
     
     @objc
     public func onConnect(source: TerminalView) {
-        print("SshTerminalView onConnect")
+        let message = "SshTerminalView onConnect"
+        self.logMessage(message: message, logType: LogType.info, terminalMessage: nil)
         sshTerminalViewDelegate?.onConnect(source: source)
     }
     
     @objc
     public func onClosed(source: TerminalView, reason: String) {
-        print("SshTerminalView onClosed reason: \(reason)")
-        let terminal = getTerminal()
-        terminal.feed(text: "\nSshTerminal - connection closed\n\n")
+        let message = "SshTerminalView onClosed reason: \(reason)"
+        self.logMessage(message: message, logType: LogType.info, terminalMessage: "\nSshTerminal - connection closed\n\n")
         sshTerminalViewDelegate?.onClosed(source: source, reason: reason)
     }
     
@@ -374,16 +519,104 @@ public class SshTerminalView: TerminalView, TerminalViewDelegate {
     public func sendData(source: TerminalView, data: Data) {
         let byteArray = [UInt8](data)
         let arraySlice = byteArray[0..<byteArray.count]
-//        print("SshTerminalView sendData: \(data)")
         self.send(source: source, data: arraySlice)
     }
     
     @objc
     public func setTerminalTitle(source: TerminalView, title: String) {
-        print("SshTerminalView setTerminalTitle: \(title)")
         let terminal = getTerminal()
         terminal.setTitle(text: title)
     }
+    
+    @objc
+    public func upload(callbackId: String, from: String, to: String) {
+        guard let scpTransfer = scpTransfer else {
+            return
+        }
+        
+        scpTransfer.upload(localPath: from, remotePath: to, completion: { bytesTransferred, error in
+            DispatchQueue.main.async {
+                let finalBytesTransferred = bytesTransferred ?? 0
+                self.sshTerminalViewDelegate?.onUploadComplete(source: self, callbackId: callbackId, bytesTransferred: NSInteger(finalBytesTransferred), error: nil)
+            }
+        }, progress: { bytesTransferred, totalBytes in
+            DispatchQueue.main.async {
+                self.sshTerminalViewDelegate?.onUploadProgress(source: self, callbackId: callbackId, bytesTransferred: NSInteger(bytesTransferred), totalBytes: NSInteger(totalBytes))
+            }
+        })
+    }
+    
+    @objc
+    public func download(callbackId: String, from: String, to: String) {
+        guard let scpTransfer = scpTransfer else {
+            self.sshTerminalViewDelegate?.onDownloadComplete(source: self, callbackId: callbackId, data: nil, fileInfo: nil, error: "Unable to initialize download")
+            return
+        }
+        
+        scpTransfer.download(remotePath: from, localPath: to, completion: { fileInfo, data, error in
+            DispatchQueue.main.async {
+                if let error = error {
+                    let descriptiveError = error as! any DescriptiveError
+                    self.sshTerminalViewDelegate?.onDownloadComplete(source: self, callbackId: callbackId, data: nil, fileInfo: nil, error: descriptiveError.description())
+                    return
+                }
+                
+                guard let data = data, let fileInfo = fileInfo else {
+                    self.sshTerminalViewDelegate?.onDownloadComplete(source: self, callbackId: callbackId, data: nil, fileInfo: nil, error: "File data unavailable for save")
+                    return
+                }
+                
+                let fileInfoString = fileInfo.toJSONString()
+                
+                self.sshTerminalViewDelegate?.onDownloadComplete(source: self, callbackId: callbackId, data: to, fileInfo: fileInfoString, error: nil)
+            }
+        }, progress: { bytesTransferred in
+            DispatchQueue.main.async {
+                self.sshTerminalViewDelegate?.onDownloadProgress(source: self, callbackId: callbackId, bytesTransferred: NSInteger(bytesTransferred))
+            }
+        })
+    }
+    
+    /// Writes data to the specified file, optionally overwriting it with specified attributes based on FileInfo.
+    /// - Parameters:
+    ///   - data: The data to write to the file.
+    ///   - filename: The name of the file.
+    ///   - directory: The directory in which to save the file, default is `.documentDirectory`.
+    ///   - fileInfo: FileInfo object containing file attributes such as permissions.
+    ///   - overwrite: Whether to overwrite the file if it already exists.
+    /// - Throws: An error if the operation cannot be completed.
+//    func saveFile(with data: Data, filename: String, in directory: FileManager.SearchPathDirectory = .documentDirectory, using fileInfo: FileInfo, overwrite: Bool = true) throws {
+////        TODO: Fix error handling
+//        let fileManager = FileManager.default
+//        guard let directoryURL = fileManager.urls(for: directory, in: .userDomainMask).first else {
+//            throw NSError(domain: "FileManagerError", code: 1001, userInfo: [NSLocalizedDescriptionKey: "Unable to find specified directory."])
+//        }
+//
+//        let fileURL = directoryURL.appendingPathComponent(filename)
+//
+//        // Check if the file exists
+//        if fileManager.fileExists(atPath: fileURL.path) {
+//            if overwrite {
+//                do {
+//                    try fileManager.removeItem(at: fileURL)
+//                } catch {
+//                    throw NSError(domain: "FileManagerError", code: 1002, userInfo: [NSLocalizedDescriptionKey: "Failed to remove existing file: \(error.localizedDescription)"])
+//                }
+//            } else {
+//                throw NSError(domain: "FileManagerError", code: 1004, userInfo: [NSLocalizedDescriptionKey: "File already exists and overwrite is set to false."])
+//            }
+//        }
+//
+//        // Create the new file with data and attributes
+//        if !fileManager.createFile(atPath: fileURL.path, contents: data, attributes: [.posixPermissions: NSNumber(value: fileInfo.permissions)]) {
+//            throw NSError(domain: "FileManagerError", code: 1003, userInfo: [NSLocalizedDescriptionKey: "Failed to create file at \(fileURL.path)"])
+//        }
+//
+//        // Optionally set modification and access times
+//        let modificationDate = Date(timeIntervalSince1970: fileInfo.modificationTime)
+//        let accessDate = Date(timeIntervalSince1970: fileInfo.accessTime)
+//        try fileManager.setAttributes([.modificationDate: modificationDate, .creationDate: accessDate], ofItemAtPath: fileURL.path)
+//    }
     
     @objc
     public func sendMotion(buttonFlags: Int, x: Int, y: Int, pixelX: Int, pixelY: Int) {
@@ -640,6 +873,10 @@ public class SshTerminalView: TerminalView, TerminalViewDelegate {
     
     @objc
     public func setTitle(text: String) {
+        if (lastTitle != nil && lastTitle == text) {
+            return
+        }
+        lastTitle = text
         let terminal = getTerminal()
         terminal.setTitle(text: text)
     }

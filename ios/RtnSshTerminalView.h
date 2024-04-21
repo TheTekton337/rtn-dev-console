@@ -20,6 +20,11 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, copy) RCTBubblingEventBlock onOSC;
 @property (nonatomic, copy) RCTBubblingEventBlock onConnected;
 @property (nonatomic, copy) RCTBubblingEventBlock onClosed;
+@property (nonatomic, copy) RCTBubblingEventBlock onDownloadComplete;
+@property (nonatomic, copy) RCTBubblingEventBlock onUploadComplete;
+@property (nonatomic, copy) RCTBubblingEventBlock onDownloadProgress;
+@property (nonatomic, copy) RCTBubblingEventBlock onUploadProgress;
+@property (nonatomic, copy) RCTBubblingEventBlock onCommandExecuted;
 @property (nonatomic, copy) RCTBubblingEventBlock onSizeChanged;
 @property (nonatomic, copy) RCTBubblingEventBlock onHostCurrentDirectoryUpdate;
 @property (nonatomic, copy) RCTBubblingEventBlock onScrolled;
@@ -33,6 +38,9 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)connect;
 - (void)close;
 - (void)writeCommand:(NSString *) command;
+- (void)download:(NSString *)callbackId from:(NSString *)from to:(NSString *)to;
+- (void)upload:(NSString *)callbackId from:(NSString *)from to:(NSString *)to;
+- (void)executeCommand:(NSString *)callbackId command:(NSString *)command;
 - (void)sendMotionWithButtonFlags:(NSInteger)buttonFlags
                                 x:(NSInteger)x
                                 y:(NSInteger)y

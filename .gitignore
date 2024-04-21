@@ -80,3 +80,4 @@ lib/
 
 # dev
 *.tgz
+example/.env

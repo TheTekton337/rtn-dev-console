@@ -46,6 +46,13 @@ cd example
 
 # Remove the previous version pack and add the new one
 yarn remove ../rtn-dev-console-0.0.0-local.$previous_version.tgz
+
+if [[ "$clean" == "true" ]]; then
+    rm yarn.lock
+    rm ios/Podfile.lock
+    yarn
+fi
+
 yarn add ../rtn-dev-console-0.0.0-local.$next_version.tgz
 
 # Install pods

@@ -20,6 +20,10 @@ RCT_EXPORT_MODULE(RtnSshTerminalView)
 
 #pragma mark - Exported View Properties
 
+RCT_EXPORT_VIEW_PROPERTY(terminalId, NSString);
+
+RCT_EXPORT_VIEW_PROPERTY(sessionId, NSString);
+
 RCT_EXPORT_VIEW_PROPERTY(initialText, NSString);
 
 //TODO: Support inputEnabled prop
@@ -42,6 +46,16 @@ RCT_EXPORT_VIEW_PROPERTY(onConnect, RCTBubblingEventBlock);
 RCT_EXPORT_VIEW_PROPERTY(onClosed, RCTBubblingEventBlock);
 
 RCT_EXPORT_VIEW_PROPERTY(onOSC, RCTBubblingEventBlock);
+
+RCT_EXPORT_VIEW_PROPERTY(onDownloadComplete, RCTBubblingEventBlock);
+
+RCT_EXPORT_VIEW_PROPERTY(onUploadComplete, RCTBubblingEventBlock);
+
+RCT_EXPORT_VIEW_PROPERTY(onDownloadProgress, RCTBubblingEventBlock);
+
+RCT_EXPORT_VIEW_PROPERTY(onUploadProgress, RCTBubblingEventBlock);
+
+RCT_EXPORT_VIEW_PROPERTY(onCommandExecuted, RCTBubblingEventBlock);
 
 RCT_EXPORT_VIEW_PROPERTY(onConnectionChanged, RCTBubblingEventBlock);
 
@@ -97,6 +111,18 @@ RtnSshTerminalView *view = (RtnSshTerminalView *)viewRegistry[reactTag];        
 QUICK_RCT_EXPORT_COMMAND_METHOD(connect)
 QUICK_RCT_EXPORT_COMMAND_METHOD(close)
 
+RCT_EXPORT_METHOD(execute:(nonnull NSNumber *)reactTag
+                  callbackId:(NSString *)callbackId
+                  command:(NSString *)command)
+{
+    [self.bridge.uiManager addUIBlock:^(RCTUIManager *uiManager, NSDictionary<NSNumber *, UIView *> *viewRegistry) {
+        RtnSshTerminalView *view = (RtnSshTerminalView *)viewRegistry[reactTag];
+        if ([view isKindOfClass:[RtnSshTerminalView class]]) {
+            [view executeCommand:callbackId command:command];
+        }
+    }];
+}
+
 RCT_EXPORT_METHOD(write:(nonnull NSNumber *)reactTag
                   command:(NSString *)command)
 {
@@ -104,6 +130,32 @@ RCT_EXPORT_METHOD(write:(nonnull NSNumber *)reactTag
         RtnSshTerminalView *view = (RtnSshTerminalView *)viewRegistry[reactTag];
         if ([view isKindOfClass:[RtnSshTerminalView class]]) {
             [view writeCommand:command];
+        }
+    }];
+}
+
+RCT_EXPORT_METHOD(download:(nonnull NSNumber *)reactTag
+                  callbackId:(NSString *)callbackId
+                  from:(NSString *)from
+                  to:(NSString *)to)
+{
+    [self.bridge.uiManager addUIBlock:^(RCTUIManager *uiManager, NSDictionary<NSNumber *, UIView *> *viewRegistry) {
+        RtnSshTerminalView *view = (RtnSshTerminalView *)viewRegistry[reactTag];
+        if ([view isKindOfClass:[RtnSshTerminalView class]]) {
+            [view download:callbackId from:from to:to];
+        }
+    }];
+}
+
+RCT_EXPORT_METHOD(upload:(nonnull NSNumber *)reactTag
+                  callbackId:(NSString *)callbackId
+                  from:(NSString *)from
+                  to:(NSString *)to)
+{
+    [self.bridge.uiManager addUIBlock:^(RCTUIManager *uiManager, NSDictionary<NSNumber *, UIView *> *viewRegistry) {
+        RtnSshTerminalView *view = (RtnSshTerminalView *)viewRegistry[reactTag];
+        if ([view isKindOfClass:[RtnSshTerminalView class]]) {
+            [view upload:callbackId from:from to:to];
         }
     }];
 }

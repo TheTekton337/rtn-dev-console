@@ -11,6 +11,11 @@ import type {
   ClipboardCopyEvent as NativeClipboardCopyEvent,
   ITermContentEvent as NativeITermContentEvent,
   RangeChangedEvent as NativeRangeChangedEvent,
+  DownloadCompleteEvent as NativeDownloadCompleteEvent,
+  UploadCompleteEvent as NativeUploadCompleteEvent,
+  DownloadProgressEvent as NativeDownloadProgressEvent,
+  UploadProgressEvent as NativeUploadProgressEvent,
+  CommandExecutedEvent as NativeCommandExecutedEvent,
 } from './RtnSshTerminalViewNativeComponent';
 
 export interface TerminalLogEvent extends React.BaseSyntheticEvent {
@@ -27,6 +32,10 @@ export interface ClosedEvent extends React.BaseSyntheticEvent {
 
 export interface OSCEvent extends React.BaseSyntheticEvent {
   nativeEvent: NativeOSCEvent;
+}
+
+export interface CommandExecutedEvent extends React.BaseSyntheticEvent {
+  nativeEvent: NativeCommandExecutedEvent;
 }
 
 export interface SizeChangedEvent extends React.BaseSyntheticEvent {
@@ -62,10 +71,29 @@ export interface RangeChangedEvent extends React.BaseSyntheticEvent {
   nativeEvent: NativeRangeChangedEvent;
 }
 
+export interface DownloadCompleteEvent extends React.BaseSyntheticEvent {
+  nativeEvent: NativeDownloadCompleteEvent;
+}
+
+export interface UploadCompleteEvent extends React.BaseSyntheticEvent {
+  nativeEvent: NativeUploadCompleteEvent;
+}
+
+export interface DownloadProgressEvent extends React.BaseSyntheticEvent {
+  nativeEvent: NativeDownloadProgressEvent;
+}
+
+export interface UploadProgressEvent extends React.BaseSyntheticEvent {
+  nativeEvent: NativeUploadProgressEvent;
+}
+
 export interface SshTerminalMethods {
   connect: () => void;
   close: () => void;
+  executeCommand: (callbackId: string, command: string) => void;
   writeCommand: (command: string) => void;
+  download: (callbackId: string, from: string, to: string) => void;
+  upload: (callbackId: string, from: string, to: string) => void;
   sendMotionWithButtonFlags: (
     buttonFlags: number,
     x: number,
