@@ -21,12 +21,12 @@ import {
   registerTerminal,
   unregisterTerminal,
 } from '../../observables/SshConnectionService';
-import { handleNativeEvent } from '../../observables/TerminalService';
 
 import { useTerminal } from '../../hooks/useTerminal';
 
 import TerminalLogs from '../TerminalLogs';
 import { addLogEntry } from '../../observables/LogDataService';
+import { bindFabricEvent } from '../../observables/RTNEventService';
 
 // TODO: Move event interfaces to rtn-dev-console
 export interface DownloadCompleteEvent {
@@ -125,10 +125,10 @@ const Terminal = forwardRef<SshTerminalMethods, TerminalProps>(
       // dispatch({ type: ActionType.BELL });
     };
 
-    const onConnect = handleNativeEvent('onConnect');
-    const onClosed = handleNativeEvent('onClosed');
+    const onConnect = bindFabricEvent('onConnect');
+    const onClosed = bindFabricEvent('onClosed');
 
-    const onCommandExecuted = handleNativeEvent('commandExecuted');
+    const onCommandExecuted = bindFabricEvent('commandExecuted');
 
     return (
       <SafeAreaView style={styles.container}>

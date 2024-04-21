@@ -1,12 +1,16 @@
 import React, { useEffect, type FC } from 'react';
 import { View, TouchableOpacity, Text, StyleSheet } from 'react-native';
-import { registerCallback } from '../../observables/TerminalService';
+
+import { log, LogLevel } from '../../utils/log';
+
 import type { CommandExecutedEventData } from '../../types/TerminalEvents';
 import type { AsyncEvent } from '../../types/async_callbacks';
+
 import { close, connect } from '../../observables/SshConnectionService';
-import { useTerminal } from '../../hooks/useTerminal';
-import { log, LogLevel } from '../../utils/log';
 import { toggleModal } from '../../observables/ModalStateService';
+import { registerAsyncCallback } from '../../observables/RTNEventService';
+
+import { useTerminal } from '../../hooks/useTerminal';
 
 interface ToolbarProps {}
 
@@ -64,7 +68,7 @@ const Toolbar: FC<ToolbarProps> = ({}) => {
   // TODO: Improve event data from native and test with large cmd output.
   const executeCommand = () => {
     const command = 'echo "Hello World"';
-    const callbackId = registerCallback<CommandExecutedEventData>(
+    const callbackId = registerAsyncCallback<CommandExecutedEventData>(
       ({ data, error }: AsyncEvent<CommandExecutedEventData>) => {
         if (error) {
           log(

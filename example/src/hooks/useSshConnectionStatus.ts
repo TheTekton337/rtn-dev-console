@@ -18,7 +18,7 @@ import {
   onConnected,
   onClosed,
 } from '../observables/SshConnectionService';
-import { asyncEventsObservable } from '../observables/TerminalService';
+import { asyncEventsObservable } from '../observables/RTNEventService';
 
 // TODO: Improve comments
 
