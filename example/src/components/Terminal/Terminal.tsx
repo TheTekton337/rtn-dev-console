@@ -17,7 +17,6 @@ import Config from 'react-native-config';
 import { log, LogLevel } from '../../utils/log';
 import { OSC_CODES } from '../../utils/osc';
 
-import { logDataService } from '../../observables/LogDataService';
 import {
   registerTerminal,
   unregisterTerminal,
@@ -27,6 +26,7 @@ import { handleNativeEvent } from '../../observables/TerminalService';
 import { useTerminal } from '../../hooks/useTerminal';
 
 import TerminalLogs from '../TerminalLogs';
+import { addLogEntry } from '../../observables/LogDataService';
 
 // TODO: Move event interfaces to rtn-dev-console
 export interface DownloadCompleteEvent {
@@ -101,7 +101,7 @@ const Terminal = forwardRef<SshTerminalMethods, TerminalProps>(
       nativeEvent: { logType, message },
     }: TerminalLogEvent) => {
       let logMessage = `${logType}: ${message}`;
-      logDataService.addLogEntry(terminalId, logMessage);
+      addLogEntry(terminalId, logMessage);
     };
 
     const onOSC = ({

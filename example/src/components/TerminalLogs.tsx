@@ -10,8 +10,12 @@ import {
 
 import type { LogEntry } from '../types/Log';
 
-import { logDataService } from '../observables/LogDataService';
-import { modalStateService } from '../observables/ModalStateService';
+import { clearLogEntries, getLogEntries } from '../observables/LogDataService';
+import {
+  getVisibilityState,
+  registerModal,
+  toggleModal,
+} from '../observables/ModalStateService';
 
 export interface TerminalLogsProps {
   terminalId: string;
@@ -34,17 +38,14 @@ const TerminalLogsDisplay: FC<TerminalLogsProps> = ({
   const [logs, setLogs] = useState<LogEntry[]>([]);
 
   useEffect(() => {
-    modalStateService.registerModal(terminalId);
+    registerModal(terminalId);
 
-    const visibilitySubscription = modalStateService
-      .getVisibilityState(terminalId)
-      .subscribe(setIsVisible);
+    const visibilitySubscription =
+      getVisibilityState(terminalId).subscribe(setIsVisible);
 
-    const logSubscription = logDataService
-      .getLogEntries(terminalId)
-      .subscribe(setLogs);
+    const logSubscription = getLogEntries(terminalId).subscribe(setLogs);
     return () => {
-      logDataService.clearLogEntries(terminalId);
+      clearLogEntries(terminalId);
 
       visibilitySubscription.unsubscribe();
       logSubscription.unsubscribe();
@@ -58,7 +59,7 @@ const TerminalLogsDisplay: FC<TerminalLogsProps> = ({
   );
 
   const onClosePressed = () => {
-    modalStateService.toggleModal(terminalId);
+    toggleModal(terminalId);
     onClose && onClose();
   };
 

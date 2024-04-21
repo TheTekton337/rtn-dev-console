@@ -3,10 +3,10 @@ import { View, TouchableOpacity, Text, StyleSheet } from 'react-native';
 import { registerCallback } from '../../observables/TerminalService';
 import type { CommandExecutedEventData } from '../../types/TerminalEvents';
 import type { AsyncEvent } from '../../types/async_callbacks';
-import { modalStateService } from '../../observables/ModalStateService';
 import { close, connect } from '../../observables/SshConnectionService';
 import { useTerminal } from '../../hooks/useTerminal';
 import { log, LogLevel } from '../../utils/log';
+import { toggleModal } from '../../observables/ModalStateService';
 
 interface ToolbarProps {}
 
@@ -36,7 +36,7 @@ const Toolbar: FC<ToolbarProps> = ({}) => {
 
   const toggleLogs = () => {
     log(LogLevel.DEBUG, logModule, 'toggleLogs pressed');
-    modalStateService.toggleModal(terminalId);
+    toggleModal(terminalId);
   };
 
   const onToggleConnectionPress = () => {
