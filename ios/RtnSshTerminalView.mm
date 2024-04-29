@@ -542,7 +542,7 @@ facebook::react::RtnSshTerminalViewEventEmitter::OnTerminalLogLogType ConvertLog
     rtnSshTerminalEventEmitter->onUploadProgress(data);
 }
 
-- (void)onCommandExecutedWithSource:(TerminalView * _Nonnull)source callbackId:(NSString * _Nonnull)callbackId data:(NSString *)readData error:(NSString*)error {
+- (void)onCommandExecutedWithSource:(TerminalView * _Nonnull)source callbackId:(NSString * _Nonnull)callbackId data:(NSString *)output error:(NSString*)error {
     auto rtnSshTerminalEventEmitter = std::static_pointer_cast<RtnSshTerminalViewEventEmitter const>(_eventEmitter);
     
     facebook::react::RtnSshTerminalViewEventEmitter::OnCommandExecuted data = {
@@ -551,8 +551,8 @@ facebook::react::RtnSshTerminalViewEventEmitter::OnTerminalLogLogType ConvertLog
         .callbackId = std::string([callbackId UTF8String])
     };
     
-    if (readData != nil) {
-        data.data = std::string([readData UTF8String]);
+    if (output != nil) {
+        data.output = std::string([output UTF8String]);
     }
     
     if (error != nil) {

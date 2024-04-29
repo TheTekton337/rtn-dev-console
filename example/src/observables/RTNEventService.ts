@@ -5,7 +5,11 @@ import { Subject } from 'rxjs';
 
 import { log, LogLevel } from '../utils/log';
 
-import type { AsyncEvent, AsyncEventData } from '../types/async_callbacks';
+import type {
+  AsyncEvent,
+  AsyncEventData,
+  AsyncEventKind,
+} from '../types/TerminalEvents';
 
 const logModule = 'RTNEventService';
 
@@ -32,14 +36,15 @@ const callbacks = new Map<
  * @returns A string representing the unique callback ID.
  */
 export function registerAsyncCallback<T extends AsyncEventData>(
-  callback: (event: AsyncEvent<T>) => void
+  callback: (event: T) => void,
+  callbackId?: string
 ): string {
-  const callbackId = uuid.v4().toString();
+  const registeredCallbackId = callbackId ? callbackId : uuid.v4().toString();
   callbacks.set(
-    callbackId,
-    callback as unknown as (event: AsyncEvent<AsyncEventData>) => void
+    registeredCallbackId,
+    callback as (event: AsyncEvent<AsyncEventData>) => void
   );
-  return callbackId;
+  return registeredCallbackId;
 }
 
 /**
@@ -47,16 +52,13 @@ export function registerAsyncCallback<T extends AsyncEventData>(
  * Binding processes incoming native events by invoking the appropriate
  * registered callbacks from `registerAsyncCallback`.
  *
- * @param eventName The name of the event being bound.
+ * @param eventName The name of the event type being bound.
  * @returns A function that processes the event using the provided native event data.
  */
-export function bindFabricEvent(eventName: string) {
+export function bindFabricEvent(eventName: AsyncEventKind) {
   return <
     T extends {
       callbackId?: string;
-      terminalView?: number;
-      terminalId?: string;
-      sessionId?: string;
     },
   >(
     nativeEvent: NativeSyntheticEvent<T>
@@ -79,11 +81,11 @@ export function bindFabricEvent(eventName: string) {
     if (callback) {
       callback(nextEvent);
       callbacks.delete(callbackId);
-    } else if (callbackId) {
+    } else {
       log(
         LogLevel.INFO,
         logModule,
-        `No callback found for ${eventName} with ID: ${callbackId}`
+        `No callback found for ${eventName} with callbackId: ${callbackId}`
       );
     }
 

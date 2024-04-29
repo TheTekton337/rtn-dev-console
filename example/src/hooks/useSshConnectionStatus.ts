@@ -4,13 +4,17 @@ import type { Subscription } from 'rxjs';
 
 import { log, LogLevel } from '../utils/log';
 
-import type { AsyncEvent, AsyncEventData } from '../types/async_callbacks';
 import type {
   ConnectionStatus,
   DisconnectReason,
 } from '../types/SshConnection';
 import type { NativeTerminal } from '../types/Terminal';
-import type { ClosedEvent, ConnectEvent } from '../types/TerminalEvents';
+import type {
+  AsyncEvent,
+  AsyncEventData,
+  ClosedEvent,
+  ConnectEvent,
+} from '../types/TerminalEvents';
 
 import {
   connectionEventsObservable,
@@ -149,7 +153,7 @@ const initSshServiceListeners = (
 const initTerminalServiceListeners = (): Subscription => {
   return asyncEventsObservable.subscribe(
     (event: AsyncEvent<AsyncEventData>) => {
-      // TODO: Fix need to cast below.
+      // TODO: Fix need to cast
       if (event.type === 'onConnect') {
         const { sessionId: cbSessionId } = event as unknown as ConnectEvent;
         log(LogLevel.DEBUG, logModule, `onConnect`, cbSessionId, event);

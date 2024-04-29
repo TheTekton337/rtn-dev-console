@@ -128,7 +128,7 @@ const Terminal = forwardRef<SshTerminalMethods, TerminalProps>(
     const onConnect = bindFabricEvent('onConnect');
     const onClosed = bindFabricEvent('onClosed');
 
-    const onCommandExecuted = bindFabricEvent('commandExecuted');
+    const onCommandExecuted = bindFabricEvent('onCommandExecuted');
 
     return (
       <SafeAreaView style={styles.container}>

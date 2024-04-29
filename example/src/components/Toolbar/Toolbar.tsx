@@ -3,8 +3,11 @@ import { View, TouchableOpacity, Text, StyleSheet } from 'react-native';
 
 import { log, LogLevel } from '../../utils/log';
 
-import type { CommandExecutedEventData } from '../../types/TerminalEvents';
-import type { AsyncEvent } from '../../types/async_callbacks';
+import {
+  type DownloadCompleteEvent,
+  type DownloadProgressEvent,
+  type CommandExecutedEvent,
+} from '../../types/TerminalEvents';
 
 import { close, connect } from '../../observables/SshConnectionService';
 import { toggleModal } from '../../observables/ModalStateService';
@@ -59,6 +62,67 @@ const Toolbar: FC<ToolbarProps> = ({}) => {
 
   const downloadTest = () => {
     log(LogLevel.WARN, logModule, 'downloadTest pressed');
+
+    const callbackId = registerAsyncCallback<DownloadProgressEvent>(
+      ({ bytesTransferred, totalBytes }: DownloadProgressEvent) => {
+        // if (error) {
+        //   log(
+        //     LogLevel.INFO,
+        //     logModule,
+        //     `error executing command: ${error} [${callbackId}]`
+        //   );
+        //   return;
+        // }
+
+        log(
+          LogLevel.DEBUG,
+          logModule,
+          `download test progress: ${bytesTransferred}/${totalBytes} [${callbackId}]`
+        );
+
+        // TODO: Review `data` from native
+        // if (!data) {
+        //   console.log(`ID: ${callbackId} Error: ${error}`);
+        //   return;
+        // }
+
+        // if (data.error) {
+        //   console.log(`ID: ${callbackId} Error: ${data.error}`);
+        //   return;
+        // }
+
+        // console.log(
+        //   `ID: ${callbackId} File: ${data.data} FileInfo: ${JSON.stringify(data.fileInfo)}`
+        // );
+      }
+    );
+
+    registerAsyncCallback<DownloadCompleteEvent>(
+      ({ fileInfo, error }: DownloadCompleteEvent) => {
+        if (error) {
+          log(
+            LogLevel.DEBUG,
+            logModule,
+            `download test error: ${error} [${callbackId}]`
+          );
+          return;
+        }
+
+        log(
+          LogLevel.DEBUG,
+          logModule,
+          `download test complete: ${JSON.stringify(fileInfo)} [${callbackId}]`
+        );
+      }
+    );
+
+    // terminal?.download(callbackId, from, to);
+
+    // log(
+    //   LogLevel.INFO,
+    //   logModule,
+    //   `command '${command}' sent with callback ID ${callbackId}`
+    // );
   };
 
   const uploadTest = () => {
@@ -68,25 +132,27 @@ const Toolbar: FC<ToolbarProps> = ({}) => {
   // TODO: Improve event data from native and test with large cmd output.
   const executeCommand = () => {
     const command = 'echo "Hello World"';
-    const callbackId = registerAsyncCallback<CommandExecutedEventData>(
-      ({ data, error }: AsyncEvent<CommandExecutedEventData>) => {
+    const callbackId = registerAsyncCallback<CommandExecutedEvent>(
+      ({ output, error }: CommandExecutedEvent) => {
         if (error) {
           log(
             LogLevel.INFO,
             logModule,
             `error executing command: ${error} [${callbackId}]`
           );
-        } else {
-          log(
-            LogLevel.INFO,
-            logModule,
-            `command executed successfully: Output - ${data}`
-          );
+          return;
         }
+
+        log(
+          LogLevel.INFO,
+          logModule,
+          `command executed successfully: Output - ${output}`
+        );
       }
     );
 
     terminal?.executeCommand(callbackId, command);
+
     log(
       LogLevel.INFO,
       logModule,
@@ -124,7 +190,10 @@ const Toolbar: FC<ToolbarProps> = ({}) => {
         <Text style={styles.buttonText}>Exec test</Text>
       </TouchableOpacity>
       <TouchableOpacity style={styles.button} onPress={toggleLogs}>
-        <Text style={styles.buttonText}>Toggle Logs</Text>
+        <Text style={styles.buttonText}>Open Scp History</Text>
+      </TouchableOpacity>
+      <TouchableOpacity style={styles.button} onPress={toggleLogs}>
+        <Text style={styles.buttonText}>Open Logs</Text>
       </TouchableOpacity>
     </View>
   );

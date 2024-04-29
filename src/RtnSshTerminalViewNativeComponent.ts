@@ -68,6 +68,10 @@ export type AuthConfiguration = {
 
 export type TerminalLogEvent = Readonly<{
   /**
+   * The type of event.
+   */
+  type: string;
+  /**
    * The terminal view that logged the event.
    */
   terminalView?: Int32;
@@ -90,6 +94,10 @@ export type TerminalLogEvent = Readonly<{
 
 export type ConnectEvent = Readonly<{
   /**
+   * The type of event.
+   */
+  type: string;
+  /**
    * The terminal view that was connected.
    */
   terminalView: Int32;
@@ -102,12 +110,16 @@ export type ConnectEvent = Readonly<{
    */
   sessionId: string;
   /**
-   * The SSH callback ID.
+   * The callback ID.
    */
   callbackId: string;
 }>;
 
 export type ClosedEvent = Readonly<{
+  /**
+   * The type of event.
+   */
+  type: string;
   /**
    * TODO: Review events that report the view
    * The terminal view that was closed.
@@ -121,6 +133,10 @@ export type ClosedEvent = Readonly<{
    * The session id that was connected.
    */
   sessionId: string;
+  /**
+   * The callback ID.
+   */
+  callbackId: string;
   /**
    * The reason for the close.
    */
@@ -164,26 +180,8 @@ export type DownloadCompleteEvent = Readonly<{
    */
   data?: string;
   /**
-   * The exit code of the SCP.
+   * The JSON encoded FileInfo.
    */
-  // fileInfo: Readonly<{
-  //   /**
-  //    * The file size.
-  //    */
-  //   fileSize: Double;
-  //   /**
-  //    * The modification time.
-  //    */
-  //   modificationTime: Double;
-  //   /**
-  //    * The access time.
-  //    */
-  //   accessTime: Double;
-  //   /**
-  //    * The permissions.
-  //    */
-  //   permissions: Int32;
-  // }>;
   fileInfo: string;
   /**
    * The error JSON.
@@ -258,6 +256,10 @@ export type UploadProgressEvent = Readonly<{
 
 export type CommandExecutedEvent = Readonly<{
   /**
+   * The type of event.
+   */
+  type: string;
+  /**
    * The terminal view that executed the command.
    */
   terminalView?: Int32;
@@ -266,13 +268,13 @@ export type CommandExecutedEvent = Readonly<{
    */
   terminalId: string;
   /**
-   * The SSH callback ID.
+   * The SSH exec callback ID.
    */
   callbackId: string;
   /**
    * The command output.
    */
-  data?: string;
+  output?: string;
   /**
    * The error JSON.
    */
