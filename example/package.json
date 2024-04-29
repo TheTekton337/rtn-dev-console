@@ -20,7 +20,7 @@
     "react-native-error-boundary": "^1.2.4",
     "react-native-notifications": "^5.1.0",
     "react-native-uuid": "^2.0.2",
-    "rtn-dev-console": "../rtn-dev-console-0.0.0-local.165.tgz",
+    "rtn-dev-console": "../rtn-dev-console-0.0.0-local.171.tgz",
     "rxjs": "^7.8.1"
   },
   "devDependencies": {

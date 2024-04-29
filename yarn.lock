@@ -11475,18 +11475,18 @@ __metadata:
     react-native-error-boundary: ^1.2.4
     react-native-notifications: ^5.1.0
     react-native-uuid: ^2.0.2
-    rtn-dev-console: ../rtn-dev-console-0.0.0-local.165.tgz
+    rtn-dev-console: ../rtn-dev-console-0.0.0-local.171.tgz
     rxjs: ^7.8.1
   languageName: unknown
   linkType: soft
 
-"rtn-dev-console@file:../rtn-dev-console-0.0.0-local.165.tgz::locator=rtn-dev-console-example%40workspace%3Aexample":
-  version: 0.2.0
-  resolution: "rtn-dev-console@file:../rtn-dev-console-0.0.0-local.165.tgz::locator=rtn-dev-console-example%40workspace%3Aexample"
+"rtn-dev-console@file:../rtn-dev-console-0.0.0-local.171.tgz::locator=rtn-dev-console-example%40workspace%3Aexample":
+  version: 0.3.0
+  resolution: "rtn-dev-console@file:../rtn-dev-console-0.0.0-local.171.tgz::locator=rtn-dev-console-example%40workspace%3Aexample"
   peerDependencies:
     react: "*"
     react-native: "*"
-  checksum: c585211583d0a8732bd35929d822af4329483452a99570565a333ec4ebfd8d8285696fccb16745d9ad02446179a0b810716a7628f640663c05ee8c414b72deee
+  checksum: febf8512e63719d1ef1b5309ee94d6f79b732ecb09f5b446693261c5d2787562b05df0cc6331bebca404d7d25ff890c53e1988cea8fc3f00e7908b68ba86362e
   languageName: node
   linkType: hard
 
