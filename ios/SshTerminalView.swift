@@ -68,10 +68,9 @@ public protocol SshTerminalViewDelegate: AnyObject {
     func onConnect(source: TerminalView)
     func onClosed(source: TerminalView, reason: String)
     func onOSC(source: TerminalView, code: Int, data: String)
-    func onUploadComplete(source: TerminalView, callbackId: String, bytesTransferred: Int, error: String?)
-    func onDownloadComplete(source: TerminalView, callbackId: String, data: String?, fileInfo: String?, error: String?)
-    func onUploadProgress(source: TerminalView, callbackId: String, bytesTransferred: Int, totalBytes: Int)
-    func onDownloadProgress(source: TerminalView, callbackId: String, bytesTransferred: Int)
+    func onTransferStart(callbackId: String, fileInfo: String)
+    func onTransferProgress(callbackId: String, bytesTransferred: Double, transferRate: Double)
+    func onTransferEnd(callbackId: String, error: String?)
     func onCommandExecuted(source: TerminalView, callbackId: String, data: String?, error: String?)
 //    SwiftTerm delegate events
     func onSizeChanged(source: TerminalView, newCols: Int, newRows: Int)
@@ -528,20 +527,30 @@ public class SshTerminalView: TerminalView, TerminalViewDelegate {
         terminal.setTitle(text: title)
     }
     
+//    TODO: Improve download/upload error handling when file doesn't exist, can't be read, etc.
+    
     @objc
     public func upload(callbackId: String, from: String, to: String) {
         guard let scpTransfer = scpTransfer else {
+            self.sshTerminalViewDelegate?.onTransferEnd(callbackId: callbackId, error: "Unable to initialize upload: missing scpTransfer")
             return
         }
         
-        scpTransfer.upload(localPath: from, remotePath: to, completion: { bytesTransferred, error in
+        scpTransfer.upload(callbackId: callbackId, localPath: from, remotePath: to, start: { fileInfo in
             DispatchQueue.main.async {
-                let finalBytesTransferred = bytesTransferred ?? 0
-                self.sshTerminalViewDelegate?.onUploadComplete(source: self, callbackId: callbackId, bytesTransferred: NSInteger(finalBytesTransferred), error: nil)
+                guard let fileInfoString = fileInfo.toJSONString() else {
+                    self.sshTerminalViewDelegate?.onTransferEnd(callbackId: callbackId, error: "Unable to   initialize upload: missing fileInfo")
+                    return
+                }
+                self.sshTerminalViewDelegate?.onTransferStart(callbackId: callbackId, fileInfo: fileInfoString)
+            }
+        }, completion: { error in
+            DispatchQueue.main.async {
+                self.sshTerminalViewDelegate?.onTransferEnd(callbackId: callbackId, error: nil)
             }
         }, progress: { bytesTransferred, totalBytes in
             DispatchQueue.main.async {
-                self.sshTerminalViewDelegate?.onUploadProgress(source: self, callbackId: callbackId, bytesTransferred: NSInteger(bytesTransferred), totalBytes: NSInteger(totalBytes))
+                self.sshTerminalViewDelegate?.onTransferProgress(callbackId: callbackId, bytesTransferred: bytesTransferred, transferRate: totalBytes)
             }
         })
     }
@@ -549,74 +558,34 @@ public class SshTerminalView: TerminalView, TerminalViewDelegate {
     @objc
     public func download(callbackId: String, from: String, to: String) {
         guard let scpTransfer = scpTransfer else {
-            self.sshTerminalViewDelegate?.onDownloadComplete(source: self, callbackId: callbackId, data: nil, fileInfo: nil, error: "Unable to initialize download")
+            self.sshTerminalViewDelegate?.onTransferEnd(callbackId: callbackId, error: "Unable to initialize download: missing scpTransfer")
             return
         }
         
-        scpTransfer.download(remotePath: from, localPath: to, completion: { fileInfo, data, error in
+        scpTransfer.download(callbackId: callbackId, remotePath: from, localPath: to, start: { fileInfo in
+            DispatchQueue.main.async {
+                guard let fileInfoString = fileInfo.toJSONString() else {
+                    self.sshTerminalViewDelegate?.onTransferEnd(callbackId: callbackId, error: "Unable to initialize download: missing fileInfo")
+                    return
+                }
+                self.sshTerminalViewDelegate?.onTransferStart(callbackId: callbackId, fileInfo: fileInfoString)
+            }
+        }, completion: { error in
             DispatchQueue.main.async {
                 if let error = error {
                     let descriptiveError = error as! any DescriptiveError
-                    self.sshTerminalViewDelegate?.onDownloadComplete(source: self, callbackId: callbackId, data: nil, fileInfo: nil, error: descriptiveError.description())
+                    self.sshTerminalViewDelegate?.onTransferEnd(callbackId: callbackId, error: descriptiveError.description())
                     return
                 }
                 
-                guard let data = data, let fileInfo = fileInfo else {
-                    self.sshTerminalViewDelegate?.onDownloadComplete(source: self, callbackId: callbackId, data: nil, fileInfo: nil, error: "File data unavailable for save")
-                    return
-                }
-                
-                let fileInfoString = fileInfo.toJSONString()
-                
-                self.sshTerminalViewDelegate?.onDownloadComplete(source: self, callbackId: callbackId, data: to, fileInfo: fileInfoString, error: nil)
+                self.sshTerminalViewDelegate?.onTransferEnd(callbackId: callbackId, error: nil)
             }
-        }, progress: { bytesTransferred in
+        }, progress: { bytesTransferred, transferRate in
             DispatchQueue.main.async {
-                self.sshTerminalViewDelegate?.onDownloadProgress(source: self, callbackId: callbackId, bytesTransferred: NSInteger(bytesTransferred))
+                self.sshTerminalViewDelegate?.onTransferProgress(callbackId: callbackId, bytesTransferred: bytesTransferred, transferRate: transferRate)
             }
         })
     }
-    
-    /// Writes data to the specified file, optionally overwriting it with specified attributes based on FileInfo.
-    /// - Parameters:
-    ///   - data: The data to write to the file.
-    ///   - filename: The name of the file.
-    ///   - directory: The directory in which to save the file, default is `.documentDirectory`.
-    ///   - fileInfo: FileInfo object containing file attributes such as permissions.
-    ///   - overwrite: Whether to overwrite the file if it already exists.
-    /// - Throws: An error if the operation cannot be completed.
-//    func saveFile(with data: Data, filename: String, in directory: FileManager.SearchPathDirectory = .documentDirectory, using fileInfo: FileInfo, overwrite: Bool = true) throws {
-////        TODO: Fix error handling
-//        let fileManager = FileManager.default
-//        guard let directoryURL = fileManager.urls(for: directory, in: .userDomainMask).first else {
-//            throw NSError(domain: "FileManagerError", code: 1001, userInfo: [NSLocalizedDescriptionKey: "Unable to find specified directory."])
-//        }
-//
-//        let fileURL = directoryURL.appendingPathComponent(filename)
-//
-//        // Check if the file exists
-//        if fileManager.fileExists(atPath: fileURL.path) {
-//            if overwrite {
-//                do {
-//                    try fileManager.removeItem(at: fileURL)
-//                } catch {
-//                    throw NSError(domain: "FileManagerError", code: 1002, userInfo: [NSLocalizedDescriptionKey: "Failed to remove existing file: \(error.localizedDescription)"])
-//                }
-//            } else {
-//                throw NSError(domain: "FileManagerError", code: 1004, userInfo: [NSLocalizedDescriptionKey: "File already exists and overwrite is set to false."])
-//            }
-//        }
-//
-//        // Create the new file with data and attributes
-//        if !fileManager.createFile(atPath: fileURL.path, contents: data, attributes: [.posixPermissions: NSNumber(value: fileInfo.permissions)]) {
-//            throw NSError(domain: "FileManagerError", code: 1003, userInfo: [NSLocalizedDescriptionKey: "Failed to create file at \(fileURL.path)"])
-//        }
-//
-//        // Optionally set modification and access times
-//        let modificationDate = Date(timeIntervalSince1970: fileInfo.modificationTime)
-//        let accessDate = Date(timeIntervalSince1970: fileInfo.accessTime)
-//        try fileManager.setAttributes([.modificationDate: modificationDate, .creationDate: accessDate], ofItemAtPath: fileURL.path)
-//    }
     
     @objc
     public func sendMotion(buttonFlags: Int, x: Int, y: Int, pixelX: Int, pixelY: Int) {

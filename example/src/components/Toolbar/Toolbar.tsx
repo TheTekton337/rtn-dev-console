@@ -3,14 +3,14 @@ import { View, TouchableOpacity, Text, StyleSheet } from 'react-native';
 
 import { log, LogLevel } from '../../utils/log';
 
-import type { CommandExecutedEventData } from '../../types/TerminalEvents';
-import type { AsyncEvent } from '../../types/async_callbacks';
+import { type CommandExecutedEvent } from '../../types/TerminalEvents';
 
 import { close, connect } from '../../observables/SshConnectionService';
 import { toggleModal } from '../../observables/ModalStateService';
 import { registerAsyncCallback } from '../../observables/RTNEventService';
 
 import { useTerminal } from '../../hooks/useTerminal';
+import { scpTransfer } from '../../observables/ScpTransferService';
 
 interface ToolbarProps {}
 
@@ -58,35 +58,58 @@ const Toolbar: FC<ToolbarProps> = ({}) => {
   };
 
   const downloadTest = () => {
-    log(LogLevel.WARN, logModule, 'downloadTest pressed');
+    if (!terminal) {
+      log(LogLevel.WARN, logModule, 'downloadTest error: terminal unavailable');
+      return;
+    }
+
+    log(LogLevel.DEBUG, logModule, 'downloadTest pressed');
+
+    const from = '/home/tekton/test_scp_read.webm';
+    const to = 'test_scp_read.webm';
+
+    scpTransfer('download', from, to, terminal);
   };
 
   const uploadTest = () => {
-    log(LogLevel.WARN, logModule, 'uploadTest pressed');
+    if (!terminal) {
+      log(LogLevel.WARN, logModule, 'uploadTest error: terminal unavailable');
+      return;
+    }
+
+    log(LogLevel.DEBUG, logModule, 'uploadTest pressed');
+
+    const from = 'test_scp_write.webm';
+    const to = '/home/tekton/test_scp_write.webm';
+
+    scpTransfer('upload', to, from, terminal);
   };
 
   // TODO: Improve event data from native and test with large cmd output.
   const executeCommand = () => {
     const command = 'echo "Hello World"';
-    const callbackId = registerAsyncCallback<CommandExecutedEventData>(
-      ({ data, error }: AsyncEvent<CommandExecutedEventData>) => {
+    const callbackId = registerAsyncCallback<CommandExecutedEvent>(
+      'onCommandExecuted',
+      ({ output, error }: CommandExecutedEvent) => {
         if (error) {
           log(
             LogLevel.INFO,
             logModule,
             `error executing command: ${error} [${callbackId}]`
           );
-        } else {
-          log(
-            LogLevel.INFO,
-            logModule,
-            `command executed successfully: Output - ${data}`
-          );
+          return;
         }
+
+        log(
+          LogLevel.INFO,
+          logModule,
+          `command executed successfully: Output - ${output}`
+        );
       }
     );
 
     terminal?.executeCommand(callbackId, command);
+
     log(
       LogLevel.INFO,
       logModule,
@@ -124,7 +147,10 @@ const Toolbar: FC<ToolbarProps> = ({}) => {
         <Text style={styles.buttonText}>Exec test</Text>
       </TouchableOpacity>
       <TouchableOpacity style={styles.button} onPress={toggleLogs}>
-        <Text style={styles.buttonText}>Toggle Logs</Text>
+        <Text style={styles.buttonText}>Open Scp History</Text>
+      </TouchableOpacity>
+      <TouchableOpacity style={styles.button} onPress={toggleLogs}>
+        <Text style={styles.buttonText}>Open Logs</Text>
       </TouchableOpacity>
     </View>
   );

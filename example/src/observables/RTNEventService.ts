@@ -5,7 +5,11 @@ import { Subject } from 'rxjs';
 
 import { log, LogLevel } from '../utils/log';
 
-import type { AsyncEvent, AsyncEventData } from '../types/async_callbacks';
+import type {
+  AsyncEvent,
+  AsyncEventData,
+  AsyncEventKind,
+} from '../types/TerminalEvents';
 
 const logModule = 'RTNEventService';
 
@@ -32,14 +36,21 @@ const callbacks = new Map<
  * @returns A string representing the unique callback ID.
  */
 export function registerAsyncCallback<T extends AsyncEventData>(
-  callback: (event: AsyncEvent<T>) => void
+  eventName: AsyncEventKind,
+  callback: (event: T) => void,
+  callbackId?: string
 ): string {
-  const callbackId = uuid.v4().toString();
+  const registeredCallbackId = callbackId ? callbackId : uuid.v4().toString();
   callbacks.set(
-    callbackId,
-    callback as unknown as (event: AsyncEvent<AsyncEventData>) => void
+    `${eventName}_${registeredCallbackId}`,
+    callback as (event: AsyncEvent<AsyncEventData>) => void
   );
-  return callbackId;
+  return registeredCallbackId;
+}
+
+export function unregisterAsyncCallback(callbackId: string) {
+  callbacks.delete(callbackId);
+  log(LogLevel.DEBUG, logModule, `Unregistered callback [${callbackId}]`);
 }
 
 /**
@@ -47,43 +58,50 @@ export function registerAsyncCallback<T extends AsyncEventData>(
  * Binding processes incoming native events by invoking the appropriate
  * registered callbacks from `registerAsyncCallback`.
  *
- * @param eventName The name of the event being bound.
+ * @param eventName The name of the event type being bound.
  * @returns A function that processes the event using the provided native event data.
  */
-export function bindFabricEvent(eventName: string) {
+export function bindFabricEvent(
+  eventName: AsyncEventKind,
+  unregisterImmediately: Boolean = false
+) {
   return <
     T extends {
       callbackId?: string;
-      terminalView?: number;
-      terminalId?: string;
-      sessionId?: string;
     },
   >(
     nativeEvent: NativeSyntheticEvent<T>
   ) => {
-    const { callbackId, ...data } = nativeEvent.nativeEvent;
+    const { callbackId: rawCallbackId, ...data } = nativeEvent.nativeEvent;
 
     const nextEvent: AsyncEvent<AsyncEventData> = {
       ...data,
-      callbackId,
+      callbackId: rawCallbackId,
       type: eventName,
     };
 
-    if (!callbackId) {
+    if (!rawCallbackId) {
       asyncEvents$.next(nextEvent);
       return;
     }
+
+    const callbackId = `${eventName}_${rawCallbackId}`;
 
     const callback = callbacks.get(callbackId);
 
     if (callback) {
       callback(nextEvent);
-      callbacks.delete(callbackId);
-    } else if (callbackId) {
+      unregisterImmediately && callbacks.delete(callbackId);
+    } else {
       log(
-        LogLevel.INFO,
+        LogLevel.WARN,
         logModule,
-        `No callback found for ${eventName} with ID: ${callbackId}`
+        `No callback found for registered callbackId: ${callbackId}`
+      );
+      log(
+        LogLevel.DEBUG,
+        logModule,
+        `callbacks: ${JSON.stringify(callbacks.keys())}`
       );
     }
 

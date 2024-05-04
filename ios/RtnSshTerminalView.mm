@@ -474,75 +474,44 @@ facebook::react::RtnSshTerminalViewEventEmitter::OnTerminalLogLogType ConvertLog
     rtnSshTerminalEventEmitter->onClosed(data);
 }
 
-- (void)onDownloadCompleteWithSource:(TerminalView * _Nonnull)source callbackId:(NSString * _Nonnull)callbackId data:(NSString *)readData fileInfo:(NSString *)fileInfo error:(NSString *)error {
+- (void)onTransferStartWithCallbackId:(NSString *)callbackId fileInfo:(NSString *)fileInfo {
     auto rtnSshTerminalEventEmitter = std::static_pointer_cast<RtnSshTerminalViewEventEmitter const>(_eventEmitter);
     
-    facebook::react::RtnSshTerminalViewEventEmitter::OnDownloadComplete data = {
-        .terminalView = static_cast<int>(source.tag),
-        .terminalId = std::string([_terminalId UTF8String]),
+    facebook::react::RtnSshTerminalViewEventEmitter::OnTransferStart data = {
+        .callbackId = std::string([callbackId UTF8String]),
+        .fileInfo = std::string([fileInfo UTF8String])
+    };
+    
+    rtnSshTerminalEventEmitter->onTransferStart(data);
+}
+
+- (void)onTransferProgressWithCallbackId:(NSString *)callbackId bytesTransferred:(double)bytesTransferred transferRate:(double)transferRate {
+    auto rtnSshTerminalEventEmitter = std::static_pointer_cast<RtnSshTerminalViewEventEmitter const>(_eventEmitter);
+    
+    facebook::react::RtnSshTerminalViewEventEmitter::OnTransferProgress data = {
+        .callbackId = std::string([callbackId UTF8String]),
+        .bytesTransferred = static_cast<double>(bytesTransferred),
+        .transferRate = static_cast<double>(transferRate)
+    };
+    
+    rtnSshTerminalEventEmitter->onTransferProgress(data);
+}
+
+- (void)onTransferEndWithCallbackId:(NSString *)callbackId error:(NSString *)error {
+    auto rtnSshTerminalEventEmitter = std::static_pointer_cast<RtnSshTerminalViewEventEmitter const>(_eventEmitter);
+    
+    facebook::react::RtnSshTerminalViewEventEmitter::OnTransferEnd data = {
         .callbackId = std::string([callbackId UTF8String])
     };
     
-    if (readData != nil) {
-        data.data = std::string([readData UTF8String]);
-    }
-    
-    if (fileInfo != nil) {
-        data.fileInfo = std::string([fileInfo UTF8String]);
-    }
-    
     if (error != nil) {
         data.error = std::string([error UTF8String]);
     }
     
-    rtnSshTerminalEventEmitter->onDownloadComplete(data);
+    rtnSshTerminalEventEmitter->onTransferEnd(data);
 }
 
-- (void)onUploadCompleteWithSource:(TerminalView * _Nonnull)source callbackId:(NSString * _Nonnull)callbackId bytesTransferred:(NSInteger)bytesTransferred error:(NSString *)error {
-    auto rtnSshTerminalEventEmitter = std::static_pointer_cast<RtnSshTerminalViewEventEmitter const>(_eventEmitter);
-    
-    facebook::react::RtnSshTerminalViewEventEmitter::OnUploadComplete data = {
-        .terminalView = static_cast<int>(source.tag),
-        .terminalId = std::string([_terminalId UTF8String]),
-        .callbackId = std::string([callbackId UTF8String]),
-        .bytesTransferred = static_cast<double>(bytesTransferred)
-    };
-    
-    if (error != nil) {
-        data.error = std::string([error UTF8String]);
-    }
-    
-    rtnSshTerminalEventEmitter->onUploadComplete(data);
-}
-
-- (void)onDownloadProgressWithSource:(TerminalView * _Nonnull)source callbackId:(NSString * _Nonnull)callbackId bytesTransferred:(NSInteger)bytesTransferred {
-    auto rtnSshTerminalEventEmitter = std::static_pointer_cast<RtnSshTerminalViewEventEmitter const>(_eventEmitter);
-    
-    facebook::react::RtnSshTerminalViewEventEmitter::OnDownloadProgress data = {
-        .terminalView = static_cast<int>(source.tag),
-        .terminalId = std::string([_terminalId UTF8String]),
-        .callbackId = std::string([callbackId UTF8String]),
-        .bytesTransferred = static_cast<double>(bytesTransferred)
-    };
-    
-    rtnSshTerminalEventEmitter->onDownloadProgress(data);
-}
-
-- (void)onUploadProgressWithSource:(TerminalView * _Nonnull)source callbackId:(NSString * _Nonnull)callbackId bytesTransferred:(NSInteger)bytesTransferred totalBytes:(NSInteger)totalBytes {
-    auto rtnSshTerminalEventEmitter = std::static_pointer_cast<RtnSshTerminalViewEventEmitter const>(_eventEmitter);
-    
-    facebook::react::RtnSshTerminalViewEventEmitter::OnUploadProgress data = {
-        .terminalView = static_cast<int>(source.tag),
-        .terminalId = std::string([_terminalId UTF8String]),
-        .callbackId = std::string([callbackId UTF8String]),
-        .bytesTransferred = static_cast<double>(bytesTransferred),
-        .totalBytes = static_cast<double>(totalBytes)
-    };
-    
-    rtnSshTerminalEventEmitter->onUploadProgress(data);
-}
-
-- (void)onCommandExecutedWithSource:(TerminalView * _Nonnull)source callbackId:(NSString * _Nonnull)callbackId data:(NSString *)readData error:(NSString*)error {
+- (void)onCommandExecutedWithSource:(TerminalView * _Nonnull)source callbackId:(NSString * _Nonnull)callbackId data:(NSString *)output error:(NSString*)error {
     auto rtnSshTerminalEventEmitter = std::static_pointer_cast<RtnSshTerminalViewEventEmitter const>(_eventEmitter);
     
     facebook::react::RtnSshTerminalViewEventEmitter::OnCommandExecuted data = {
@@ -551,8 +520,8 @@ facebook::react::RtnSshTerminalViewEventEmitter::OnTerminalLogLogType ConvertLog
         .callbackId = std::string([callbackId UTF8String])
     };
     
-    if (readData != nil) {
-        data.data = std::string([readData UTF8String]);
+    if (output != nil) {
+        data.output = std::string([output UTF8String]);
     }
     
     if (error != nil) {

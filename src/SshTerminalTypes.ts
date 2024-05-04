@@ -11,10 +11,9 @@ import type {
   ClipboardCopyEvent as NativeClipboardCopyEvent,
   ITermContentEvent as NativeITermContentEvent,
   RangeChangedEvent as NativeRangeChangedEvent,
-  DownloadCompleteEvent as NativeDownloadCompleteEvent,
-  UploadCompleteEvent as NativeUploadCompleteEvent,
-  DownloadProgressEvent as NativeDownloadProgressEvent,
-  UploadProgressEvent as NativeUploadProgressEvent,
+  TransferProgressEvent as NativeTransferProgressEvent,
+  TransferStartEvent as NativeTransferStartEvent,
+  TransferEndEvent as NativeTransferEndEvent,
   CommandExecutedEvent as NativeCommandExecutedEvent,
 } from './RtnSshTerminalViewNativeComponent';
 
@@ -71,20 +70,16 @@ export interface RangeChangedEvent extends React.BaseSyntheticEvent {
   nativeEvent: NativeRangeChangedEvent;
 }
 
-export interface DownloadCompleteEvent extends React.BaseSyntheticEvent {
-  nativeEvent: NativeDownloadCompleteEvent;
+export interface TransferStartEvent extends React.BaseSyntheticEvent {
+  nativeEvent: NativeTransferStartEvent;
 }
 
-export interface UploadCompleteEvent extends React.BaseSyntheticEvent {
-  nativeEvent: NativeUploadCompleteEvent;
+export interface TransferProgressEvent extends React.BaseSyntheticEvent {
+  nativeEvent: NativeTransferProgressEvent;
 }
 
-export interface DownloadProgressEvent extends React.BaseSyntheticEvent {
-  nativeEvent: NativeDownloadProgressEvent;
-}
-
-export interface UploadProgressEvent extends React.BaseSyntheticEvent {
-  nativeEvent: NativeUploadProgressEvent;
+export interface TransferEndEvent extends React.BaseSyntheticEvent {
+  nativeEvent: NativeTransferEndEvent;
 }
 
 export interface SshTerminalMethods {
