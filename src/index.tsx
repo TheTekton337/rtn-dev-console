@@ -13,10 +13,9 @@ import type {
   SshTerminalMethods,
   SizeChangedEvent,
   TerminalLogEvent,
-  DownloadCompleteEvent,
-  DownloadProgressEvent,
-  UploadCompleteEvent,
-  UploadProgressEvent,
+  TransferProgressEvent,
+  TransferStartEvent,
+  TransferEndEvent,
   CommandExecutedEvent,
 } from './SshTerminalTypes';
 import {
@@ -41,10 +40,9 @@ export {
   type ConnectEvent,
   type ClosedEvent,
   type TerminalLogEvent,
-  type DownloadCompleteEvent,
-  type DownloadProgressEvent,
-  type UploadCompleteEvent,
-  type UploadProgressEvent,
+  type TransferProgressEvent,
+  type TransferStartEvent,
+  type TransferEndEvent,
   type CommandExecutedEvent,
 };
 export default SshTerminal;

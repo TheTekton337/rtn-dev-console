@@ -47,13 +47,11 @@ RCT_EXPORT_VIEW_PROPERTY(onClosed, RCTBubblingEventBlock);
 
 RCT_EXPORT_VIEW_PROPERTY(onOSC, RCTBubblingEventBlock);
 
-RCT_EXPORT_VIEW_PROPERTY(onDownloadComplete, RCTBubblingEventBlock);
+RCT_EXPORT_VIEW_PROPERTY(onTransferStart, RCTBubblingEventBlock);
 
-RCT_EXPORT_VIEW_PROPERTY(onUploadComplete, RCTBubblingEventBlock);
+RCT_EXPORT_VIEW_PROPERTY(onTransferProgress, RCTBubblingEventBlock);
 
-RCT_EXPORT_VIEW_PROPERTY(onDownloadProgress, RCTBubblingEventBlock);
-
-RCT_EXPORT_VIEW_PROPERTY(onUploadProgress, RCTBubblingEventBlock);
+RCT_EXPORT_VIEW_PROPERTY(onTransferEnd, RCTBubblingEventBlock);
 
 RCT_EXPORT_VIEW_PROPERTY(onCommandExecuted, RCTBubblingEventBlock);
 

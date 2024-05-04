@@ -36,15 +36,21 @@ const callbacks = new Map<
  * @returns A string representing the unique callback ID.
  */
 export function registerAsyncCallback<T extends AsyncEventData>(
+  eventName: AsyncEventKind,
   callback: (event: T) => void,
   callbackId?: string
 ): string {
   const registeredCallbackId = callbackId ? callbackId : uuid.v4().toString();
   callbacks.set(
-    registeredCallbackId,
+    `${eventName}_${registeredCallbackId}`,
     callback as (event: AsyncEvent<AsyncEventData>) => void
   );
   return registeredCallbackId;
+}
+
+export function unregisterAsyncCallback(callbackId: string) {
+  callbacks.delete(callbackId);
+  log(LogLevel.DEBUG, logModule, `Unregistered callback [${callbackId}]`);
 }
 
 /**
@@ -55,7 +61,10 @@ export function registerAsyncCallback<T extends AsyncEventData>(
  * @param eventName The name of the event type being bound.
  * @returns A function that processes the event using the provided native event data.
  */
-export function bindFabricEvent(eventName: AsyncEventKind) {
+export function bindFabricEvent(
+  eventName: AsyncEventKind,
+  unregisterImmediately: Boolean = false
+) {
   return <
     T extends {
       callbackId?: string;
@@ -63,29 +72,36 @@ export function bindFabricEvent(eventName: AsyncEventKind) {
   >(
     nativeEvent: NativeSyntheticEvent<T>
   ) => {
-    const { callbackId, ...data } = nativeEvent.nativeEvent;
+    const { callbackId: rawCallbackId, ...data } = nativeEvent.nativeEvent;
 
     const nextEvent: AsyncEvent<AsyncEventData> = {
       ...data,
-      callbackId,
+      callbackId: rawCallbackId,
       type: eventName,
     };
 
-    if (!callbackId) {
+    if (!rawCallbackId) {
       asyncEvents$.next(nextEvent);
       return;
     }
+
+    const callbackId = `${eventName}_${rawCallbackId}`;
 
     const callback = callbacks.get(callbackId);
 
     if (callback) {
       callback(nextEvent);
-      callbacks.delete(callbackId);
+      unregisterImmediately && callbacks.delete(callbackId);
     } else {
       log(
-        LogLevel.INFO,
+        LogLevel.WARN,
         logModule,
-        `No callback found for ${eventName} with callbackId: ${callbackId}`
+        `No callback found for registered callbackId: ${callbackId}`
+      );
+      log(
+        LogLevel.DEBUG,
+        logModule,
+        `callbacks: ${JSON.stringify(callbacks.keys())}`
       );
     }
 

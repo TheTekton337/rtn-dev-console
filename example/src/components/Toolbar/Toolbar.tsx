@@ -3,17 +3,14 @@ import { View, TouchableOpacity, Text, StyleSheet } from 'react-native';
 
 import { log, LogLevel } from '../../utils/log';
 
-import {
-  type DownloadCompleteEvent,
-  type DownloadProgressEvent,
-  type CommandExecutedEvent,
-} from '../../types/TerminalEvents';
+import { type CommandExecutedEvent } from '../../types/TerminalEvents';
 
 import { close, connect } from '../../observables/SshConnectionService';
 import { toggleModal } from '../../observables/ModalStateService';
 import { registerAsyncCallback } from '../../observables/RTNEventService';
 
 import { useTerminal } from '../../hooks/useTerminal';
+import { scpTransfer } from '../../observables/ScpTransferService';
 
 interface ToolbarProps {}
 
@@ -61,78 +58,38 @@ const Toolbar: FC<ToolbarProps> = ({}) => {
   };
 
   const downloadTest = () => {
-    log(LogLevel.WARN, logModule, 'downloadTest pressed');
+    if (!terminal) {
+      log(LogLevel.WARN, logModule, 'downloadTest error: terminal unavailable');
+      return;
+    }
 
-    const callbackId = registerAsyncCallback<DownloadProgressEvent>(
-      ({ bytesTransferred, totalBytes }: DownloadProgressEvent) => {
-        // if (error) {
-        //   log(
-        //     LogLevel.INFO,
-        //     logModule,
-        //     `error executing command: ${error} [${callbackId}]`
-        //   );
-        //   return;
-        // }
+    log(LogLevel.DEBUG, logModule, 'downloadTest pressed');
 
-        log(
-          LogLevel.DEBUG,
-          logModule,
-          `download test progress: ${bytesTransferred}/${totalBytes} [${callbackId}]`
-        );
+    const from = '/home/tekton/test_scp_read.webm';
+    const to = 'test_scp_read.webm';
 
-        // TODO: Review `data` from native
-        // if (!data) {
-        //   console.log(`ID: ${callbackId} Error: ${error}`);
-        //   return;
-        // }
-
-        // if (data.error) {
-        //   console.log(`ID: ${callbackId} Error: ${data.error}`);
-        //   return;
-        // }
-
-        // console.log(
-        //   `ID: ${callbackId} File: ${data.data} FileInfo: ${JSON.stringify(data.fileInfo)}`
-        // );
-      }
-    );
-
-    registerAsyncCallback<DownloadCompleteEvent>(
-      ({ fileInfo, error }: DownloadCompleteEvent) => {
-        if (error) {
-          log(
-            LogLevel.DEBUG,
-            logModule,
-            `download test error: ${error} [${callbackId}]`
-          );
-          return;
-        }
-
-        log(
-          LogLevel.DEBUG,
-          logModule,
-          `download test complete: ${JSON.stringify(fileInfo)} [${callbackId}]`
-        );
-      }
-    );
-
-    // terminal?.download(callbackId, from, to);
-
-    // log(
-    //   LogLevel.INFO,
-    //   logModule,
-    //   `command '${command}' sent with callback ID ${callbackId}`
-    // );
+    scpTransfer('download', from, to, terminal);
   };
 
   const uploadTest = () => {
-    log(LogLevel.WARN, logModule, 'uploadTest pressed');
+    if (!terminal) {
+      log(LogLevel.WARN, logModule, 'uploadTest error: terminal unavailable');
+      return;
+    }
+
+    log(LogLevel.DEBUG, logModule, 'uploadTest pressed');
+
+    const from = 'test_scp_write.webm';
+    const to = '/home/tekton/test_scp_write.webm';
+
+    scpTransfer('upload', to, from, terminal);
   };
 
   // TODO: Improve event data from native and test with large cmd output.
   const executeCommand = () => {
     const command = 'echo "Hello World"';
     const callbackId = registerAsyncCallback<CommandExecutedEvent>(
+      'onCommandExecuted',
       ({ output, error }: CommandExecutedEvent) => {
         if (error) {
           log(

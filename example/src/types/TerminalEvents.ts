@@ -1,94 +1,124 @@
 import type { FileInfo } from './ScpTransfer';
+import type { TransferDirection } from './TransferService';
 
 // TODO: Add comments
 
+// TODO: The terminalView or terminalId can be used for lookup.
+
 export type TerminalView = number;
-export type TerminalId = string;
-export type SessionId = string;
-export type CallbackId = string;
+export type Identity = string;
 
 export interface RTNEvent {
-  callbackId?: CallbackId;
+  callbackId: Identity;
 }
+
+// TODO: Is there a benefit to using the terminal ref?
+// export interface RTNViewEvent extends RTNEvent {
+//   terminalView: TerminalView;
+// }
 
 export interface TerminalLogEvent {
   type: 'onTerminalLog';
-  terminalId: TerminalId;
+  terminalId: Identity;
   logType: 'info' | 'warning' | 'error' | 'connectionError';
   message: string;
 }
 
-export interface ConnectEvent {
+export interface ConnectEvent extends RTNEvent {
   type: 'onConnect';
   terminalView: TerminalView;
-  terminalId: TerminalId;
-  sessionId: SessionId;
+  terminalId: Identity;
+  sessionId: Identity;
 }
 
-export interface ConnectCompletion {
+export interface ConnectCompletion extends RTNEvent {
   type: 'connectCompletion';
   terminalId: string;
   sessionId: string;
 }
 
-export interface DisconnectCompletion {
+export interface DisconnectCompletion extends RTNEvent {
   type: 'disconnectCompletion';
   terminalId: string;
   sessionId: string;
   reason: string;
 }
 
-export interface ClosedEvent {
+export interface ClosedEvent extends RTNEvent {
   type: 'onClosed';
   terminalView: TerminalView;
-  terminalId: TerminalId;
-  sessionId: SessionId;
+  terminalId: Identity;
+  sessionId: Identity;
   reason: string;
 }
 
-export interface OSCEvent {
+export interface OSCEvent extends RTNEvent {
   type: 'onOSC';
-  terminalId: TerminalId;
+  terminalId: Identity;
   code: number;
   data: string;
 }
 
-export interface DownloadCompleteEvent {
+export interface TransferStartEvent extends RTNEvent {
+  type: 'onTransferStart';
+  callbackId: Identity;
+  direction: TransferDirection;
+  fileInfo: string;
+}
+
+export interface TransferProgressEvent extends RTNEvent {
+  type: 'onTransferProgress';
+  callbackId: Identity;
+  direction: TransferDirection;
+  fileInfo: FileInfo;
+  bytesTransferred: number;
+  transferRate: number;
+}
+
+export interface TransferEndEvent extends RTNEvent {
+  type: 'onTransferEnd';
+  callbackId: Identity;
+  direction: TransferDirection;
+  fileInfo?: FileInfo;
+  error?: string;
+}
+
+export interface DownloadCompleteEvent extends RTNEvent {
   type: 'downloadComplete';
-  sessionId: SessionId;
-  terminalId: TerminalId;
+  sessionId: Identity;
+  terminalId: Identity;
   data?: string;
   fileInfo?: FileInfo;
   error?: string;
 }
 
-export interface UploadCompleteEvent {
+export interface UploadCompleteEvent extends RTNEvent {
   type: 'uploadComplete';
-  sessionId: SessionId;
-  terminalId: TerminalId;
+  sessionId: Identity;
+  terminalId: Identity;
   bytesTransferred: number;
   error?: string;
 }
 
-export interface DownloadProgressEvent {
+export interface DownloadProgressEvent extends RTNEvent {
   type: 'downloadProgress';
-  sessionId: SessionId;
-  terminalId: TerminalId;
+  sessionId: Identity;
+  terminalId: Identity;
   bytesTransferred: number;
   totalBytes: number;
 }
 
-export interface UploadProgressEvent {
+export interface UploadProgressEvent extends RTNEvent {
   type: 'uploadProgress';
-  sessionId: SessionId;
-  terminalId: TerminalId;
+  sessionId: Identity;
+  terminalId: Identity;
   bytesTransferred: number;
   totalBytes: number;
 }
 
 export interface CommandExecutedEvent {
   type: 'onCommandExecuted';
-  terminalId: TerminalId;
+  terminalId: Identity;
   output?: string;
   error?: string;
 }
@@ -102,6 +132,9 @@ export type AsyncEventData =
   | ConnectCompletion
   | DisconnectCompletion
   | CommandExecutedEvent
+  | TransferStartEvent
+  | TransferProgressEvent
+  | TransferEndEvent
   | DownloadProgressEvent
   | DownloadCompleteEvent
   | UploadProgressEvent

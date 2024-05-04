@@ -11,7 +11,8 @@
     "pod-install-fabric": "cd ios && NO_FLIPPER=1 USE_FRAMEWORKS=static RCT_NEW_ARCH_ENABLED=1 bundle exec pod install",
     "pod-install-legacy": "cd ios && USE_FRAMEWORKS=static RCT_NEW_ARCH_ENABLED=0 bundle exec pod install",
     "dev": "yarn pod-install && yarn ios",
-    "dev-nuke": "rm -rf ../yarn.lock && yarn && yarn pod-install && yarn ios"
+    "dev-nuke": "rm -rf ../yarn.lock && yarn && yarn pod-install && yarn ios",
+    "prestart": "rm -f node_modules/react-native-config/ios/ReactNativeConfig/GeneratedDotEnv.m node_modules/react-native-config/android/build/generated/source/buildConfig/debug/com/lugg/RNCConfig/BuildConfig.java node_modules/react-native-config/android/build/generated/source/buildConfig/release/com/lugg/RNCConfig/BuildConfig.java"
   },
   "dependencies": {
     "react": "18.2.0",
@@ -20,7 +21,7 @@
     "react-native-error-boundary": "^1.2.4",
     "react-native-notifications": "^5.1.0",
     "react-native-uuid": "^2.0.2",
-    "rtn-dev-console": "../rtn-dev-console-0.0.0-local.171.tgz",
+    "rtn-dev-console": "../rtn-dev-console-0.0.0-local.181.tgz",
     "rxjs": "^7.8.1"
   },
   "devDependencies": {

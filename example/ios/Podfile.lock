@@ -1326,10 +1326,10 @@ EXTERNAL SOURCES:
 
 CHECKOUT OPTIONS:
   CSwiftSH:
-    :commit: 4d72fa650e1889c9c8159436ddeaf06b9876c981
+    :commit: 213c3a6710a3c8ad5036ea3c494f600665c4c90d
     :git: https://github.com/TheTekton337/SwiftSH.git
   SwiftSH:
-    :commit: 4d72fa650e1889c9c8159436ddeaf06b9876c981
+    :commit: 213c3a6710a3c8ad5036ea3c494f600665c4c90d
     :git: https://github.com/TheTekton337/SwiftSH.git
   SwiftTerm:
     :commit: 0663fa0def6676f56f81a97b34b065ee20e17eaa

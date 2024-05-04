@@ -162,96 +162,53 @@ export type OSCEvent = Readonly<{
   data: string;
 }>;
 
-export type DownloadCompleteEvent = Readonly<{
+export type TransferStartEvent = Readonly<{
   /**
-   * The terminal view that completed the SCP.
+   * The session id that started the transfer.
    */
-  terminalView?: Int32;
+  sessionId: string;
   /**
-   * The terminal id that completed the SCP.
-   */
-  terminalId: string;
-  /**
-   * The SCP callback ID.
+   * The transfer callback ID.
    */
   callbackId: string;
   /**
-   * The data transferred.
+   * The file info
    */
-  data?: string;
+  fileInfo?: string;
+}>;
+
+export type TransferProgressEvent = Readonly<{
   /**
-   * The JSON encoded FileInfo.
+   * The session id that started the transfer.
    */
-  fileInfo: string;
+  sessionId: string;
   /**
-   * The error JSON.
+   * The transfer callback ID.
+   */
+  callbackId: string;
+  /**
+   * The bytes transferred so far.
+   */
+  bytesTransferred: Double;
+  /**
+   * The transfer rate in bytes/second.
+   */
+  transferRate: Double;
+}>;
+
+export type TransferEndEvent = Readonly<{
+  /**
+   * The session id that started the transfer.
+   */
+  sessionId: string;
+  /**
+   * The transfer callback ID.
+   */
+  callbackId: string;
+  /**
+   * The error if any.
    */
   error?: string;
-}>;
-
-export type UploadCompleteEvent = Readonly<{
-  /**
-   * The terminal view that completed the SCP.
-   */
-  terminalView?: Int32;
-  /**
-   * The terminal id that completed the SCP.
-   */
-  terminalId: string;
-  /**
-   * The SCP callback ID.
-   */
-  callbackId: string;
-  /**
-   * The bytes transferred.
-   */
-  bytesTransferred: Double;
-  /**
-   * The error JSON.
-   */
-  error?: string;
-}>;
-
-export type DownloadProgressEvent = Readonly<{
-  /**
-   * The terminal view that reported the SCP progress.
-   */
-  terminalView?: Int32;
-  /**
-   * The terminal id that reported the SCP progress.
-   */
-  terminalId: string;
-  /**
-   * The SCP callback ID.
-   */
-  callbackId: string;
-  /**
-   * The bytes transferred.
-   */
-  bytesTransferred: Double;
-}>;
-
-export type UploadProgressEvent = Readonly<{
-  /**
-   * The terminal view that reported the SCP progress.
-   */
-  terminalView?: Int32;
-  /**
-   * The terminal id that reported the SCP progress.
-   */
-  terminalId: string;
-  /**
-   * The SCP callback ID.
-   */
-  callbackId: string;
-  /**
-   * The total bytes to transfer.
-   */
-  totalBytes: Double;
-  /**
-   * The bytes transferred.
-   */
-  bytesTransferred: Double;
 }>;
 
 export type CommandExecutedEvent = Readonly<{
@@ -486,24 +443,19 @@ export interface NativeProps extends ViewProps {
   onOSC?: DirectEventHandler<OSCEvent>;
 
   /**
-   * Callback invoked when the terminal completes an SCP read transfer.
+   * Callback invoked when an scp transfer starts.
    */
-  onDownloadComplete?: DirectEventHandler<DownloadCompleteEvent>;
+  onTransferStart?: DirectEventHandler<TransferStartEvent>;
 
   /**
-   * Callback invoked when the terminal completes an SCP write transfer.
+   * Callback invoked on scp transfer progress.
    */
-  onUploadComplete?: DirectEventHandler<UploadCompleteEvent>;
+  onTransferProgress?: DirectEventHandler<TransferProgressEvent>;
 
   /**
-   * Callback invoked when the terminal reports SCP read progress.
+   * Callback invoked when an scp transfer ends.
    */
-  onDownloadProgress?: DirectEventHandler<DownloadProgressEvent>;
-
-  /**
-   * Callback invoked when the terminal reports SCP write progress.
-   */
-  onUploadProgress?: DirectEventHandler<UploadProgressEvent>;
+  onTransferEnd?: DirectEventHandler<TransferEndEvent>;
 
   /**
    * Callback invoked when the terminal completes an SSH command invoked by executeCommand().

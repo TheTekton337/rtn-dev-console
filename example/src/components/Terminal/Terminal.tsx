@@ -130,6 +130,10 @@ const Terminal = forwardRef<SshTerminalMethods, TerminalProps>(
 
     const onCommandExecuted = bindFabricEvent('onCommandExecuted');
 
+    const onTransferStart = bindFabricEvent('onTransferStart');
+    const onTransferProgress = bindFabricEvent('onTransferProgress');
+    const onTransferEnd = bindFabricEvent('onTransferEnd');
+
     return (
       <SafeAreaView style={styles.container}>
         <SshTerminal
@@ -161,6 +165,9 @@ const Terminal = forwardRef<SshTerminalMethods, TerminalProps>(
           onClosed={onClosed}
           onTerminalLog={onTerminalLog}
           onCommandExecuted={onCommandExecuted}
+          onTransferStart={onTransferStart}
+          onTransferProgress={onTransferProgress}
+          onTransferEnd={onTransferEnd}
           style={styles.terminalContainer}
         />
         <TerminalLogs terminalId={terminalId} />
